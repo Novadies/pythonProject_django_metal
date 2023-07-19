@@ -1,0 +1,16 @@
+
+cd C:\Users\RysukAO\PycharmProjects\pythonProject_dj2\mysite
+
+cd C:\Users\Novadies\PycharmProjects\pythonProject_dj\mysite
+python manage.py runserver
+
+python manage.py createsuperuser
+
+1. python manage.py makemigrations
+2. python manage.py migrate
+
+
+
+
+
+
