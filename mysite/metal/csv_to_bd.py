@@ -1,7 +1,13 @@
 from .models import Metal_info, Metal_class, Metal
 def zapis(reader):
-    fieldname = list(reader.fieldnames)
-    reader = list(reader)
+    try:
+        reader = reader.chunks()
+        fieldname = next(reader)
+        print("ура "*100)
+    except Exception:
+        fieldname = list(reader.fieldnames)
+        reader = list(reader)
+
     S = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N",
          "Pb", "Fe"]
     D = []
@@ -25,10 +31,3 @@ def zapis(reader):
                 if i[fieldname[-2]] == num:
                     mc = Metal_class.objects.get(steel_class=num)
                     mc.metals_info.add(mi)
-
-
-
-
-
-
-

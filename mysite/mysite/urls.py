@@ -19,6 +19,7 @@ from django.urls import path
 from django.urls import include
 
 urlpatterns = [
+    #path('', Start_page.as_view(), name='start_page_url'),
     path('admin/', admin.site.urls),
     path('metal/', include('metal.urls')),
 ]

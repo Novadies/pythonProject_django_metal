@@ -1,8 +1,10 @@
 from django import forms
-
+from .models import *
 class MetalForm(forms.ModelForm):
-    title=forms.CharField(max_length=50)
-    slug=forms.CharField(max_length=50)
-    
+
+    file=forms.FileField()
+    class Meta:
+        model = Metal_info
+        fields =["steel", "steel_info", "slug"]
     def look(self):
         pass

@@ -1,13 +1,13 @@
-from django.shortcuts import get_object_or_404
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, get_list_or_404, render
+
 
 from .models import *
 
 class ObjiectDetailMixin():
-    model=None
+    models=[]
+    Qset = []
     template= None
-
-    def get(self, requests, slug):
-        obj=get_object_or_404(self.model, slug__iexact=slug)
-        return render(requests, self.template, context={self.model.__name__.lower():obj})
-
+    Data = dict(zip(models, Qset))
+    def get(self, requests, slug=None):
+        context={self.model.__name__.lower(): get_list_or_404(qset) for model, qset in self.Data.items()}
+        return render(requests, self.template, context=context)

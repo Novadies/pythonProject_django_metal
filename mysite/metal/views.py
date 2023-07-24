@@ -9,17 +9,25 @@ from .models import *
 
 START_DB=False
 if START_DB:
-    from .first_bd import zapis
+    from .csv_to_bd import zapis
     with open('metal\sourse\metal.csv') as f:
         reader = csv.DictReader(f, delimiter=';')
         zapis(reader)
 
+############################################################################3
 
-class Start_page(ObjiectDetailMixin, View):
-    model = Metal
-    template = 'metal/index.html'
+class Start_page_metal(ObjiectDetailMixin, View):
+    models = [Metal_info, Metal_class]
+    Qset1 = models[0].objects.all()
+    Qset2 = models[1].objects.all()
+    Qset = [Qset1, Qset2]
+    template = 'metal/start.html'
 
 
-class Post_index(ObjiectDetailMixin, View):
-    model = Metal_info
-    template = 'metal/post_index.html'
+class Search_index(ObjiectDetailMixin, View):
+    models = [Metal, Metal_info, Metal_class]
+    Qset1 = models[0].objects.all()
+    Qset2 = models[1].objects.all()
+    Qset3 = models[2].objects.all()
+    Qset = [Qset1, Qset2, Qset3]
+    template = 'metal/search.html'
