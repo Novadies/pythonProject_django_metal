@@ -15,6 +15,7 @@ if START_DB:
 OBRABOTKA=False
 if OBRABOTKA:
     pass
+
 ############################################################################3
 
 class Start_page_metal(ObjiectDetailMixin, View):
