@@ -1,19 +1,22 @@
+
 from django.views.generic import View
+
+
 from .utils import ObjiectDetailMixin
-import csv
 from .models import *
 
-# Metal.objects.all().delete()
-# Metal_info.objects.all().delete()
-# Metal_class.objects.all().delete()
+Metal.objects.all().delete()
+Metal_info.objects.all().delete()
+Metal_class.objects.all().delete()
 
-START_DB=False
+START_DB=True
 if START_DB:
     from .csv_to_bd import zapis
-    with open('metal\sourse\metal.csv') as f:
-        reader = csv.DictReader(f, delimiter=';')
-        zapis(reader)
+    with open('metal\sourse\metal.csv') as f: zapis(f)
 
+OBRABOTKA=False
+if OBRABOTKA:
+    pass
 ############################################################################3
 
 class Start_page_metal(ObjiectDetailMixin, View):

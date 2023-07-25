@@ -27,7 +27,7 @@ class Metal_info(models.Model):
 
     def save(self, *args, **kwargs):  # new
         if not self.slug:
-            self.slug = slugify(f"{self.steel}+{str(random.random())[-5:-1]}")
+            self.slug = slugify(f"{self.steel}__{str(random.random())[-5:-1]}")
         return super().save(*args, **kwargs)
 
 
@@ -44,7 +44,7 @@ class Metal_request(models.Model):
 
 class Metal_class(models.Model):
     steel_class=models.CharField(max_length=50, unique=True, blank=True)
-    slug=models.SlugField(max_length=100, unique=True, blank=True)
+    slug=models.SlugField(max_length=100, unique=True, blank=True, null=True)
 
     def __str__(self):
         return self.steel_class
@@ -54,7 +54,7 @@ class Metal_class(models.Model):
 
     def save(self, *args, **kwargs):  # new
         if not self.slug:
-            self.slug = slugify(f"{self.steel_class}__{str(random.random())[-5:-1]}")
+            self.slug = slugify(f"{self.steel_class}_{str(random.random())[-3:-1]}")
         return super().save(*args, **kwargs)
 
 class Metal(models.Model):
