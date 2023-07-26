@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.shortcuts import reverse
 from transliterate import slugify
@@ -5,7 +6,7 @@ import random
 class Metal_info(models.Model):
     steel=models.CharField(max_length=50, blank=True)
     steel_info = models.TextField(blank=True)
-    slug=models.SlugField(max_length=100, unique=True, blank=True, null=True)
+    slug=models.SlugField(max_length=100, unique=True, blank=True)
     metals_class = models.ForeignKey(
         'Metal_class',
         blank=True,
@@ -21,7 +22,6 @@ class Metal_info(models.Model):
 
     def get_absolute_url(self):
         return reverse('post_index_url', kwargs={'slug': self.slug})    #TODO   post_index_url заменить
-
     def __str__(self):
         return self.steel
 
@@ -34,6 +34,7 @@ class Metal_info(models.Model):
 class Metal_request(models.Model):
     votes = models.IntegerField(default=0)
     date=models.DateTimeField('date request', blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE(), null=True)
     metals_info = models.ForeignKey(
         'Metal_info',
         on_delete=models.CASCADE,
@@ -44,7 +45,7 @@ class Metal_request(models.Model):
 
 class Metal_class(models.Model):
     steel_class=models.CharField(max_length=50, unique=True, blank=True)
-    slug=models.SlugField(max_length=100, unique=True, blank=True, null=True)
+    slug=models.SlugField(max_length=100, unique=True, blank=True)
 
     def __str__(self):
         return self.steel_class
