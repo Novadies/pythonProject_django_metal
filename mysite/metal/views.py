@@ -23,6 +23,7 @@ class Start_page_metal(ObjiectDetailMixin, View):
     Qset1 = models[0].objects.all()
     Qset2 = models[1].objects.all()
     Qset = [Qset1, Qset2]
+    Data = dict(zip(models, Qset))
     template = 'metal/start.html'
 
 
@@ -32,4 +33,5 @@ class Search_index(ObjiectDetailMixin, View):
     Qset2 = models[1].objects.all()
     Qset3 = models[2].objects.all()
     Qset = [Qset1, Qset2, Qset3]
+    Data = dict(zip(models, Qset))
     template = 'metal/search.html'
