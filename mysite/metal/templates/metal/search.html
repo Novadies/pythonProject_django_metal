@@ -9,6 +9,7 @@
       <div class="row row-cols-5">
         {% for m in metal_class %}
             <div class="col">{{m.steel_class}}</div>
+
             {% empty %}
                 <div class="col">Langs array is empty</div>
         {% endfor %}
