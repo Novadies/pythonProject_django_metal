@@ -5,7 +5,8 @@ class ObjiectDetailMixin():
     models=[]
     Qset = []
     template= None
-
+    dict2 ={}
     def get(self, requests, slug=None):
-        context={model.__name__.lower(): get_list_or_404(qset) for model, qset in self.Data.items()}
+        dict1={model.__name__.lower(): get_list_or_404(qset) for model, qset in self.Data.items()}
+        context={**dict1,**self.dict2}
         return render(requests, self.template, context=context)

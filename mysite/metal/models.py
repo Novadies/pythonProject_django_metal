@@ -3,12 +3,12 @@ from django.db import models
 from django.shortcuts import reverse
 from transliterate import slugify
 import random
-
+from datetime import datetime
 
 class Metal_info(models.Model):
-    steel = models.CharField(max_length=50, blank=True)
-    steel_info = models.TextField(blank=True)
-    slug = models.SlugField(max_length=100, unique=True, blank=True)
+    steel = models.CharField(max_length=50, blank=True, null=True)
+    steel_info = models.TextField(blank=True, null=True)
+    slug = models.SlugField(max_length=100, unique=True, blank=True, null=True)
     metals_class = models.ForeignKey(
         'Metal_class',
         blank=True,
@@ -21,6 +21,12 @@ class Metal_info(models.Model):
         blank=True,
         null=True,
     )
+    metalsearch = models.ForeignKey(
+        'MetalSearch',
+        blank=True,
+        null=True,
+        related_name='metals_info',
+        on_delete=models.CASCADE)
 
     def get_absolute_url(self):
         return reverse('start_page_metal_url', kwargs={'slug': self.slug})  # TODO   post_index_url заменить
@@ -36,7 +42,7 @@ class Metal_info(models.Model):
 
 class Metal_request(models.Model):
     votes = models.IntegerField(default=0)
-    date = models.DateTimeField('date request', blank=True)
+    date = models.DateTimeField(blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     metals_info = models.ForeignKey(
         'Metal_info',
@@ -48,8 +54,8 @@ class Metal_request(models.Model):
 
 
 class Metal_class(models.Model):
-    steel_class = models.CharField(max_length=50, unique=True, blank=True)
-    slug = models.SlugField(max_length=100, unique=True, blank=True)
+    steel_class = models.CharField(max_length=50, unique=True, blank=True, null=True)
+    slug = models.SlugField(max_length=100, unique=True, blank=True, null=True)
 
     def __str__(self):
         return self.steel_class
@@ -66,8 +72,20 @@ class Metal_class(models.Model):
 class Metal(models.Model):
     _S = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N",
           "Pb", "Fe"]
-    for i in _S:
-        locals()[i] = models.CharField(max_length=20, default=0)
+    for __i in _S:
+        locals()[__i] = models.CharField(max_length=20, default=0)
+
+class MetalSearch(Metal):
+
+    slug = models.SlugField(max_length=100, unique=True, blank=True, null=True)
+    date = models.DateTimeField(blank=True, null=True)
+    def save(self, *args, **kwargs):  # new
+        if not self.date:
+            self.date=datetime.now()
+        if not self.slug:
+            spisok=[field.name for field in self._meta.fields][1:-1]
+            self.slug = slugify(f"{[getattr(self,i) for i in spisok]}")
+        return super().save(*args, **kwargs)
 
 # def __str__(self):
 #  return self.steel

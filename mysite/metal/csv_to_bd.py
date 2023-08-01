@@ -22,12 +22,13 @@ def zapis(reader):
         m.metal_info=mi
         m.save()
         mi.save()
-        if i[fieldname[-2]].strip() not in D:
-            mc = Metal_class.objects.create(steel_class=i[fieldname[-2]].strip())
+        data=i[fieldname[-2]].strip().capitalize()
+        if data not in D:
+            mc = Metal_class.objects.create(steel_class=data)
             mc.metals_info.add(mi)
-            D.append(i[fieldname[-2]].strip())
+            D.append(data)
         else:
             for num in D:
-                if i[fieldname[-2]].strip() == num:
+                if data == num:
                     mc = Metal_class.objects.get(steel_class=num)
                     mc.metals_info.add(mi)
