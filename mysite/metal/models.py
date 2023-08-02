@@ -29,7 +29,7 @@ class Metal_info(models.Model):
         on_delete=models.CASCADE)
 
     def get_absolute_url(self):
-        return reverse('start_page_metal_url', kwargs={'slug': self.slug})  # TODO   post_index_url заменить
+        return reverse('steel_url', kwargs={'slug': self.slug})
 
     def __str__(self):
         return self.steel
@@ -61,7 +61,7 @@ class Metal_class(models.Model):
         return self.steel_class
 
     def get_absolute_url(self):
-        return reverse('start_page_metal_url', kwargs={'slug': self.slug})  # TODO   post_index_url заменить
+        return reverse('steel-steel_class_url', kwargs={'slug': self.slug})
 
     def save(self, *args, **kwargs):  # new
         if not self.slug:
@@ -70,8 +70,7 @@ class Metal_class(models.Model):
 
 
 class Metal(models.Model):
-    _S = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N",
-          "Pb", "Fe"]
+    _S = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb", "Fe"]
     for __i in _S:
         locals()[__i] = models.CharField(max_length=20, default=0)
 
@@ -83,7 +82,7 @@ class MetalSearch(Metal):
         if not self.date:
             self.date=datetime.now()
         if not self.slug:
-            spisok=[field.name for field in self._meta.fields][1:-1]
+            spisok=["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb"]
             self.slug = slugify(f"{[getattr(self,i) for i in spisok]}")
         return super().save(*args, **kwargs)
 

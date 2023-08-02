@@ -2,9 +2,8 @@ from django import forms
 from .models import *
 class MetalForm(forms.ModelForm):
 
-    file=forms.FileField()
     class Meta:
-        model = Metal_info
-        fields =["steel", "steel_info", "slug"]
+        model = MetalSearch
+        fields =["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb"]
     def look(self):
         pass

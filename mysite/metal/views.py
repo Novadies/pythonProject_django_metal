@@ -1,28 +1,40 @@
+from django.shortcuts import render
 from django.views.generic import View
 
-from .utils import ObjiectDetailMixin
+from .utils import *
 from .models import *
 from .forms import *
-from .tools import *  #не удалять
+from .tools import *  #не удалять, its work
 
-class Start(ObjiectDetailMixin, View):
-    models = [Metal_info]#, Metal_class]
-    Qset1 = models[0].objects.all()
-    #Qset2 = models[1].objects.all()
-    Qset = [Qset1]#, Qset2]
+class Start(TwoStrMixin, View):
+    models = [Metal_info]
+    data1 = models[0].objects.all()
+    Qset = [data1]
     Data = dict(zip(models, Qset))
     template = 'metal/start.html'
 
 
-class Search(ObjiectDetailMixin, View):
+class Search(TwoStrMixin, View):
     models = [Metal_info, Metal_class]
-    Qset2 = models[0].objects.all()
-    Qset3 = models[1].objects.all()
-    Qset = [Qset2, Qset3]
+    data2 = models[0].objects.all()
+    data3 = models[1].objects.all()
+    Qset = [data2, data3]
     Data = dict(zip(models, Qset))
     form = MetalForm()
     dict2 = {Metal.__name__.lower():[field.name for field in Metal._meta.fields][1:-1]} # ни каких идей почему .name работает
     dict2.update({'form' : form})
     template = 'metal/search.html'
+    def post(self, request):
+        bound_form=MetalForm(request.POST)
+        if bound_form.is_valid():
+            pass
+        return render(request, self.template, context={'form' : bound_form})
 
 
+class Steel(ForSlugMixin, View):
+    model = Metal_info
+    template = 'metal/steel.html'
+
+class Steel_class(ForSlugMixin, View):
+    model = Metal_class
+    template = 'metal/steel_class.html'
