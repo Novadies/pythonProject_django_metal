@@ -14,17 +14,16 @@
 
         <div class="row">
 
-            {{metal_info}}
-                <div class="col">{{metal_info.steel}}</div>
-                <div class="col"><a href="#">{{metal_info.metals_class.steel_class}}</a></div>
-                <div class="col">{{metal_info.steel_info}}</div>
 
-                {% for element in metal_info.metals %}
-                    <div class="col">{{element}}</div>
-                {% endfor %}
+            <div class="col">{{metal_info.steel}}</div>
+            <div class="col"><a href="{{metal_info.metals_class.get_absolute_url }}">{{metal_info.metals_class.steel_class}}</a></div>
+            <div class="col">{{metal_info.steel_info}}</div>
 
-                <hr>
-            {% endfor %}
+        <!--{% for element in metal_info.metals.__S %}
+                <div class="col">{{metal_info.metals.element}}</div>
+            {% endfor %} -->
+
+            <hr>
 
         </div>
 

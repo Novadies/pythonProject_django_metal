@@ -15,11 +15,10 @@
         <div class="row">
             {{metal_class}}
 
-                {% for steel in metal_class.metals_class %}
-                    <div class="col"><a href="#">{{steel.steel}}</a></div>
-                    <div class="col"><a href="#">{{steel.steel_info}}</a></div>
-                    <hr>
-                {% endfor %}
+            {% for steel in metal_class.metals_info %}
+                <div class="col"><a href="#">{{steel.steel}}</a></div>
+                <div class="col"><a href="#">{{steel.steel_info}}</a></div>
+                <hr>
             {% endfor %}
 
         </div>
