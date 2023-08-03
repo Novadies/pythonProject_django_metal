@@ -7,7 +7,11 @@
 {% block block_1 %}
 
     <div class="container text-center">
-        <button class="btn btn-warning"><a href="{% url 'start_url' %}">К обзору марок стали</a></button>
+        <a class="btn btn-warning" href="{% url 'start-url' %}" role="button">К обзору марок стали</a>
+    </div>
+
+    <div class="container text-center">
+        <a class="btn btn-warning" href="{% url 'search-url' %}" role="button">К поиску сталей по составу</a>
     </div>
 
     <div class="container text-center">
@@ -19,9 +23,9 @@
             <div class="col"><a href="{{metal_info.metals_class.get_absolute_url }}">{{metal_info.metals_class.steel_class}}</a></div>
             <div class="col">{{metal_info.steel_info}}</div>
 
-        <!--{% for element in metal_info.metals.__S %}
-                <div class="col">{{metal_info.metals.element}}</div>
-            {% endfor %} -->
+            {% for element in metal_info.metals.all %}
+                <div class="col">{{element}}</div>
+            {% endfor %}
 
             <hr>
 

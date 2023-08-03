@@ -29,7 +29,7 @@ class Metal_info(models.Model):
         on_delete=models.CASCADE)
 
     def get_absolute_url(self):
-        return reverse('steel_url', kwargs={'slug': self.slug})
+        return reverse('steel-slug-url', kwargs={'slug': self.slug})
 
     def __str__(self):
         return self.steel
@@ -61,7 +61,7 @@ class Metal_class(models.Model):
         return self.steel_class
 
     def get_absolute_url(self):
-        return reverse('steel-steel_class_url', kwargs={'slug': self.slug})
+        return reverse('steel-steel_class-slug-url', kwargs={'slug': self.slug})
 
     def save(self, *args, **kwargs):  # new
         if not self.slug:
@@ -84,6 +84,7 @@ class MetalSearch(Metal):
         if not self.slug:
             spisok=["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb"]
             self.slug = slugify(f"{[getattr(self,i) for i in spisok]}")
+            print(self.slug)
         return super().save(*args, **kwargs)
 
 # def __str__(self):

@@ -14,7 +14,11 @@
 
     </h1>
     <div class="container text-center">
-        <a class="btn btn-warning" href="{% url 'search_url' %}" role="button">К поиску сталей по составу</a>
+        <a class="btn btn-warning" href="{% url 'search-url' %}" role="button">К поиску сталей по составу</a>
+    </div>
+
+    <div class="container text-center">
+        <a class="btn btn-warning" href="{% url 'steel-steel_class-url' %}" role="button">К обзору классов стали</a>
     </div>
 
 
@@ -25,7 +29,7 @@
         {% for m in metal_info %}
             <div class="col"><a href="{{ m.get_absolute_url }}">{{m.steel}}</a></div>
             <!--metal_class это обращение к классу через контекст, metals_class это связь -->
-            <div class="col"><a href="{{ m.get_absolute_url }}">{{m.metals_class.steel_class}}</a></div>
+            <div class="col"><a href="{{ m.metals_class.get_absolute_url }}">{{m.metals_class.steel_class}}</a></div>
             <div class="col">{{m.steel_info}}</div>
             <hr>
         {% endfor %}

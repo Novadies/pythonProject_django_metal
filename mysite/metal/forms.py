@@ -4,6 +4,9 @@ class MetalForm(forms.ModelForm):
 
     class Meta:
         model = MetalSearch
-        fields =["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb"]
+        fields = [field.name for field in model._meta.fields][1:-4]
+        print(fields)
+        widgets = {field: forms.TextInput(attrs={'class': 'form-control'}) for field in fields}
+        # !!!!! заменить TextInput
     def look(self):
         pass
