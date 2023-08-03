@@ -7,20 +7,9 @@
 
 
 {% block block_1 %}
-    <p>
-        Поиск по всем полям
-    </p>
-    <h1>
 
-    </h1>
-    <div class="container text-center">
-        <a class="btn btn-warning" href="{% url 'search-url' %}" role="button">К поиску сталей по составу</a>
-    </div>
 
-    <div class="container text-center">
-        <a class="btn btn-warning" href="{% url 'steel-steel_class-url' %}" role="button">К обзору классов стали</a>
-    </div>
-
+    {% include 'metal/includes/buttons.html' %}
 
     <div class="container text-center">
 

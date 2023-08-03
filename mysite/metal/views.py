@@ -1,3 +1,4 @@
+from django.http import HttpRequest
 from django.shortcuts import render
 from django.views.generic import View
 
@@ -14,14 +15,15 @@ class Start(NoSlugMixin, View):
     template = 'metal/start.html'
 
 
+#HttpRequest.path_info
 class Search(NoSlugMixin, View):
-    models = [Metal_info, Metal_class]
-    data2 = models[0].objects.all()
-    data3 = models[1].objects.all()
+    models = [Metal, Metal_info, Metal_class]
+    data2 = models[1].objects.all()
+    data3 = models[2].objects.all()
     Qset = [data2, data3]
-    Data = dict(zip(models, Qset))
+    Data = dict(zip(models[1:], Qset))
+    dict2 = {models[0].__name__.lower(): models[0].field_S('Fe')}  # ни каких идей почему .name работает
     form = MetalForm()
-    dict2 = {Metal.__name__.lower():[field.name for field in Metal._meta.fields][1:-1]} # ни каких идей почему .name работает
     dict2.update({'form' : form})
     template = 'metal/search.html'
     def post(self, request):

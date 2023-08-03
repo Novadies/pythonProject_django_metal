@@ -2,7 +2,6 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.shortcuts import reverse
 from transliterate import slugify
-import random
 from datetime import datetime
 
 class Metal_info(models.Model):
@@ -36,7 +35,7 @@ class Metal_info(models.Model):
 
     def save(self, *args, **kwargs):  # new
         if not self.slug:
-            self.slug = slugify(f"{self.steel}__{str(random.random())[-5:-1]}")
+            self.slug = slugify(f"{self.steel}_{self.id}")
         return super().save(*args, **kwargs)
 
 
@@ -65,7 +64,7 @@ class Metal_class(models.Model):
 
     def save(self, *args, **kwargs):  # new
         if not self.slug:
-            self.slug = slugify(f"{self.steel_class}_{str(random.random())[-3:-1]}")
+            self.slug = slugify(f"{self.steel_class}_{self.id}") # лучше использовать id
         return super().save(*args, **kwargs)
 
 
@@ -73,19 +72,25 @@ class Metal(models.Model):
     _S = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb", "Fe"]
     for __i in _S:
         locals()[__i] = models.CharField(max_length=20, default=0)
+    @staticmethod
+    def field_S(S=None):
+        return [f for field in Metal._meta.fields if (f:=field.name)!=S and f != 'id']
+    def return_all(self):
+        return [getattr(self, field) for field in self.field_S()]
+    def __str__(self):
+        return str(self.id)
 
 class MetalSearch(Metal):
 
     slug = models.SlugField(max_length=100, unique=True, blank=True, null=True)
     date = models.DateTimeField(blank=True, null=True)
-    def save(self, *args, **kwargs):  # new
+    def save(self, *args, **kwargs):
         if not self.date:
             self.date=datetime.now()
         if not self.slug:
             spisok=["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb"]
-            self.slug = slugify(f"{[getattr(self,i) for i in spisok]}")
-            print(self.slug)
+            self.slug = slugify(f"{[getattr(self,i) for i in spisok]}_{self.id}")
         return super().save(*args, **kwargs)
 
-# def __str__(self):
-#  return self.steel
+    def __str__(self):
+        return str(self.id)

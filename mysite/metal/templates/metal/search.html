@@ -8,9 +8,7 @@
 
 {% block block_1 %}
 
-    <div class="container text-center">
-        <a class="btn btn-warning" href="{% url 'start-url' %}" role="button">К обзору марок стали</a>
-    </div>
+    {% include 'metal/includes/buttons.html' %}
 
     <div class="container text-center">
       <div class="row row-cols-5">

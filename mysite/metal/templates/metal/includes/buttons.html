@@ -1,0 +1,24 @@
+<div class="row row-cols-3">
+
+    {% url 'search-url' as top_path %}
+    {% if request.path != top_path %}
+        <div class="container text-center">
+            <a class="btn btn-warning" href="{{ top_path }}" role="button">К поиску сталей по составу</a>
+        </div>
+    {% endif %}
+
+    {% url 'start-url' as top_path %}
+    {% if request.path != top_path %}
+        <div class="container text-center">
+            <a class="btn btn-warning" href="{{ top_path }}" role="button">К обзору сталей </a>
+        </div>
+    {% endif %}
+
+    {% url 'steel-steel_class-url' as top_path %}
+    {% if request.path != top_path %}
+        <div class="container text-center">
+            <a class="btn btn-warning" href="{{ top_path }}" role="button">К обзору классов сталей</a>
+        </div>
+    {% endif %}
+
+</div>
