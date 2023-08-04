@@ -16,16 +16,18 @@
             <div class="col">{{metal_info.steel}}</div>
             <div class="col"><a href="{{metal_info.metals_class.get_absolute_url }}">{{metal_info.metals_class.steel_class}}</a></div>
             <div class="col">{{metal_info.steel_info}}</div>
-            {% with m=metal_info.metals %}
-
-                {% for element in m.field_S %}    <!-- .lower-->
-                    <div class="col">{{element}}</div>
-                {% endfor %}
-                {% for element in m.return_all %}
-                    <div class="col">{{element}}</div>
-                {% endfor %}
-            {% endwith %}
             <hr>
+            {% with m=metal_info.metals %}
+                <div class="row row-cols-3">
+                    {% for key, value in m.return_all.items %}
+                        <div class="mb-3">
+                            <label >{{key}}</label>
+                            <label >{{value}}</label>
+                        </div>
+                    {% endfor %}
+                 </div>
+            {% endwith %}
+
 
         </div>
 

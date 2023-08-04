@@ -76,7 +76,7 @@ class Metal(models.Model):
     def field_S(S=None):
         return [f for field in Metal._meta.fields if (f:=field.name)!=S and f != 'id']
     def return_all(self):
-        return [getattr(self, field) for field in self.field_S()]
+        return {field : getattr(self, field) for field in self.field_S()}
     def __str__(self):
         return str(self.id)
 
