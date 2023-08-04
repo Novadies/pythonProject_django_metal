@@ -21,8 +21,8 @@
                 <div class="row row-cols-3">
                     {% for key, value in m.return_all.items %}
                         <div class="mb-3">
-                            <label >{{key}}</label>
-                            <label >{{value}}</label>
+                            <label style="{% if value != '0' %}background: #D9FFAD{% endif %}">{{key}}</label>
+                            <label style="{% if value != '0' %}background: #D9FFAD{% endif %}">{{value}}</label>
                         </div>
                     {% endfor %}
                  </div>
