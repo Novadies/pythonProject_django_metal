@@ -1,9 +1,9 @@
-from django.http import HttpRequest
+
+from django.http import request
 from django.shortcuts import render
 from django.views.generic import View
 
 from .utils import *
-from .models import *
 from .forms import *
 from .tools import *  #не удалять, its work
 
@@ -11,11 +11,10 @@ class Start(NoSlugMixin, View):
     models = [Metal_info]
     data = models[0].objects.all()
     Qset = [data]
-    Data = dict(zip(models, Qset))
+    Data = dict(zip(models, Qset ))
     template = 'metal/start.html'
 
 
-#HttpRequest.path_info
 class Search(NoSlugMixin, View):
     models = [Metal, Metal_info, Metal_class]
     data2 = models[1].objects.all()

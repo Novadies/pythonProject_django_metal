@@ -13,7 +13,8 @@
         <div class="row">
 
             {% for steel in metal_class %}
-                <div class="col"><a href="{{steel.get_absolute_url }}">{{steel.steel_class}}</a></div>
+                <a class="btn btn-warning" href="{{steel.get_absolute_url }}" role="button">{{steel.steel_class}}</a>
+                <hr>
             {% endfor %}
 
         </div>
