@@ -1,16 +1,61 @@
 from django.shortcuts import get_object_or_404, get_list_or_404, render
 from django.core.paginator import Paginator
 
-class NoSlugMixin():  # тут конкретно нет смысла передавать больше чем одну модель во View, но да ладно
+class If_paginator():
+    @staticmethod  # или classmethod  ?
+    def if_paginator(request):
+        paginator = Paginator.to_padinator
+        page = paginator.get_page(request.GET.get('page', 1))
+        is_paginated = page.has_other_pages()
+        if page.has_previos():
+            prev_url = f"?page={page.previos_page_number()}"
+        else:
+            prev_url = ''
+        if page.has_next():
+            next_url = f"?page={page.next_page_number()}"
+        else:
+            next_url = ''
+        context = {'page_object': page,
+                   'is_paginated': is_paginated,
+                   'next_url': next_url,
+                   'prev_url': prev_url
+                   }
+        return context
+
+class NoSlugMixin(If_paginator):  # тут конкретно нет смысла передавать больше чем одну модель во View, но да ладно
     models=[]
-    template= None
-    dict2,Data  ={},{}
+    template, to_padinator= None, None
+    dict_dop,Data  ={},{}
+
     def get(self, request):
-        dict1={model.__name__.lower(): get_list_or_404(qset) for model, qset in self.Data.items()} #передаются экземпляры класса
-        context={**dict1, **self.dict2}  # передаются дополнительные параметры, например формы
+        # def if_paginator():
+        #         paginator = Paginator.to_padinator
+        #         page = paginator.get_page(request.GET.get('page', 1))
+        #         is_paginated = page.has_other_pages()
+        #         if page.has_previos():
+        #             prev_url = f"?page={page.previos_page_number()}"
+        #         else:
+        #             prev_url = ''
+        #         if page.has_next():
+        #             next_url = f"?page={page.next_page_number()}"
+        #         else:
+        #             next_url = ''
+        #         context = {'page_object': page,
+        #                    'is_paginated': is_paginated,
+        #                    'next_url': next_url,
+        #                    'prev_url': prev_url
+        #                    }
+        #         return context
+
+        if self.to_padinator:
+            dict_context = self.if_paginator(request)
+        else:
+            dict_context={model.__name__.lower(): get_list_or_404(qset) for model, qset in self.Data.items()} #передаются экземпляры класса
+
+        context={**dict_context, **self.dict_dop}  # передаются дополнительные параметры, например формы
         return render(request, self.template, context=context)
 
-class ForSlugMixin():  # тут нет смысла передавать больше чем одну модель во View, но да ладно
+class ForSlugMixin():
     model=None
     template= None
     def get(self, request, slug):

@@ -11,6 +11,7 @@ class Start(NoSlugMixin, View):
     models = [Metal_info]
     data = models[0].objects.all()
     Qset = [data]
+    #to_padinator = (data, '20')
     Data = dict(zip(models, Qset ))
     template = 'metal/start.html'
 
@@ -21,9 +22,9 @@ class Search(NoSlugMixin, View):
     data3 = models[2].objects.all()
     Qset = [data2, data3]
     Data = dict(zip(models[1:], Qset))
-    dict2 = {models[0].__name__.lower(): models[0].field_S('Fe')}  # ни каких идей почему .name работает
+    dict_dop = {models[0].__name__.lower(): models[0].field_S('Fe')}
     form = MetalForm()
-    dict2.update({'form' : form})
+    dict_dop.update({'form' : form})
     template = 'metal/search.html'
     def post(self, request):
         bound_form=MetalForm(request.POST)

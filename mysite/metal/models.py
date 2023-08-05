@@ -72,9 +72,13 @@ class Metal(models.Model):
     _S = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb", "Fe"]
     for __i in _S:
         locals()[__i] = models.CharField(max_length=20, default=0)
+    #     locals()[f'{__i}min'] = models.DecimalField()(blank=True, null=True) # поля будут вылазитьвезде так не годится
+    #     locals()[f'{__i}max'] = models.DecimalField()(blank=True, null=True)
+    # def get_min_max(self, arg, m):
+    #     return getattr(self, f'{arg}{m}')
     @staticmethod
-    def field_S(S=None):
-        return [f for field in Metal._meta.fields if (f:=field.name)!=S and f != 'id']
+    def field_S(*args):
+        return [fn for field in Metal._meta.fields if (fn:=field.name) not in ['id', *args]]
     def return_all(self):
         return {field : getattr(self, field) for field in self.field_S()}
     def __str__(self):
@@ -88,8 +92,8 @@ class MetalSearch(Metal):
         if not self.date:
             self.date=datetime.now()
         if not self.slug:
-            spisok=["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb"]
-            self.slug = slugify(f"{[getattr(self,i) for i in spisok]}_{self.id}")
+            spisok=Metal.field_S('Fe')
+            self.slug = slugify(f"{'_'.join(map(str, [getattr(self,i) for i in spisok]))}_{self.id}")
         return super().save(*args, **kwargs)
 
     def __str__(self):
