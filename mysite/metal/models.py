@@ -82,7 +82,9 @@ class Metal(models.Model):
     )
     @staticmethod
     def field_S(*args):
-        return [fn for field in Metal._meta.fields if (fn:=field.name) not in ['id', *args]]
+        fields = [field for field in Metal._meta.fields if not field.one_to_one]
+        return [fn for field in fields if (fn := field.name) not in ['id', *args]]
+
 
     def return_all(self):
         return {field : getattr(self, field) for field in self.field_S()}
