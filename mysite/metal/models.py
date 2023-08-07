@@ -38,6 +38,8 @@ class Metal_info(models.Model):
             self.slug = slugify(f"{self.steel}_{self.id}")
         return super().save(*args, **kwargs)
 
+    class Meta:
+        ordering = ['steel']
 
 class Metal_request(models.Model):
     votes = models.IntegerField(default=0)
@@ -72,15 +74,29 @@ class Metal(models.Model):
     _S = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb", "Fe"]
     for __i in _S:
         locals()[__i] = models.CharField(max_length=20, default=0)
-    #     locals()[f'{__i}min'] = models.DecimalField()(blank=True, null=True) # поля будут вылазитьвезде так не годится
-    #     locals()[f'{__i}max'] = models.DecimalField()(blank=True, null=True)
-    # def get_min_max(self, arg, m):
-    #     return getattr(self, f'{arg}{m}')
+    metal_compound = models.OneToOneField(
+        'Metal_2',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
     @staticmethod
     def field_S(*args):
         return [fn for field in Metal._meta.fields if (fn:=field.name) not in ['id', *args]]
+
     def return_all(self):
         return {field : getattr(self, field) for field in self.field_S()}
+    def __str__(self):
+        return str(self.id)
+
+class Metal_2(models.Model):
+    for __min, __max in [(f'{i}_min', f'{i}_max') for i in Metal._S[:-1]]:
+        locals()[__min] = models.FloatField(blank=True, null=True)
+        locals()[__max] = models.FloatField(blank=True, null=True)
+    def get_min_max(self, arg):
+        min = getattr(self, f'{arg}_min')
+        max = getattr(self, f'{arg}_max')
+        return min, max
     def __str__(self):
         return str(self.id)
 
@@ -92,8 +108,7 @@ class MetalSearch(Metal):
         if not self.date:
             self.date=datetime.now()
         if not self.slug:
-            spisok=Metal.field_S('Fe')
-            self.slug = slugify(f"{'_'.join(map(str, [getattr(self,i) for i in spisok]))}_{self.id}")
+            self.slug = slugify(f"{'_'.join(map(str, [getattr(self,i) for i in self.field_S('Fe')]))}_{self.id}")
         return super().save(*args, **kwargs)
 
     def __str__(self):

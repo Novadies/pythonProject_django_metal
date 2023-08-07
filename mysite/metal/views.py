@@ -1,6 +1,3 @@
-
-from django.http import request
-from django.shortcuts import render
 from django.views.generic import View
 
 from .utils import *
@@ -11,7 +8,7 @@ class Start(NoSlugMixin, View):
     models = [Metal_info]
     data = models[0].objects.all()
     Qset = [data]
-    #to_padinator = (data, '20')
+    to_padinator = data#(data, '20')
     Data = dict(zip(models, Qset ))
     template = 'metal/start.html'
 
@@ -23,6 +20,7 @@ class Search(NoSlugMixin, View):
     Qset = [data2, data3]
     Data = dict(zip(models[1:], Qset))
     dict_dop = {models[0].__name__.lower(): models[0].field_S('Fe')}
+
     form = MetalForm()
     dict_dop.update({'form' : form})
     template = 'metal/search.html'
