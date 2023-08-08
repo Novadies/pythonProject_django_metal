@@ -13,20 +13,20 @@ def zapis(reader):
     S = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb", "Fe"]
     D = []
     def separation(data):
-        data = data.strip()
-        if data:
+        data = data.replace(',', '.').replace(' ', '')
+        if data != '0':
             t = '-'
             d = 'до'
             if t in data:
                 data = data.split(t)
-                if len(data) > 2: raise ValueError("Неверное разделение данных")
+                if len(data) > 2: raise ValueError(f"Неверное разделение данных {t}")
                 data = [float(data[0]), float(data[1])]
             if d in data:
-                data = data.split(t)
-                if len(data) > 2: raise ValueError("Неверное разделение данных")
-                data = [0.0 , float(data[1])]
+                data = data.split(d)
+                if len(data) > 2: raise ValueError(f"Неверное разделение данных{d}")
+                data = [0.0, float(data[1])]
 
-            if type(data) == str : raise ValueError("Нет разбиения, неверные данные")
+            if type(data) == str : data = [float(data), float(data)]
         else: data = [0.0, 0.0]
         return data
 
@@ -38,8 +38,9 @@ def zapis(reader):
                 if ss == x:
                     setattr(m, ss, str(i[x]))
                     if ss != "Fe":
-                        setattr(m_2, locals()[f'{ss}_min'], separation(str(i[x]))[0])
-                        setattr(m_2, locals()[f'{ss}_max'], separation(str(i[x]))[1])
+                        print(i, ss)
+                        setattr(m_2, f'{ss}_min', separation(str(i[x]))[0])
+                        setattr(m_2, f'{ss}_max', separation(str(i[x]))[1])
                         m_2.save()
                         m.metal_compound=m_2
 

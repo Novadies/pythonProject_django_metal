@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, get_list_or_404, render
 from django.core.paginator import Paginator
 
 class If_paginator():
-    to_padinator = None
+    #to_padinator = None
     #@staticmethod  # или classmethod  ?
     def if_paginator(self, request):
 
