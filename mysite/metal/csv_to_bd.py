@@ -26,8 +26,8 @@ def zapis(reader):
                 if len(data) > 2: raise ValueError("Неверное разделение данных")
                 data = [0.0 , float(data[1])]
 
-            if type(data)==str : raise ValueError("Нет разбиения, неверные данные")
-        else: data = [0.0 , 0.0]
+            if type(data) == str : raise ValueError("Нет разбиения, неверные данные")
+        else: data = [0.0, 0.0]
         return data
 
     for i in reader:

@@ -6,7 +6,7 @@ from .models import *
 #     cursor.execute("DELETE FROM 'django_migrations' WHERE 'app'='metal'")
 
 
-START_DB=False
+START_DB=True
 if START_DB:
         # удаление начальных данных
     Metal.objects.all().delete()
