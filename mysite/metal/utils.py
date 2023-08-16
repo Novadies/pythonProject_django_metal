@@ -2,11 +2,10 @@ from django.shortcuts import get_object_or_404, get_list_or_404, render
 from django.core.paginator import Paginator
 
 class If_paginator():
-    #to_padinator = None
-    #@staticmethod  # или classmethod  ?
+    to_padinator = None
     def if_paginator(self, request):
 
-        paginator = Paginator(self.to_padinator, '20', orphans=5)
+        paginator = Paginator(*self.to_padinator, orphans=5)
         page = paginator.get_page(request.GET.get('page', 1))
         is_paginated = page.has_other_pages()
         if page.has_previous():
@@ -30,12 +29,10 @@ class NoSlugMixin(If_paginator):  # тут конкретно нет смысл�
     dict_dop, Data ={},{}
 
     def get(self, request):
-
-        if self.to_padinator:
+        if self.to_padinator:  # проверка на пагинацию
             dict_context = self.if_paginator(request)
         else:
-            dict_context={model.__name__.lower(): get_list_or_404(qset) for model, qset in self.Data.items()} #передаются экземпляры класса
-
+            dict_context = {model.__name__.lower(): get_list_or_404(qset) for model, qset in self.Data.items()}  # передаются экземпляры класса
         context={**dict_context, **self.dict_dop}  # передаются дополнительные параметры, например формы
         return render(request, self.template, context=context)
 

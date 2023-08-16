@@ -33,9 +33,13 @@ class Metal_info(models.Model):
     def __str__(self):
         return self.steel
 
-    def save(self, *args, **kwargs):  # new
+    def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(f"{self.steel}_{self.id}")
+            while True:
+                self.slug = slugify(f"{self.steel}_{self.id}")
+                if self.slug != None: break
+                print(f'следующая попытка {self.steel} id {id}')
+        else: print(f'внезапно {self.slug} уже есть у {self.steel}')
         return super().save(*args, **kwargs)
 
     class Meta:
@@ -93,8 +97,8 @@ class Metal(models.Model):
 
 class Metal_2(models.Model):
     for __min, __max in [(f'{i}_min', f'{i}_max') for i in Metal._S[:-1]]:
-        locals()[__min] = models.FloatField(blank=True, null=True)
-        locals()[__max] = models.FloatField(blank=True, null=True)
+        locals()[__min] = models.FloatField(blank=True, null=True, db_index=True)
+        locals()[__max] = models.FloatField(blank=True, null=True, db_index=True)
     def get_min_max(self, arg):
         min = getattr(self, f'{arg}_min')
         max = getattr(self, f'{arg}_max')

@@ -8,7 +8,7 @@ class Start(NoSlugMixin, View):
     models = [Metal_info]
     data = models[0].objects.all()
     Qset = [data]
-    to_padinator = data#(data, '20')
+    to_padinator = (data, '20')
     Data = dict(zip(models, Qset ))
     template = 'metal/start.html'
 
