@@ -30,15 +30,16 @@ def zapis(reader):
         else: data = [0.0, 0.0]
         return data
 
-    for i in reader:
+    for num, i in enumerate(reader):
+        print(num)
         m = Metal()
         m_2 = Metal_2()
         for ss in S:
             for x in fieldname[1:-2]:
                 if ss == x:
                     setattr(m, ss, str(i[x]))
+                    m.save()
                     if ss != "Fe":
-                        print(i, ss)
                         setattr(m_2, f'{ss}_min', separation(str(i[x]))[0])
                         setattr(m_2, f'{ss}_max', separation(str(i[x]))[1])
                         m_2.save()

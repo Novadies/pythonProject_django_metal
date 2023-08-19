@@ -6,10 +6,11 @@ from .models import *
 #     cursor.execute("DELETE FROM 'django_migrations' WHERE 'app'='metal'")
 
 
-START_DB=False
+START_DB=True
 if START_DB:
         # удаление начальных данных
     Metal.objects.all().delete()
+    Metal_2.objects.all().delete()
     Metal_info.objects.all().delete()
     Metal_class.objects.all().delete()
     from .csv_to_bd import zapis

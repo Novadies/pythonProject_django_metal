@@ -35,11 +35,7 @@ class Metal_info(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            while True:
-                self.slug = slugify(f"{self.steel}_{self.id}")
-                if self.slug != None: break
-                print(f'следующая попытка {self.steel} id {id}')
-        else: print(f'внезапно {self.slug} уже есть у {self.steel}')
+            self.slug = slugify(f"{self.steel}_{''.join(word[0] for word in self.steel_info.split())}")
         return super().save(*args, **kwargs)
 
     class Meta:

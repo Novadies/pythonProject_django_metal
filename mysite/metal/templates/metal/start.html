@@ -14,15 +14,15 @@
     <div class="container text-center">
 
         <div class="row">
-
-        {% for m in page_object.object_list %}
-            <div class="col"><a href="{{ m.get_absolute_url }}">{{m.steel}}</a></div>
-            <!--metal_class это обращение к классу через контекст, metals_class это связь -->
-            <div class="col"><a href="{{ m.metals_class.get_absolute_url }}">{{m.metals_class.steel_class}}</a></div>
-            <div class="col">{{m.steel_info}}</div>
-            <hr>
-        {% endfor %}
-
+            {% with page_object.object_list as metal_info %}
+                {% for m in metal_info %}
+                    <div class="col"><a href="{{ m.get_absolute_url }}">{{m.steel}}</a></div>
+                    <!--metal_class это обращение к классу через контекст, metals_class это связь -->
+                    <div class="col"><a href="{{ m.metals_class.get_absolute_url }}">{{m.metals_class.steel_class}}</a></div>
+                    <div class="col">{{m.steel_info}}</div>
+                    <hr>
+                {% endfor %}
+            {% endwith %}
         </div>
 
     </div>

@@ -4,7 +4,6 @@ from django.core.paginator import Paginator
 class If_paginator():
     to_padinator = None
     def if_paginator(self, request):
-
         paginator = Paginator(*self.to_padinator, orphans=5)
         page = paginator.get_page(request.GET.get('page', 1))
         is_paginated = page.has_other_pages()
@@ -22,17 +21,15 @@ class If_paginator():
                    'prev_url': prev_url
                    }
         return context
- #TODO: может для пагинации сделать декоратор  класса?
+
 class NoSlugMixin(If_paginator):  # тут конкретно нет смысла передавать больше чем одну модель во View, но да ладно
-    models=[]
+    models_for_data, Qset = [],[]
     template = None
     dict_dop, Data ={},{}
-
+    if Qset: Data = dict(zip(models_for_data, Qset))
     def get(self, request):
-        if self.to_padinator:  # проверка на пагинацию
-            dict_context = self.if_paginator(request)
-        else:
-            dict_context = {model.__name__.lower(): get_list_or_404(qset) for model, qset in self.Data.items()}  # передаются экземпляры класса
+        dict_context = {model.__name__.lower(): get_list_or_404(qset) for model, qset in self.Data.items()}  # передаются экземпляры класса
+        if self.to_padinator: dict_context.update(self.if_paginator(request))
         context={**dict_context, **self.dict_dop}  # передаются дополнительные параметры, например формы
         return render(request, self.template, context=context)
 
