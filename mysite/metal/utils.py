@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, get_list_or_404, render
 from django.core.paginator import Paginator
-
+from .decorators import decorator_with_arguments
 class If_paginator():
     to_padinator = None
     def if_paginator(self, request):
