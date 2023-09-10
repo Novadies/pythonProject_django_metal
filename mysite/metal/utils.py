@@ -1,8 +1,7 @@
 from django.shortcuts import get_object_or_404, get_list_or_404, render
 from django.core.paginator import Paginator
-from .decorators import decorator_with_arguments
+
 class If_paginator():
-    to_padinator = None
     def if_paginator(self, request):
         paginator = Paginator(*self.to_padinator, orphans=5)
         page = paginator.get_page(request.GET.get('page', 1))
@@ -22,14 +21,13 @@ class If_paginator():
                    }
         return context
 
-class NoSlugMixin(If_paginator):  # тут конкретно нет смысла передавать больше чем одну модель во View, но да ладно
-    models_for_data, Qset = [],[]
-    template = None
+class NoSlugMixin():  # тут конкретно нет смысла передавать больше чем одну модель во View, но да ладнo
+    template, to_padinator = None, None
     dict_dop, Data ={},{}
-    if Qset: Data = dict(zip(models_for_data, Qset))
+
     def get(self, request):
         dict_context = {model.__name__.lower(): get_list_or_404(qset) for model, qset in self.Data.items()}  # передаются экземпляры класса
-        if self.to_padinator: dict_context.update(self.if_paginator(request))
+        if self.to_padinator: dict_context = {**dict_context, **self.if_paginator(request)}
         context={**dict_context, **self.dict_dop}  # передаются дополнительные параметры, например формы
         return render(request, self.template, context=context)
 

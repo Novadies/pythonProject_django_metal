@@ -64,9 +64,9 @@ class Metal_class(models.Model):
     def get_absolute_url(self):
         return reverse('steel-steel_class-slug-url', kwargs={'slug': self.slug})
 
-    def save(self, *args, **kwargs):  # new
+    def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(f"{self.steel_class}_{self.id}") # лучше использовать id
+            self.slug = slugify(f"{self.steel_class}")
         return super().save(*args, **kwargs)
 
 

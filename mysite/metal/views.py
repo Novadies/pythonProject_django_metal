@@ -4,18 +4,17 @@ from .utils import *
 from .forms import *
 from .tools import *  #не удалять, its work
 
-class Start(NoSlugMixin, View):
+class Start(NoSlugMixin, If_paginator, View):
     models = [Metal_info]
-    models_for_data = models
-    data = models[0].objects.all()
-    to_padinator = (data, '20')
+    to_padinator = (models[0].objects.all(), '20')
     template = 'metal/start.html'
 
 
 class Search(NoSlugMixin, View):
-    models = [Metal, Metal_info, Metal_class]
+    models = [Metal, Metal_info]
     models_for_data = models[1:]
-    Qset = [models[1].objects.all(), models[2].objects.all()]
+    Qset = [models.objects.all() for models in models_for_data]
+    if Qset: Data = dict(zip(models_for_data, Qset))
     dict_dop = {models[0].__name__.lower(): models[0].field_S('Fe')}
 
     form = MetalForm()
@@ -30,8 +29,10 @@ class Search(NoSlugMixin, View):
 class Steel_class(NoSlugMixin, View):
     models = [Metal_class]
     models_for_data = models
-    Qset = [models[0].objects.all()]
+    Qset = [models.objects.all() for models in models_for_data]
+    if Qset: Data = dict(zip(models_for_data, Qset))
     template = 'metal/steel_class.html'
+
 
 class Steel(ForSlugMixin, View):
     model = Metal_info
