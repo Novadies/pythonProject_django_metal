@@ -1,7 +1,7 @@
 {% extends 'metal/base_metal.html' %}
 
 {% block title %}
-    Поиск сплавов
+  {% include 'metal/includes/menu.html' %}
 {% endblock %}
 
 
@@ -10,24 +10,24 @@
 
     {% include 'metal/includes/buttons.html' %}
 
-    <div class="container text-center">
-      <div class="row row-cols-5">
+    <div class="container mt-5">
+      <form method="post">
+        {% csrf_token %}
 
-        {% for element in metal %}
-          <form action="{% url 'search-url' %}" method="post">
-              {% csrf_token%}
+        <div class="row">
+          <!--  за рендеринг формы отвечает template_name = "metal/includes/form_snippet.html" в MetalForm(forms.ModelForm) -->
+          {{form}}
+        </div>
 
-              <div class="mb-3">
-                <label for="formGroupExampleInput" class="form-label">{{element}}</label>
-                <input type="text" class="form-control" id="formGroupExampleInput" placeholder="Введите элемент, %">
-              </div>
-
-              {{form.steel}}
-          </form>
-
-        {% endfor %}
-
-      </div>
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">
+            {% for error in form.non_field_errors %}
+              {{ error }}
+            {% endfor %}
+          </div>
+        {% endif %}
+        <button type="submit" class="btn btn-primary">Показать</button>
+      </form>
     </div>
 
 {% endblock %}

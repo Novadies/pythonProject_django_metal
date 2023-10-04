@@ -69,30 +69,36 @@ class Metal_class(models.Model):
             self.slug = slugify(f"{self.steel_class}")
         return super().save(*args, **kwargs)
 
-
-class Metal(models.Model):
-    _S = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb", "Fe"]
+class AbstructForMetal(models.Model):
+    _S = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N",
+          "Pb", "Fe"]
     for __i in _S:
-        locals()[__i] = models.CharField(max_length=20, default=0)
+        locals()[__i] = models.CharField(max_length=20, blank=True, null=True)
+
+    @staticmethod
+    def field_S(*args):
+        fields = [field for field in AbstructForMetal._meta.fields if not field.one_to_one]
+        return [fn for field in fields if (fn := field.name) not in ['id', *args]]
+
+    def return_all(self):  # получение всех полей
+        return {field: getattr(self, field) for field in self.field_S()}
+    class Meta:
+        abstract = True
+
+class Metal(AbstructForMetal):
+    def __str__(self):
+        return str(self.id)
     metal_compound = models.OneToOneField(
         'Metal_2',
         on_delete=models.CASCADE,
         blank=True,
         null=True,
+        related_name='metals'
     )
-    @staticmethod
-    def field_S(*args):
-        fields = [field for field in Metal._meta.fields if not field.one_to_one]
-        return [fn for field in fields if (fn := field.name) not in ['id', *args]]
 
-
-    def return_all(self):
-        return {field : getattr(self, field) for field in self.field_S()}
-    def __str__(self):
-        return str(self.id)
 
 class Metal_2(models.Model):
-    for __min, __max in [(f'{i}_min', f'{i}_max') for i in Metal._S[:-1]]:
+    for __min, __max in [(f'{i}_min', f'{i}_max') for i in AbstructForMetal._S[:-1]]:
         locals()[__min] = models.FloatField(blank=True, null=True, db_index=True)
         locals()[__max] = models.FloatField(blank=True, null=True, db_index=True)
     def get_min_max(self, arg):
@@ -102,16 +108,17 @@ class Metal_2(models.Model):
     def __str__(self):
         return str(self.id)
 
-class MetalSearch(Metal):
+class MetalSearch(AbstructForMetal):
 
     slug = models.SlugField(max_length=100, unique=True, blank=True, null=True)
     date = models.DateTimeField(blank=True, null=True)
-    def save(self, *args, **kwargs):
-        if not self.date:
-            self.date=datetime.now()
-        if not self.slug:
-            self.slug = slugify(f"{'_'.join(map(str, [getattr(self,i) for i in self.field_S('Fe')]))}_{self.id}")
-        return super().save(*args, **kwargs)
-
+    # def save(self, *args, **kwargs):
+    #     if not self.date:
+    #         self.date=datetime.now()
+    #     if not self.slug:
+    #         self.slug = slugify(f"{'_'.join(map(str, [getattr(self,i) for i in self.field_S('Fe')]))}_{self.id}")
+    #     return super().save(*args, **kwargs)
     def __str__(self):
-        return str(self.id)
+        return str(self.date)
+    # def get_absolute_url(self):
+    #     return reverse('search-slug-url', kwargs={'slug': self.slug})

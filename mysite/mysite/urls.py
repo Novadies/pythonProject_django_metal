@@ -17,9 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.urls import include
+from .views import pagenotfound
 
 urlpatterns = [
     #path('', Start_page.as_view(), name='start_page_url'),
     path('admin/', admin.site.urls),
     path('metal/', include('metal.urls')),
 ]
+handler404 = pagenotfound
