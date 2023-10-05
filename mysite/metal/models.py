@@ -25,7 +25,7 @@ class Metal_info(models.Model):
         blank=True,
         null=True,
         related_name='metals_info',
-        on_delete=models.PROTECT)
+        on_delete=models.RESTRICT)
 
     def get_absolute_url(self):
         return reverse('steel-slug-url', kwargs={'slug': self.slug})

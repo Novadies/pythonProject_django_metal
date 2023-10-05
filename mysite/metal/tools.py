@@ -1,4 +1,4 @@
-from .models import *
+
 
              #удаление всех миграций
 # from django.db import connection
@@ -7,12 +7,17 @@ from .models import *
 
 
 START_DB=False
+DEATH=False
+
 if START_DB:
         # удаление начальных данных
-    # Metal.objects.all().delete()
-    # Metal_2.objects.all().delete()
-    # Metal_info.objects.all().delete()
-    # Metal_class.objects.all().delete()
-    # MetalSearch.objects.all().delete()
+    if DEATH:
+        from .models import *
+        Metal.objects.all().delete()
+        Metal_2.objects.all().delete()
+        Metal_info.objects.all().delete()
+        Metal_class.objects.all().delete()
+        MetalSearch.objects.all().delete()
+
     from .csv_to_bd import zapis
     with open('metal\sourse\metal.csv') as f: zapis(f)

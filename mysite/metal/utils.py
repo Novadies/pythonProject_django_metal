@@ -38,3 +38,4 @@ class ForSlugMixin():
         context={self.model.__name__.lower(): get_object_or_404(self.model, slug__iexact=slug)} # передаётся экземпляр класса
         context.update(self.dict_dop)
         return render(request, self.template_name, context=context)
+

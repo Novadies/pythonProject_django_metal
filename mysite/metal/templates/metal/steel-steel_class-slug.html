@@ -1,0 +1,33 @@
+{% extends 'metal/base_metal.html' %}
+
+{% block title %}
+  {% include 'metal/includes/menu.html' %}
+{% endblock %}
+
+{% block block_1 %}
+    
+    {% include 'metal/includes/buttons.html' %}
+
+    <div class="container text-center">
+
+
+        <div class="col"><a href="{{ metal_class.get_absolute_url }}">{{metal_class}}</a></div>
+
+        {% for page in page_obj %}
+
+            <div class="row">
+
+                    <div class="col"><a href="{{ page.get_absolute_url }}">{{page.steel}}</a></div>
+
+                    <div class="col">{{page.steel_info}}</div>
+
+
+
+            </div>
+
+        {% endfor %}
+    </div>
+
+    {% include 'metal/includes/paginator.html' %}
+
+{% endblock %}
