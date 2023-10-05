@@ -1,5 +1,6 @@
 from django.urls import reverse_lazy
-from django.views.generic import View, ListView, FormView, CreateView
+from django.utils.datetime_safe import datetime
+from django.views.generic import View, ListView, FormView, CreateView, DetailView
 from django.views.generic.list import MultipleObjectMixin
 from django.utils.timezone import make_aware
 
@@ -10,9 +11,9 @@ from .tools import *
 
 menu = {'metal/start.html':'Обзор сплавов',
         'metal/search.html':'Поиск сплавов',
-        'metal/steel_class.html': 'Виды применения стали',
-        'metal/steel_slug.html': 'Сталь',
-        'metal/steel_class_slug.html': 'Вид применения стали',
+        'metal/steel-steel_class.html': 'Виды применения стали',
+        'metal/steel-slug.html': 'Сталь',
+        'metal/steel-steel_class-slug.html': 'Вид применения стали',
         }
 class Start(NoSlugMixin, If_paginator, View):
     models = [Metal_info]
@@ -80,7 +81,7 @@ class Steel_class(ListView):
     paginate_orphans =5
     # model = Metal_class
     # context_object_name = model.__name__.lower()
-    template_name = 'metal/steel_class.html'
+    template_name = 'metal/steel-steel_class.html'
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['menu'] = menu[self.template_name]
@@ -90,11 +91,14 @@ class Steel_class(ListView):
 
 class Steel(ForSlugMixin, View):
     model = Metal_info
-    template = 'metal/steel_slug.html'
-    dict_dop = {'menu': menu[template]}
+    template_name = 'metal/steel-slug.html'
+    dict_dop = {'menu': menu[template_name]}
 
-class Steel_class_slug(ForSlugMixin, View):
+class Steel_class_slug(DetailView):
     model = Metal_class
-    template = 'metal/steel_class_slug.html'
-    dict_dop = {'menu': menu[template]}
+    template_name = 'metal/steel-steel_class-slug.html'
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['menu'] = menu[self.template_name]
+        return context

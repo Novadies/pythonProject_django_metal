@@ -3,7 +3,7 @@ import re
 from django import forms
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 
-
+from .logic import If_0_value
 from .models import *
 
 search_fields = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb"]
@@ -28,8 +28,8 @@ class MetalForm(forms.ModelForm):
             if f: zero = False
             else: continue
             if len(f) > 5:  self.add_error(field, ValidationError('Длина превышает 5 символа')) # ошибка будет в .error а не .non_field_errors
-            elif not pattern.match(f): self.add_error(field, ValidationError('Введите десятичное число'))
-            else: cleaned_data[field] = float(f.replace(',', '.').replace(' ', ''))
+            elif not pattern.match(f): self.add_error(field, ValidationError('Введите число'))
+            else: cleaned_data[field] = float(f.replace(',', '.').replace(' ', '').replace('—', '-'))
         if zero and len(cleaned_data)==len(search_fields): raise ValidationError("Все поля пусты")
         #if self.has_error(NON_FIELD_ERRORS, code=None):
         # можно что-нибудь сделать при наличии ошибки
@@ -46,21 +46,15 @@ class MetalForm(forms.ModelForm):
     @staticmethod
     def search_for_connections(cleaned_data):
         data = {key:value for key, value in cleaned_data.items() if value}
-        data_0 = [key for key, value in cleaned_data.items() if value==0]
-        data_min_0 = [f'{key}_min' for key in data_0]  # вычисления для .values .По идее оптимизирует, так как поля по которым нет фильтрации не загружаются
-        #answer = Metal_2.objects.values('id', *data_min_0, *[f'{key}_min' for key in list(data)], *[f'{key}_max' for key in list(data)])
-        answer = Metal_2.objects.all()
-        if data_0:
-            for key in data_min_0:
-                key_model = {key: float(0)}
-                answer = answer.filter(**key_model)
+        answer = Metal_2.objects.all().select_related("Metal")
+        answer = If_0_value(answer, cleaned_data)
         if data:
             for key in data:
                 key_model_lte = {f'{key}_min__lte': data[key]}
                 key_model_gte = {f'{key}_max__gte': data[key]}
                 answer = answer.filter(**key_model_lte, **key_model_gte)
         print(answer.count())
-        metal_2_to_metal = Metal.objects.filter(metal_compound__in=answer)
+        metal_2_to_metal = Metal.objects.filter(metal_compound__in=answer).select_related("Metal_info")
         return Metal_info.objects.filter(metals__in=metal_2_to_metal)
 
     def save(self, commit=True): # вызывается один раз. Метод form.save() и кверисет.save() это разные методы

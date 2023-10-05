@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.shortcuts import reverse
 from transliterate import slugify
-from datetime import datetime
+
 
 class Metal_info(models.Model):
     steel = models.CharField(max_length=50, blank=True, null=True)
@@ -13,7 +13,7 @@ class Metal_info(models.Model):
         blank=True,
         null=True,
         related_name='metals_info',
-        on_delete=models.CASCADE)
+        on_delete=models.PROTECT)
     metals = models.OneToOneField(
         'Metal',
         on_delete=models.CASCADE,
@@ -25,7 +25,7 @@ class Metal_info(models.Model):
         blank=True,
         null=True,
         related_name='metals_info',
-        on_delete=models.CASCADE)
+        on_delete=models.PROTECT)
 
     def get_absolute_url(self):
         return reverse('steel-slug-url', kwargs={'slug': self.slug})
@@ -47,7 +47,7 @@ class Metal_request(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     metals_info = models.ForeignKey(
         'Metal_info',
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         blank=True,
         null=True,
         related_name='metals_request',

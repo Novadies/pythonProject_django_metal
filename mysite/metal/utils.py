@@ -32,9 +32,9 @@ class NoSlugMixin():  # тут конкретно нет смысла перед
         return render(request, self.template, context=context)
 
 class ForSlugMixin():
-    model, template = None, None
+    model, template_name = None, None
     dict_dop = {}
     def get(self, request, slug):
         context={self.model.__name__.lower(): get_object_or_404(self.model, slug__iexact=slug)} # передаётся экземпляр класса
         context.update(self.dict_dop)
-        return render(request, self.template, context=context)
+        return render(request, self.template_name, context=context)
