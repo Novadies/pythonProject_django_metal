@@ -23,35 +23,31 @@ class Start(NoSlugMixin, If_paginator, View):
     template = 'metal/start.html'
     dict_dop = {'menu': menu[template]}
 
-# class Search(NoSlugMixin, View):
-#     models = [Metal, Metal_info]
-#     models_for_data = models[1:]
-#     Qset = [models.objects.all() for models in models_for_data]
-#     if Qset: Data = dict(zip(models_for_data, Qset))
-#     dict_dop = {models[0].__name__.lower(): models[0].field_S('Fe')}
-#
-#     form = MetalForm
-#     dict_dop.update({'form': form})
-#     template = 'metal/search.html'
-#     def post(self, request):
-#         bound_form=MetalForm(request.POST)
-#         if bound_form.is_valid():
-#             pass
-#         return render(request, self.template, context={'form': bound_form})
 
-class NewSearch(FormView):   # CreateView сохраняет автоматически, это хорошо если не переопределяется form_valid
+class NewSearch(SingleObjectMixin, ListView, FormView):   # CreateView сохраняет автоматически, это хорошо если не переопределяется form_valid
     template_name = 'metal/search.html'
     form_class = MetalForm
-
+    slug_model = form_class.Meta.model
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['menu'] = menu[self.template_name]
+        context[self.slug_model.__name__.lower()] = self.object
         return context
 
     def get_dop_field(self):
         date = make_aware(datetime.now())
         slug = str(date)[-21:-6].replace(':', '_').replace('.', '-')
         return date, slug
+
+    def get_queryset(self):
+        if self.object:
+            return self.object.metals_info.all() # здесь выбирается кверисет , который будет page_obj
+
+    def get(self, request, *args, **kwargs):
+        if self.kwargs:
+            self.object = self.get_object(queryset=self.slug_model.objects.all())
+        else: self.object = None
+        return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
         dop_field={'slug':self.get_dop_field()[1], 'date':self.get_dop_field()[0]}
@@ -106,8 +102,10 @@ class Steel_class_slug(SingleObjectMixin, ListView): #реализация сл�
         return context
 
     def get(self, request, *args, **kwargs):
+        # queryset для автоматического поиска. Явно указываем queryset что искал там там где надо.
+        # .get_object можно переопределять для ручного поиска
         self.object = self.get_object(queryset=self.slug_model.objects.all())
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.object.metals_info.all()
+        return self.object.metals_info.all() # здесь выбирается кверисет , который будет page_obj

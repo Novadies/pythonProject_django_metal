@@ -13,7 +13,7 @@ class Metal_info(models.Model):
         blank=True,
         null=True,
         related_name='metals_info',
-        on_delete=models.PROTECT)
+        on_delete=models.SET_NULL)
     metals = models.OneToOneField(
         'Metal',
         on_delete=models.CASCADE,
@@ -25,7 +25,7 @@ class Metal_info(models.Model):
         blank=True,
         null=True,
         related_name='metals_info',
-        on_delete=models.RESTRICT)
+        on_delete=models.SET_NULL)
 
     def get_absolute_url(self):
         return reverse('steel-slug-url', kwargs={'slug': self.slug})
@@ -47,7 +47,7 @@ class Metal_request(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     metals_info = models.ForeignKey(
         'Metal_info',
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         blank=True,
         null=True,
         related_name='metals_request',
@@ -109,16 +109,10 @@ class Metal_2(models.Model):
         return str(self.id)
 
 class MetalSearch(AbstructForMetal):
-
     slug = models.SlugField(max_length=100, unique=True, blank=True, null=True)
     date = models.DateTimeField(blank=True, null=True)
-    # def save(self, *args, **kwargs):
-    #     if not self.date:
-    #         self.date=datetime.now()
-    #     if not self.slug:
-    #         self.slug = slugify(f"{'_'.join(map(str, [getattr(self,i) for i in self.field_S('Fe')]))}_{self.id}")
-    #     return super().save(*args, **kwargs)
+
     def __str__(self):
         return str(self.date)
-    # def get_absolute_url(self):
-    #     return reverse('search-slug-url', kwargs={'slug': self.slug})
+    def get_absolute_url(self):
+        return reverse('search-slug-url', kwargs={'slug': self.slug})
