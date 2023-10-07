@@ -41,20 +41,6 @@ class Metal_info(models.Model):
     class Meta:
         ordering = ['steel']
 
-class Metal_request(models.Model):
-    votes = models.IntegerField(default=0)
-    date = models.DateTimeField(blank=True, null=True)
-    user = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True)
-    metals_info = models.ForeignKey(
-        'Metal_info',
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-        related_name='metals_request',
-    )
 
 
 class Metal_class(models.Model):
@@ -114,8 +100,31 @@ class Metal_2(models.Model):
 class MetalSearch(AbstructForMetal):
     slug = models.SlugField(max_length=100, unique=True, blank=True, null=True)
     date = models.DateTimeField(blank=True, null=True)
-
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='metalSearch'
+    )
     def __str__(self):
         return str(self.date)
     def get_absolute_url(self):
         return reverse('search-slug-url', kwargs={'slug': self.slug})
+
+### необходимость этой модели под вопросом, так как данные в конечном итоге берутся из других таблиц ###
+class Metal_request(models.Model):
+    votes = models.IntegerField(default=0)
+    date = models.DateTimeField(blank=True, null=True)
+    metals_info = models.OneToOneField(
+        'Metal_info',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='metals_request',
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='metals_request'
+    )

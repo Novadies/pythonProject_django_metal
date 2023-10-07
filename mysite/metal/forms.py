@@ -3,7 +3,7 @@ import re
 from django import forms
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 
-from .logic import If_0_value
+from .logic import If_0_value, single_value
 from .models import *
 
 search_fields = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb"]
@@ -28,13 +28,13 @@ class MetalForm(forms.ModelForm):
 
     def clean(self): # проверка для формы, а не конкретного поля
         cleaned_data = super().clean()
-        pattern = re.compile(r"^\d{1,2}([.,$]\d{0,2})?$")
+        pattern = re.compile(r"^[-—]?\d{1,2}([.,$]\d{0,2})?$")
         zero = True
         for field in search_fields:
             f = cleaned_data.get(field)
             if f: zero = False
             else: continue
-            if len(f) > 5:  self.add_error(field, ValidationError('Длина превышает 5 символа')) # ошибка будет в .error а не .non_field_errors
+            if len(f) > 6:  self.add_error(field, ValidationError('Длина превышает 6 символа')) # ошибка будет в .error а не .non_field_errors
             elif not pattern.match(f): self.add_error(field, ValidationError('Введите подходящее число'))
             else: cleaned_data[field] = float(f.replace(',', '.').replace(' ', '').replace('—', '-'))
         if zero and len(cleaned_data)==len(search_fields): raise ValidationError("Все поля пусты")
@@ -57,9 +57,7 @@ class MetalForm(forms.ModelForm):
         answer = If_0_value(answer, cleaned_data)
         if data:
             for key in data:
-                key_model_lte = {f'{key}_min__lte': data[key]}
-                key_model_gte = {f'{key}_max__gte': data[key]}
-                answer = answer.filter(**key_model_lte, **key_model_gte)
+                answer = single_value(answer, data, key)
         print(answer.count())
         metal_2_to_metal = Metal.objects.filter(metal_compound__in=answer).select_related("Metal_info")
         return Metal_info.objects.filter(metals__in=metal_2_to_metal)
