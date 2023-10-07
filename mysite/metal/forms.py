@@ -9,6 +9,13 @@ from .models import *
 search_fields = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb"]
 
 class MetalForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        extra_data = kwargs.pop('extra_data', None)
+        super().__init__(*args, **kwargs)
+        if extra_data:
+            for i in extra_data:
+                self.fields[i].initial = extra_data[i]
+
     template_name = "metal/includes/form_snippet.html" #имя шаблона для формы, опция
     # u_name = forms.CharField(validators=[], required=False,
     #                          widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите'}),
@@ -17,7 +24,7 @@ class MetalForm(forms.ModelForm):
     class Meta:
         model = MetalSearch
         fields = search_fields
-        widgets = {field: forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите элемент'}) for field in fields}
+        widgets = {field: forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите элемент, %'}) for field in fields}
 
     def clean(self): # проверка для формы, а не конкретного поля
         cleaned_data = super().clean()
@@ -28,7 +35,7 @@ class MetalForm(forms.ModelForm):
             if f: zero = False
             else: continue
             if len(f) > 5:  self.add_error(field, ValidationError('Длина превышает 5 символа')) # ошибка будет в .error а не .non_field_errors
-            elif not pattern.match(f): self.add_error(field, ValidationError('Введите число'))
+            elif not pattern.match(f): self.add_error(field, ValidationError('Введите подходящее число'))
             else: cleaned_data[field] = float(f.replace(',', '.').replace(' ', '').replace('—', '-'))
         if zero and len(cleaned_data)==len(search_fields): raise ValidationError("Все поля пусты")
         #if self.has_error(NON_FIELD_ERRORS, code=None):
@@ -57,14 +64,14 @@ class MetalForm(forms.ModelForm):
         metal_2_to_metal = Metal.objects.filter(metal_compound__in=answer).select_related("Metal_info")
         return Metal_info.objects.filter(metals__in=metal_2_to_metal)
 
-    def save(self, commit=True): # вызывается один раз. Метод form.save() и кверисет.save() это разные методы
-        f = super().save(commit=False)
-        print(f'Послупили данные в {self.Meta.model}\n')
-        [print(f'В поле "{key}" добавлено {value}\n') for key, value in self.cleaned_data.items() if value or value==0]
-        print('-'*25)
-        if commit:
-            f.save()
-        return f
+    # def save(self, commit=True): # вызывается один раз. Метод form.save() и кверисет.save() это разные методы
+    #     f = super().save(commit=False)
+    #     print(f'Послупили данные в {self.Meta.model}\n')
+    #     [print(f'В поле "{key}" добавлено {value}\n') for key, value in self.cleaned_data.items() if value or value==0]
+    #     print('-'*25)
+    #     if commit:
+    #         f.save()
+    #     return f
 
 class NotBoundsForm(forms.Form):
     u_name = forms.CharField(validators=[], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите'}), label="Имя пользователя")#, initial="ноунейм")

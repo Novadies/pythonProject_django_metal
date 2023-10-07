@@ -1,6 +1,9 @@
 from django.shortcuts import get_object_or_404, get_list_or_404, render
 from django.core.paginator import Paginator
 
+from metal.forms import MetalForm
+
+
 class If_paginator():
     def if_paginator(self, request):
         paginator = Paginator(*self.to_padinator, orphans=5)
@@ -39,3 +42,6 @@ class ForSlugMixin():
         context.update(self.dict_dop)
         return render(request, self.template_name, context=context)
 
+class SearchMixin():
+    template_name = 'metal/search.html'
+    form_class = MetalForm

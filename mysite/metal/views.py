@@ -1,15 +1,12 @@
 from django.http import HttpResponseRedirect
-from django.urls import reverse_lazy
 from django.utils.datetime_safe import datetime
 from django.views.generic import View, ListView, FormView, CreateView, DetailView
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic.list import MultipleObjectMixin
 from django.utils.timezone import make_aware
 
 from .forms import *
 from .utils import *
 from .tools import *
-
 
 menu = {'metal/start.html':'Обзор сплавов',
         'metal/search.html':'Поиск сплавов',
@@ -17,27 +14,42 @@ menu = {'metal/start.html':'Обзор сплавов',
         'metal/steel-slug.html': 'Сталь',
         'metal/steel-steel_class-slug.html': 'Вид применения стали',
         }
+
 class Start(NoSlugMixin, If_paginator, View):
     models = [Metal_info]
     to_padinator = (models[0].objects.all(), '20')
     template = 'metal/start.html'
     dict_dop = {'menu': menu[template]}
 
+class NewSearch(View):
+    def get(self, request, *args, **kwargs):
+        view = GetSearch.as_view()
+        return view(request, *args, **kwargs)
 
-class NewSearch(SingleObjectMixin, ListView, FormView):   # CreateView сохраняет автоматически, это хорошо если не переопределяется form_valid
-    template_name = 'metal/search.html'
+    def post(self, request, *args, **kwargs):
+        view = PostSearch.as_view()
+        return view(request, *args, **kwargs)
+
+class GetSearch(SearchMixin, SingleObjectMixin, ListView):
+    paginate_by = 10
+    paginate_orphans = 5
     form_class = MetalForm
     slug_model = form_class.Meta.model
+    def get_paginate_by(self, queryset):
+        if self.kwargs:
+            return self.paginate_by
+    def get_initial(self):
+        if self.kwargs:
+            item = self.get_object(queryset=self.form_class.Meta.model.objects.all())
+            return {field: getattr(item, field, None) for field in self.form_class.Meta.fields}
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['menu'] = menu[self.template_name]
+        context['initial'] = self.get_initial()
+        context['form'] = self.form_class(extra_data=context['initial'])
         context[self.slug_model.__name__.lower()] = self.object
         return context
-
-    def get_dop_field(self):
-        date = make_aware(datetime.now())
-        slug = str(date)[-21:-6].replace(':', '_').replace('.', '-')
-        return date, slug
 
     def get_queryset(self):
         if self.object:
@@ -49,6 +61,13 @@ class NewSearch(SingleObjectMixin, ListView, FormView):   # CreateView сохр�
         else: self.object = None
         return super().get(request, *args, **kwargs)
 
+
+class PostSearch(SearchMixin, CreateView):
+    def get_dop_field(self):
+        date = make_aware(datetime.now())
+        slug = str(date)[-21:-6].replace(':', '_').replace('.', '-')
+        return date, slug
+
     def form_valid(self, form):
         dop_field={'slug':self.get_dop_field()[1], 'date':self.get_dop_field()[0]}
         # добавляем данные с формы, а так же сгенерированые самостоятельно
@@ -58,21 +77,11 @@ class NewSearch(SingleObjectMixin, ListView, FormView):   # CreateView сохр�
         for_save_to_db.save()
         return HttpResponseRedirect(reverse('search-slug-url', args=[dop_field['slug']]))
 
-class NewSearchRedirect(NewSearch, MultipleObjectMixin):
-    paginate_by = 10
-    paginate_orphans = 5
-    # def get_context_data(self, *, object_list=None, **kwargs):
-
-    #     return context
-    #def get_queryset(self):
-        #return Metal_class.objects.order_by('steel_class')
-
 
 class Steel_class(ListView):
     paginate_by = 10
     paginate_orphans =5
     model = Metal_class
-    # context_object_name = model.__name__.lower()
     template_name = 'metal/steel-steel_class.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

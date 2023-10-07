@@ -44,7 +44,10 @@ class Metal_info(models.Model):
 class Metal_request(models.Model):
     votes = models.IntegerField(default=0)
     date = models.DateTimeField(blank=True, null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True)
     metals_info = models.ForeignKey(
         'Metal_info',
         on_delete=models.SET_NULL,
