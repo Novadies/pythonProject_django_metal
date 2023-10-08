@@ -1,4 +1,4 @@
-from .models import *
+from metal.models import *
 import csv
 def zapis(reader):
     # try:

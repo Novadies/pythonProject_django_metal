@@ -1,12 +1,9 @@
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
-from django.urls import reverse
-from django.views import generic
-from django.utils import timezone
+from django.shortcuts import render
 from django.contrib import messages
-from .csv_to_bd import zapis
+from metal.tools.csv_to_bd import zapis
 
-from .models import *
+from metal.models import *
 
 def upload_csv(request):
     data = {}

@@ -1,9 +1,9 @@
 import re
 
 from django import forms
-from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
+from django.core.exceptions import ValidationError
 
-from .logic import If_0_value, single_value
+from metal.tools.logic import If_0_value, other_value, packing
 from .models import *
 
 search_fields = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb"]
@@ -28,15 +28,21 @@ class MetalForm(forms.ModelForm):
 
     def clean(self): # проверка для формы, а не конкретного поля
         cleaned_data = super().clean()
-        pattern = re.compile(r"^[-—]?\d{1,2}([.,$]\d{0,2})?$")
+        #pattern = re.compile(r"^[-—]?\d{1,2}([.,$]\d{0,2})?$")
+        pattern = re.compile(r"^([-—]?\d{1,2}([.,$]\d{0,2})?)([-—]\d{1,2}([.,$]\d{0,2})?)?$")
         zero = True
         for field in search_fields:
             f = cleaned_data.get(field)
             if f: zero = False
             else: continue
-            if len(f) > 6:  self.add_error(field, ValidationError('Длина превышает 6 символа')) # ошибка будет в .error а не .non_field_errors
-            elif not pattern.match(f): self.add_error(field, ValidationError('Введите подходящее число'))
-            else: cleaned_data[field] = float(f.replace(',', '.').replace(' ', '').replace('—', '-'))
+            if len(f) > 12:  self.add_error(field, ValidationError('Длина превышает 12 символа')) # ошибка будет в .error а не .non_field_errors
+            if not pattern.match(f): self.add_error(field, ValidationError('Введите подходящее число'))
+            else:
+                try:
+                    data = f.replace(',', '.').replace(' ', '').replace('—', '-')
+                    cleaned_data[field] = packing(data)
+                    #print(cleaned_data[field])
+                except Exception: self.add_error(field, ValidationError('Значение не проходит валидацию'))
         if zero and len(cleaned_data)==len(search_fields): raise ValidationError("Все поля пусты")
         #if self.has_error(NON_FIELD_ERRORS, code=None):
         # можно что-нибудь сделать при наличии ошибки
@@ -52,13 +58,12 @@ class MetalForm(forms.ModelForm):
     #     return field_data
     @staticmethod
     def search_for_connections(cleaned_data):
-        data = {key:value for key, value in cleaned_data.items() if value}
         answer = Metal_2.objects.all().select_related("Metal")
         answer = If_0_value(answer, cleaned_data)
+        data = {key:value for key, value in cleaned_data.items() if value}
         if data:
             for key in data:
-                answer = single_value(answer, data, key)
-        print(answer.count())
+                answer = other_value(answer, data, key)
         metal_2_to_metal = Metal.objects.filter(metal_compound__in=answer).select_related("Metal_info")
         return Metal_info.objects.filter(metals__in=metal_2_to_metal)
 

@@ -1,6 +1,5 @@
 from django.urls import path
 from .views import *
-from .views_for_csv import upload_csv
 
 urlpatterns = [
     path('start/', Start.as_view(), name='start-url'),

@@ -10,7 +10,8 @@
 {% block block_1 %}
 
     {% include 'metal/includes/buttons.html' %}
-
+    <div class="container text-center">Поиск по % содержанию элементов в сплаве. Для исключения желаемого значения поставьте перед ним дефис ("-").</div>
+    <div class="container text-center">Для поиска по диапазону значений, поставьте между ними дефис ("-"), а так же перед, если это исключающий диапазон.</div>
     <div class="container mt-5">
       <form method="post">
         {% csrf_token %}
