@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from metal.tools.logic import If_0_value, other_value, packing
 from .models import *
 
+
 search_fields = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb"]
 
 class MetalForm(forms.ModelForm):
@@ -41,7 +42,6 @@ class MetalForm(forms.ModelForm):
                 try:
                     data = f.replace(',', '.').replace(' ', '').replace('—', '-')
                     cleaned_data[field] = packing(data)
-                    #print(cleaned_data[field])
                 except Exception: self.add_error(field, ValidationError('Значение не проходит валидацию'))
         if zero and len(cleaned_data)==len(search_fields): raise ValidationError("Все поля пусты")
         #if self.has_error(NON_FIELD_ERRORS, code=None):
@@ -58,13 +58,13 @@ class MetalForm(forms.ModelForm):
     #     return field_data
     @staticmethod
     def search_for_connections(cleaned_data):
-        answer = Metal_2.objects.all().select_related("Metal")
+        answer = Metal_2.objects.all().select_related("Metal", "Metal_info")
         answer = If_0_value(answer, cleaned_data)
         data = {key:value for key, value in cleaned_data.items() if value}
         if data:
             for key in data:
                 answer = other_value(answer, data, key)
-        metal_2_to_metal = Metal.objects.filter(metal_compound__in=answer).select_related("Metal_info")
+        metal_2_to_metal = Metal.objects.filter(metal_compound__in=answer)
         return Metal_info.objects.filter(metals__in=metal_2_to_metal)
 
     # def save(self, commit=True): # вызывается один раз. Метод form.save() и кверисет.save() это разные методы

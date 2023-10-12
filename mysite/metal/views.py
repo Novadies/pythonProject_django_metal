@@ -1,12 +1,15 @@
+
 from django.http import HttpResponseRedirect
 from django.utils.datetime_safe import datetime
 from django.views.generic import View, ListView, FormView, CreateView, DetailView
 from django.views.generic.detail import SingleObjectMixin
 from django.utils.timezone import make_aware
 
+
 from .forms import *
+from .tools.decorators2 import track_queries
 from .utils import *
-from .tools import *
+
 
 menu = {'metal/start.html':'Обзор сплавов',
         'metal/search.html':'Поиск сплавов',
@@ -38,15 +41,14 @@ class GetSearch(SearchMixin, SingleObjectMixin, ListView):
     def get_paginate_by(self, queryset):
         if self.kwargs:
             return self.paginate_by
+
     def get_initial(self):
-        if self.kwargs:
-            item = self.get_object(queryset=self.form_class.Meta.model.objects.all())
-            return {field: getattr(item, field, None) for field in self.form_class.Meta.fields}
+        return self.get_object(queryset=self.slug_model.objects.all()) if self.kwargs else None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['menu'] = menu[self.template_name]
-        context['initial'] = self.get_initial()
+        context['initial'] = {field: getattr(self.object, field, None) for field in self.form_class.Meta.fields}
         context['form'] = self.form_class(extra_data=context['initial'])
         context[self.slug_model.__name__.lower()] = self.object
         return context
@@ -56,9 +58,7 @@ class GetSearch(SearchMixin, SingleObjectMixin, ListView):
             return self.object.metals_info.all() # здесь выбирается кверисет , который будет page_obj
 
     def get(self, request, *args, **kwargs):
-        if self.kwargs:
-            self.object = self.get_object(queryset=self.slug_model.objects.all())
-        else: self.object = None
+        self.object = self.get_initial()
         return super().get(request, *args, **kwargs)
 
 
@@ -68,13 +68,13 @@ class PostSearch(SearchMixin, CreateView):
         slug = str(date)[-21:-6].replace(':', '_').replace('.', '-')
         return date, slug
 
+    @track_queries
     def form_valid(self, form):
-        dop_field={'slug':self.get_dop_field()[1], 'date':self.get_dop_field()[0]}
+        dop_field={'slug': self.get_dop_field()[1], 'date': self.get_dop_field()[0]}
         # добавляем данные с формы, а так же сгенерированые самостоятельно
         for_save_to_db = self.form_class.Meta.model.objects.create(**dop_field, **form.cleaned_data)
-        for i in self.form_class.search_for_connections(form.cleaned_data): # добавление связей
-            for_save_to_db.metals_info.add(i)
-        for_save_to_db.save()
+        connections = self.form_class.search_for_connections(form.cleaned_data)
+        for_save_to_db.metals_info.add(*connections)
         return HttpResponseRedirect(reverse('search-slug-url', args=[dop_field['slug']]))
 
 
@@ -99,7 +99,7 @@ class Steel(DetailView):
         context['menu'] = menu[self.template_name]
         return context
 
-class Steel_class_slug(SingleObjectMixin, ListView): #реализация сложновата, проще кастомный ForSlugMixin()
+class Steel_class_slug(SingleObjectMixin, ListView):
     template_name = 'metal/steel-steel_class-slug.html'
     paginate_by = 8
     paginate_orphans =2

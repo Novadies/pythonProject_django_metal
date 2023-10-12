@@ -1,4 +1,7 @@
+from functools import wraps
+
 from django.core.paginator import Paginator
+from django.db import connection
 
 
 def if_paginator(to_padinator, request):
@@ -45,3 +48,20 @@ def decorator_with_arguments(dict_dop, to_padinator):
 
         return wrapped
     return my_decorator
+
+
+def track_queries(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        q = len(connection.queries)
+        func_return = func(*args, **kwargs)
+        print(func.__name__)
+        executed_queries = connection.queries[q:]
+        time = 0
+        for n, queri in enumerate(executed_queries):
+            print(f'{n + 1}___________{queri}')
+            time += float(queri['time'])
+        else:
+            print(time)
+        return func_return
+    return wrapper

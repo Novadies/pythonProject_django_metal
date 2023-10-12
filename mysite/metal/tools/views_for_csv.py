@@ -8,7 +8,7 @@ from metal.models import *
 def upload_csv(request):
     data = {}
     if "GET" == request.method:
-        return render(request, "polls/upload_form.html", data)
+        return render(request, "metal/upload_form.html", data)
     # if not GET, then proceed
     try:
         csv_file = request.FILES["csv_file"]
@@ -26,4 +26,4 @@ def upload_csv(request):
             messages.error(request, "Unable to upload file. "+repr(e))
     except Exception as e:
         messages.error(request, "Unable to upload file. "+repr(e))
-    return HttpResponseRedirect(reverse("polls:upload_csv"))
+    return HttpResponseRedirect(reverse('start-url'))
