@@ -16,6 +16,7 @@ menu = {'metal/start.html':'Обзор сплавов',
         'metal/steel-steel_class.html': 'Виды применения стали',
         'metal/steel-slug.html': 'Сталь',
         'metal/steel-steel_class-slug.html': 'Вид применения стали',
+        'metal/steel-result.html' : 'Перечень запросов',
         }
 
 class Start(NoSlugMixin, If_paginator, View):
@@ -118,3 +119,15 @@ class Steel_class_slug(SingleObjectMixin, ListView):
 
     def get_queryset(self):
         return self.object.metals_info.all() # здесь выбирается кверисет , который будет page_obj
+
+class SearchAll(ListView):
+    paginate_by = 20
+    paginate_orphans =5
+    model = MetalSearch
+    template_name = 'metal/steel-result.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['menu'] = menu[self.template_name]
+        return context
+    def get_queryset(self):
+        return self.model.objects.order_by('-date')
