@@ -1,11 +1,20 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Count
 from django.shortcuts import reverse
 
 from transliterate import slugify
 
+class CountManager(models.Manager):
+    def __init__(self, to_annotate):
+        super().__init__()
+        self.to_annotate = to_annotate
+    def get_queryset(self):
+        return super().get_queryset().annotate(total=Count(self.to_annotate)).order_by('-total')
 
 class Metal_info(models.Model):
+    objects = models.Manager()
+    count_manager = CountManager('metalsearch')
     steel = models.CharField(max_length=50, blank=True, null=True)
     steel_info = models.TextField(blank=True, null=True)
     slug = models.SlugField(max_length=100, unique=True, blank=True, null=True, db_index=True)
@@ -40,7 +49,6 @@ class Metal_info(models.Model):
 
     class Meta:
         ordering = ['steel']
-
 
 
 class Metal_class(models.Model):
@@ -98,6 +106,8 @@ class Metal_2(models.Model):
         return str(self.id)
 
 class MetalSearch(AbstructForMetal):
+    objects = models.Manager()
+    count_manager = CountManager('metals_info')
     slug = models.SlugField(max_length=100, unique=True, blank=True, null=True, db_index=True)
     date = models.DateTimeField(blank=True, null=True)
     user = models.ForeignKey(
@@ -112,7 +122,9 @@ class MetalSearch(AbstructForMetal):
         return reverse('search-slug-url', kwargs={'slug': self.slug})
 
 ### необходимость этой модели под вопросом, так как данные в конечном итоге берутся из других таблиц ###
+
 class Metal_request(models.Model):
+
     votes = models.IntegerField(default=0)
     date = models.DateTimeField(blank=True, null=True)
     metals_info = models.OneToOneField(
@@ -128,3 +140,4 @@ class Metal_request(models.Model):
         null=True,
         related_name='metals_request'
     )
+

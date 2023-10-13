@@ -13,7 +13,7 @@ from .utils import *
 
 class Start(NoSlugMixin, If_paginator, View):
     models = [Metal_info]
-    to_padinator = (models[0].objects.all(), '20')
+    to_padinator = (models[0].count_manager.all(), '40')
     template = 'metal/start.html'
     dict_dop = {'menu': menu[template]}
 
@@ -27,7 +27,7 @@ class NewSearch(View):
         return view(request, *args, **kwargs)
 
 class GetSearch(SearchMixin, ContextMixin, SingleObjectMixin, ListView):
-    paginate_by = 10
+    paginate_by = 15
     paginate_orphans = 5
     form_class = MetalForm
     slug_model = form_class.Meta.model
@@ -55,7 +55,8 @@ class GetSearch(SearchMixin, ContextMixin, SingleObjectMixin, ListView):
 
 
 class PostSearch(SearchMixin, CreateView):
-    def get_dop_field(self):
+    @staticmethod
+    def get_dop_field():
         date = make_aware(datetime.now())
         slug = str(date)[-21:-6].replace(':', '_').replace('.', '-')
         return date, slug
@@ -75,9 +76,6 @@ class Steel_class(ContextMixin, ListView):
     paginate_orphans =5
     model = Metal_class
     template_name = 'metal/steel-steel_class.html'
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
     def get_queryset(self):
         return self.model.objects.order_by('steel_class')
 
@@ -85,9 +83,6 @@ class Steel(ContextMixin, DetailView):
     model = Metal_info
     template_name = 'metal/steel-slug.html'
     context_object_name = "metal_info"
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
 
 class Steel_class_slug(ContextMixin, SingleObjectMixin, ListView):
     template_name = 'metal/steel-steel_class-slug.html'
@@ -113,8 +108,5 @@ class SearchAll(ContextMixin, ListView):
     paginate_orphans =5
     model = MetalSearch
     template_name = 'metal/steel-result.html'
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
     def get_queryset(self):
-        return self.model.objects.order_by('-date')
+        return self.model.count_manager.order_by('-date')
