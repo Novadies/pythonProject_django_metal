@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404, get_list_or_404, render
 from django.core.paginator import Paginator
 
 from metal.forms import MetalForm
+from metal.sourse.menu import menu
 
 
 class If_paginator():
@@ -34,14 +35,22 @@ class NoSlugMixin():  # тут конкретно нет смысла перед
         context={**dict_context, **self.dict_dop}  # передаются дополнительные параметры, например формы
         return render(request, self.template, context=context)
 
-class ForSlugMixin():
-    model, template_name = None, None
-    dict_dop = {}
-    def get(self, request, slug):
-        context={self.model.__name__.lower(): get_object_or_404(self.model, slug__iexact=slug)} # передаётся экземпляр класса
-        context.update(self.dict_dop)
-        return render(request, self.template_name, context=context)
+# class ForSlugMixin():
+#     model, template_name = None, None
+#     dict_dop = {}
+#     def get(self, request, slug):
+#         context={self.model.__name__.lower(): get_object_or_404(self.model, slug__iexact=slug)} # передаётся экземпляр класса
+#         context.update(self.dict_dop)
+#         return render(request, self.template_name, context=context)
 
 class SearchMixin():
     template_name = 'metal/search.html'
     form_class = MetalForm
+
+
+class ContextMixin():
+    template_name = None
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['menu'] = menu.get(self.template_name, 'Страница')
+        return context

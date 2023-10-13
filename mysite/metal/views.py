@@ -11,14 +11,6 @@ from .tools.decorators2 import track_queries
 from .utils import *
 
 
-menu = {'metal/start.html':'Обзор сплавов',
-        'metal/search.html':'Поиск сплавов',
-        'metal/steel-steel_class.html': 'Виды применения стали',
-        'metal/steel-slug.html': 'Сталь',
-        'metal/steel-steel_class-slug.html': 'Вид применения стали',
-        'metal/steel-result.html' : 'Перечень запросов',
-        }
-
 class Start(NoSlugMixin, If_paginator, View):
     models = [Metal_info]
     to_padinator = (models[0].objects.all(), '20')
@@ -34,7 +26,7 @@ class NewSearch(View):
         view = PostSearch.as_view()
         return view(request, *args, **kwargs)
 
-class GetSearch(SearchMixin, SingleObjectMixin, ListView):
+class GetSearch(SearchMixin, ContextMixin, SingleObjectMixin, ListView):
     paginate_by = 10
     paginate_orphans = 5
     form_class = MetalForm
@@ -48,7 +40,6 @@ class GetSearch(SearchMixin, SingleObjectMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['menu'] = menu[self.template_name]
         context['initial'] = {field: getattr(self.object, field, None) for field in self.form_class.Meta.fields}
         context['form'] = self.form_class(extra_data=context['initial'])
         context[self.slug_model.__name__.lower()] = self.object
@@ -79,35 +70,32 @@ class PostSearch(SearchMixin, CreateView):
         return HttpResponseRedirect(reverse('search-slug-url', args=[dop_field['slug']]))
 
 
-class Steel_class(ListView):
+class Steel_class(ContextMixin, ListView):
     paginate_by = 10
     paginate_orphans =5
     model = Metal_class
     template_name = 'metal/steel-steel_class.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['menu'] = menu[self.template_name]
         return context
     def get_queryset(self):
         return self.model.objects.order_by('steel_class')
 
-class Steel(DetailView):
+class Steel(ContextMixin, DetailView):
     model = Metal_info
     template_name = 'metal/steel-slug.html'
     context_object_name = "metal_info"
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['menu'] = menu[self.template_name]
         return context
 
-class Steel_class_slug(SingleObjectMixin, ListView):
+class Steel_class_slug(ContextMixin, SingleObjectMixin, ListView):
     template_name = 'metal/steel-steel_class-slug.html'
     paginate_by = 8
     paginate_orphans =2
     slug_model = Metal_class
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['menu'] = menu[self.template_name]
         context[self.slug_model.__name__.lower()] = self.object
         return context
 
@@ -120,14 +108,13 @@ class Steel_class_slug(SingleObjectMixin, ListView):
     def get_queryset(self):
         return self.object.metals_info.all() # здесь выбирается кверисет , который будет page_obj
 
-class SearchAll(ListView):
+class SearchAll(ContextMixin, ListView):
     paginate_by = 20
     paginate_orphans =5
     model = MetalSearch
     template_name = 'metal/steel-result.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['menu'] = menu[self.template_name]
         return context
     def get_queryset(self):
         return self.model.objects.order_by('-date')
