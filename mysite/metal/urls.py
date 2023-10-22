@@ -2,7 +2,7 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
-    path('start/', Start.as_view(), name='start-url'),
+    path('start/', NewStart.as_view(), name='start-url'),
     path('search/', NewSearch.as_view(), name='search-url'),
     path('search/<slug:slug>/', NewSearch.as_view(), name='search-slug-url'),
     path('steel/steel_class/', Steel_class.as_view(), name='steel-steel_class-url'),

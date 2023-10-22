@@ -3,6 +3,7 @@ from django.core.paginator import Paginator
 
 from metal.forms import MetalForm
 from metal.sourse.menu import menu
+from metal.tools.decorators2 import track_queries
 
 
 class If_paginator():

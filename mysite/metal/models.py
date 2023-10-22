@@ -6,11 +6,16 @@ from django.shortcuts import reverse
 from transliterate import slugify
 
 class CountManager(models.Manager):
-    def __init__(self, to_annotate):
+    _name = 'total'
+    def __init__(self, to_annotate, name=_name, ordering=False):
         super().__init__()
         self.to_annotate = to_annotate
+        self.name = name
+        self.ordering = '-' if not ordering else ''
+        self.in_annotate = {self.name : Count(self.to_annotate)}
+
     def get_queryset(self):
-        return super().get_queryset().annotate(total=Count(self.to_annotate)).order_by('-total')
+        return super().get_queryset().annotate(**self.in_annotate).order_by(self.ordering+self.name)
 
 class Metal_info(models.Model):
     objects = models.Manager()

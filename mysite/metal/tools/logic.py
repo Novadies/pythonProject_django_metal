@@ -20,7 +20,7 @@ def If_0_value(answer: QuerySet, cleaned_data: dict)-> QuerySet:
 
 def other_value(answer: QuerySet, data: dict, key: str)-> QuerySet:
     dk = data[key]
-    if type(dk)==float:
+    if isinstance(dk, float):
         first = str(dk).startswith('-')
         value = float(str(dk)[1:]) if first else dk
         query_method = answer.exclude if first else answer.filter

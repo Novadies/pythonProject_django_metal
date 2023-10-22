@@ -7,21 +7,31 @@ from django.utils.timezone import make_aware
 
 
 from .forms import *
-from .tools.decorators2 import track_queries
 from .utils import *
 
 
-class Start(NoSlugMixin, If_paginator, View):
-    models = [Metal_info]
-    to_padinator = (models[0].count_manager.all(), '40')
-    template = 'metal/start.html'
-    dict_dop = {'menu': menu[template]}
+# class Start(NoSlugMixin, If_paginator, View):
+#     models = [Metal_info]
+#     to_padinator = (models[0].count_manager.all(), '40')
+#     template = 'metal/start.html'
+#     dict_dop = {'menu': menu[template]}
+
+class NewStart(ContextMixin, ListView):
+    paginate_by = 20
+    paginate_orphans =5
+    model = Metal_info
+    template_name = 'metal/start.html'
+    def get_queryset(self):
+        # prefetch_related делает на 1 запрос больше чем select_related, но в итоге быстрее раза в 3
+        return self.model.count_manager.prefetch_related('metals_class').all()
 
 class NewSearch(View):
+    @track_queries
     def get(self, request, *args, **kwargs):
         view = GetSearch.as_view()
         return view(request, *args, **kwargs)
 
+    @track_queries
     def post(self, request, *args, **kwargs):
         view = PostSearch.as_view()
         return view(request, *args, **kwargs)
@@ -47,7 +57,7 @@ class GetSearch(SearchMixin, ContextMixin, SingleObjectMixin, ListView):
 
     def get_queryset(self):
         if self.object:
-            return self.object.metals_info.all() # здесь выбирается кверисет , который будет page_obj
+            return self.object.metals_info.select_related('metals_class', 'metals').all() # здесь выбирается кверисет , который будет page_obj
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_initial()
@@ -61,7 +71,6 @@ class PostSearch(SearchMixin, CreateView):
         slug = str(date)[-21:-6].replace(':', '_').replace('.', '-')
         return date, slug
 
-    @track_queries
     def form_valid(self, form):
         dop_field={'slug': self.get_dop_field()[1], 'date': self.get_dop_field()[0]}
         # добавляем данные с формы, а так же сгенерированые самостоятельно

@@ -58,9 +58,10 @@ class MetalForm(forms.ModelForm):
     #     return field_data
     @staticmethod
     def search_for_connections(cleaned_data):
-        answer = Metal_2.objects.all().select_related("Metal", "Metal_info")
-        answer = If_0_value(answer, cleaned_data)
         data = {key:value for key, value in cleaned_data.items() if value}
+        only = [f'{key}_min' for key in data] + [f'{key}_max' for key in data]
+        answer = Metal_2.objects.only(*only)
+        answer = If_0_value(answer, cleaned_data)
         if data:
             for key in data:
                 answer = other_value(answer, data, key)
