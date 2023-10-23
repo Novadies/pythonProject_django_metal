@@ -5,3 +5,12 @@ menu = {'metal/start.html':'Обзор сплавов',
         'metal/steel-steel_class-slug.html': 'Вид применения стали',
         'metal/steel-result.html': 'Перечень запросов',
         }
+
+menu2 = {'start-url':'Обзор сплавов',
+        'search-url':'Поиск сплавов',
+        'search-slug-url':'Поиск сплавов',
+        'steel-steel_class-url': 'Виды применения стали',
+        'steel-steel_class-slug-url': 'Сталь',
+        'steel-result-url': 'Вид применения стали',
+        'steel-slug-url': 'Перечень запросов',
+        }
