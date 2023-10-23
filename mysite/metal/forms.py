@@ -10,7 +10,7 @@ from .models import *
 search_fields = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb"]
 
 class MetalForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs): # это для передачи начальных данных в форму
         extra_data = kwargs.pop('extra_data', None)
         super().__init__(*args, **kwargs)
         if extra_data:
@@ -30,7 +30,7 @@ class MetalForm(forms.ModelForm):
     def clean(self): # проверка для формы, а не конкретного поля
         cleaned_data = super().clean()
         #pattern = re.compile(r"^[-—]?\d{1,2}([.,$]\d{0,2})?$")
-        pattern = re.compile(r"^([-—]?\d{1,2}([.,$]\d{0,2})?)([-—]\d{1,2}([.,$]\d{0,2})?)?$")
+        pattern = re.compile(r"^([-—]?\d{1,2}([.,$]\d{0,2})?)([-—]\d{1,2}([.,$]\d{0,2})?)?$") #проверка учитывающая ввод диапазона
         zero = True
         for field in search_fields:
             f = cleaned_data.get(field)
@@ -57,15 +57,15 @@ class MetalForm(forms.ModelForm):
     #     # можно что-нибудь сделать при наличии ошибки
     #     return field_data
     @staticmethod
-    def search_for_connections(cleaned_data):
-        data = {key:value for key, value in cleaned_data.items() if value}
-        only = [f'{key}_min' for key in data] + [f'{key}_max' for key in data]
+    def search_for_connections(cleaned_data): # ОБРАБОТКА значений из формы
+        data = {key:value for key, value in cleaned_data.items() if value} # получение всех значений кроме нулевых
+        only = [f'{key}_min' for key in data] + [f'{key}_max' for key in data] #получение используемых полей
         answer = Metal_2.objects.only(*only)
-        answer = If_0_value(answer, cleaned_data)
+        answer = If_0_value(answer, cleaned_data) #обработка нулевых значений
         if data:
             for key in data:
                 answer = other_value(answer, data, key)
-        metal_2_to_metal = Metal.objects.filter(metal_compound__in=answer)
+        metal_2_to_metal = Metal.objects.filter(metal_compound__in=answer) #проход по связям
         return Metal_info.objects.filter(metals__in=metal_2_to_metal)
 
     # def save(self, commit=True): # вызывается один раз. Метод form.save() и кверисет.save() это разные методы

@@ -12,7 +12,7 @@ class CountManager(models.Manager):
         self.to_annotate = to_annotate
         self.name = name
         self.ordering = '-' if not ordering else ''
-        self.in_annotate = {self.name : Count(self.to_annotate)}
+        self.in_annotate = {self.name : Count(self.to_annotate)} # счётчик
 
     def get_queryset(self):
         return super().get_queryset().annotate(**self.in_annotate).order_by(self.ordering+self.name)
@@ -71,18 +71,19 @@ class Metal_class(models.Model):
             self.slug = slugify(f"{self.steel_class}")
         return super().save(*args, **kwargs)
 
-class AbstructForMetal(models.Model):
+class AbstructForMetal(models.Model): #абстрактный класс
     _S = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N",
           "Pb", "Fe"]
-    for __i in _S:
-        locals()[__i] = models.CharField(max_length=20, blank=True, null=True)
+    for _i in _S:
+        locals()[_i] = models.CharField(max_length=20, blank=True, null=True)
 
     @staticmethod
-    def field_S(*args):
-        fields = [field for field in AbstructForMetal._meta.fields if not field.one_to_one]
+    def field_S(*args): # получение полей из бд исключая определенные
+        fields = [field for field in AbstructForMetal._meta.fields if not field.one_to_one] #явно прописываю абстрактный класс вместо self,
+        # что бы можно было использовать в других
         return [fn for field in fields if (fn := field.name) not in ['id', *args]]
 
-    def return_all(self):  # получение всех полей
+    def return_all(self) -> dict:  # получение ключ значение выбранных полей
         return {field: getattr(self, field) for field in self.field_S()}
     class Meta:
         abstract = True
@@ -100,9 +101,9 @@ class Metal(AbstructForMetal):
 
 
 class Metal_2(models.Model):
-    for __min, __max in [(f'{i}_min', f'{i}_max') for i in AbstructForMetal._S[:-1]]:
-        locals()[__min] = models.FloatField(blank=True, null=True, db_index=True)
-        locals()[__max] = models.FloatField(blank=True, null=True, db_index=True)
+    for _min, _max in [(f'{i}_min', f'{i}_max') for i in AbstructForMetal._S[:-1]]: # исключаем Fe
+        locals()[_min] = models.FloatField(blank=True, null=True, db_index=True)
+        locals()[_max] = models.FloatField(blank=True, null=True, db_index=True)
     def get_min_max(self, arg):
         min = getattr(self, f'{arg}_min')
         max = getattr(self, f'{arg}_max')

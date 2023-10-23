@@ -51,6 +51,7 @@ def decorator_with_arguments(dict_dop, to_padinator):
 
 
 def track_queries(func):
+    # использование connection в качестве декоратора
     @wraps(func)
     def wrapper(*args, **kwargs):
         q = len(connection.queries)
