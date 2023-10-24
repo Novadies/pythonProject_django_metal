@@ -82,7 +82,7 @@ class PostSearch(SearchMixin, CreateView):
 
 
 class Steel_class(ContextMixin, ListView):
-    paginate_by = 10
+    paginate_by = 12
     paginate_orphans =5
     model = Metal_class
     template_name = 'metal/steel-steel_class.html'
