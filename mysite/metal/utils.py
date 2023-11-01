@@ -35,23 +35,14 @@ class NoSlugMixin():  # тут конкретно нет смысла перед
         context={**dict_context, **self.dict_dop}  # передаются дополнительные параметры, например формы
         return render(request, self.template, context=context)
 
-# class ForSlugMixin():
-#     model, template_name = None, None
-#     dict_dop = {}
-#     def get(self, request, slug):
-#         context={self.model.__name__.lower(): get_object_or_404(self.model, slug__iexact=slug)} # передаётся экземпляр класса
-#         context.update(self.dict_dop)
-#         return render(request, self.template_name, context=context)
-
 class SearchMixin():
     template_name = 'metal/search.html'
     form_class = MetalForm
-
+    def get_context_data(self, initial=False, **kwargs): #перенёс сюда, потому что могу, добавил initial для поста запроса
+        context = super().get_context_data(**kwargs)
+        context['initial'] = initial if initial else {field: getattr(self.object, field, None) for field in self.form_Meta.fields}
+        context['form'] = self.form_class(extra_data=context['initial'])
+        return context
 
 class ContextMixin():
     pass
-    # template_name = None
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context['menu'] = menu.get(self.template_name, 'Страница')
-    #     return context

@@ -8,7 +8,7 @@ from django.utils.timezone import make_aware
 from .forms import *
 from .tools.decorators2 import track_queries
 from .utils import *
-
+from .tools import tools
 
 # class Start(NoSlugMixin, If_paginator, View):
 #     models = [Metal_info]
@@ -49,11 +49,6 @@ class GetSearch(SearchMixin, ContextMixin, SingleObjectMixin, ListView):
         if self.kwargs:
             return self.get_object(queryset=self.form_Meta.model.objects.all())
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['initial'] = {field: getattr(self.object, field, None) for field in self.form_Meta.fields}
-        context['form'] = self.form_class(extra_data=context['initial'])
-        return context
 
     def get_queryset(self):
         if self.object:
@@ -80,6 +75,11 @@ class PostSearch(SearchMixin, CreateView):
         for_save_to_db.metals_info.add(*connections)
         return HttpResponseRedirect(reverse('search-slug-url', args=[dop_field['slug']]))
 
+    def form_invalid(self, form):
+        # Валидация формы не прошла, форма содержит ошибки
+        # Вы можете добавить свою логику обработки ошибок здесь, если это необходимо
+        initial = {field: getattr(form.cleaned_data, field, None) for field in self.form_Meta.fields}
+        return render(self.request, self.template_name, self.get_context_data(initial=initial))
 
 class Steel_class(ContextMixin, ListView):
     paginate_by = 12
@@ -120,3 +120,24 @@ class SearchAll(ContextMixin, ListView):
     template_name = 'metal/steel-result.html'
     def get_queryset(self):
         return self.model.count_manager.order_by('-date')
+
+class SearchView(ListView):
+    paginate_by = 20
+    paginate_orphans = 5
+    template_name = 'search_results.html'
+
+    def get(self, request, *args, **kwargs):
+        query = request.GET.get('query', '')
+        form = SearchForm(initial={'query': query})
+        results = Metal_info.objects.filter(name__icontains=query)
+        return render(request, self.template_name, {'form': form, 'results': results})
+
+    def post(self, request, *args, **kwargs):
+        form_search = SearchForm(request.POST)
+        if form_search.is_valid():
+            query = form_search.cleaned_data['query']
+            SearchQuery.objects.create(query=query)  # Сохраняем поисковой запрос в базу данных
+            results = Metal_info.objects.filter(name__icontains=query)
+        else:
+            results = Metal_info.objects.none()  # Если форма невалидна, показываем пустой результат
+        return render(request, self.template_name, {'form': form_search, 'results': results})

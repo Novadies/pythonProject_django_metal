@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     #'django_extensions',
     #'rest_framework'
+    #'silk',
     'debug_toolbar',
     'metal'                                                          #!!!!! добавление папки metal
 ]
@@ -56,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    #'silk.middleware.SilkyMiddleware',
 ]
 
 ROOT_URLCONF = 'mysite.urls'
@@ -76,6 +78,27 @@ TEMPLATES = [
         },
     },
 ]
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
+    },
+    "loggers": {
+        "django.db.backends": {
+            "handlers": ["console"],
+            'level': 'DEBUG',
+            "propagate": False,
+        },
+    },
+}
 
 WSGI_APPLICATION = 'mysite.wsgi.application'
 

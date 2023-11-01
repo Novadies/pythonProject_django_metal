@@ -1,5 +1,5 @@
 import re
-
+from more_itertools import collapse
 from django import forms
 from django.core.exceptions import ValidationError
 
@@ -45,21 +45,21 @@ class MetalForm(forms.ModelForm):
                 except Exception: self.add_error(field, ValidationError('Значение не проходит валидацию'))
         if zero and len(cleaned_data)==len(search_fields): raise ValidationError("Все поля пусты")
         #if self.has_error(NON_FIELD_ERRORS, code=None):
-        # можно что-нибудь сделать при наличии ошибки
+        # можно что-нибудь сделать при наличии ошибки но для этого не нужно бросать исключение, иначе код дальше не пойдёт
 
-    # def clean_Zr(self):
-    #     field='Zr'
-    #     field_data= self.cleaned_data[field]
-    #     if field_data:
-    #         if len(field_data) > 2:
-    #             raise ValidationError('Длина превышает 2 символов')
-    #     #if self.has_error(field, code=None):
-    #     # можно что-нибудь сделать при наличии ошибки
-    #     return field_data
+    def clean_Zr(self):
+        field='Zr'
+        field_data = self.cleaned_data[field]
+        if field_data and len(field_data) > 2:
+            self.add_error(field, ValidationError('Длина превышает 2 символа'))
+        if self.has_error(field, code=None): # если ошибка
+            field_data = field_data[:2]
+            self.cleaned_data[field] = field_data
+        return field_data
     @staticmethod
     def search_for_connections(cleaned_data): # ОБРАБОТКА значений из формы
         data = {key:value for key, value in cleaned_data.items() if value} # получение всех значений кроме нулевых
-        only = [f'{key}_min' for key in data] + [f'{key}_max' for key in data] #получение используемых полей
+        only = collapse([[f'{key}_min', f'{key}_max'] for key in data]) # перечень полей которые есть в запросе формы
         answer = Metal_2.objects.only(*only)
         answer = If_0_value(answer, cleaned_data) #обработка нулевых значений
         if data:
@@ -77,5 +77,5 @@ class MetalForm(forms.ModelForm):
     #         f.save()
     #     return f
 
-class NotBoundsForm(forms.Form):
-    u_name = forms.CharField(validators=[], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите'}), label="Имя пользователя")#, initial="ноунейм")
+class SearchForm(forms.Form):
+    query = forms.CharField(validators=[], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите'}), label="Имя пользователя")#, initial="ноунейм")
