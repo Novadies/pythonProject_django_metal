@@ -8,17 +8,20 @@
     
     {% include 'metal/includes/buttons.html' %}
 
-    {% for steel in page_obj %}
 
-        <div class="container text-center">
-            <div class="row">
 
-                <a class="btn btn-warning" href="{{steel.get_absolute_url }}" role="button">{{steel.steel_class}}</a>
-                <hr>
-
-            </div>
+    <div class="container">
+        <div class="row">
+            {% for steel in page_obj %}
+                <div class="col-md-3">
+                    <a class="badge bg-primary" href="{{steel.get_absolute_url }}" role="button">{{steel.steel_class}}</a>
+                </div>
+            {% empty %}
+                <p>Нет текста</p>
+            {% endfor %}
         </div>
-    {% endfor %}
+    </div>
+
 
     {% include 'metal/includes/paginator.html' %}
 

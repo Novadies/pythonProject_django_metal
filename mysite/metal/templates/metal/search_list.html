@@ -9,15 +9,9 @@
     {% include 'metal/includes/buttons.html' %}
 
     {% for page in page_obj %}
-
-        <div class="container text-center">
-            <div class="row">
-
-                <a class="btn btn-warning" href="{{page.get_absolute_url }}" role="button">{{page.date}}{{page.total}}</a>
-                <hr>
-
-            </div>
-        </div>
+      {{ page }}<br>
+    {% empty %}
+      No results found.
     {% endfor %}
 
     {% include 'metal/includes/paginator.html' %}

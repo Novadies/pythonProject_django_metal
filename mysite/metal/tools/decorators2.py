@@ -53,15 +53,17 @@ def decorator_with_arguments(dict_dop, to_padinator):
 def track_queries(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        q = len(connection.queries)
-        func_return = func(*args, **kwargs)
-        print(func.__name__)
-        executed_queries = connection.queries[q:]
-        time = 0
-        for n, queri in enumerate(executed_queries):
-            print(f'{n + 1}___________{queri}')
-            time += float(queri['time'])
-        else:
+        try:
+            q = len(connection.queries)
+            func_return = func(*args, **kwargs)
+            print(func.__name__)
+            executed_queries = connection.queries[q:]
+            time = 0
+            for n, query in enumerate(executed_queries):
+                print(f'{n + 1}___________{query}')
+                time += float(query['time'])
             print(time)
-        return func_return
+            return func_return
+        except Exception :
+            return func(*args, **kwargs)
     return wrapper

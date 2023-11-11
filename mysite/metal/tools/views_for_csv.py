@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.contrib import messages
@@ -27,3 +28,26 @@ def upload_csv(request):
     except Exception as e:
         messages.error(request, "Unable to upload file. "+repr(e))
     return HttpResponseRedirect(reverse('start-url'))
+
+def upload_file(request):
+    HTML = "metal/upload_form.html"
+    if request.method == 'POST':
+        uploaded_file = request.FILES.get('file')
+        if uploaded_file:
+            if uploaded_file.content_type in ALLOWED_FILE_EXTENSIONS:
+                try:
+                    with open('uploads/' + uploaded_file.name, 'wb+') as destination:
+                        for chunk in uploaded_file.chunks():
+                            destination.write(chunk)
+                    return HttpResponseRedirect(reverse('start-url'))
+                except ValidationError as e:
+                    error_message = str(e)
+                    return render(request, HTML, {'error_message': error_message})
+            else:
+                error_message = "Invalid file type."
+                return render(request, HTML, {'error_message': error_message})
+        else:
+            error_message = "No file selected."
+            return render(request, HTML, {'error_message': error_message})
+    else:
+        return render(request, HTML)

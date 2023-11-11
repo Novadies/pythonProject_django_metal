@@ -1,13 +1,11 @@
-
-
-             #удаление всех миграций
-# from django.db import connection
-# with connection.cursor() as cursor:
-#     cursor.execute("DELETE FROM 'django_migrations' WHERE 'app'='metal'")
-
-
+DieMigrationsDie = False
 START_DB=False
 DEATH=False
+
+if DieMigrationsDie:
+    from django.db import connection #удаление всех миграций
+    with connection.cursor() as cursor:
+        cursor.execute("DELETE FROM 'django_migrations' WHERE 'app'='metal'")
 
 if START_DB:
         # удаление начальных данных

@@ -1,5 +1,5 @@
 import re
-
+from more_itertools import collapse
 from django import forms
 from django.core.exceptions import ValidationError
 
@@ -10,7 +10,7 @@ from .models import *
 search_fields = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb"]
 
 class MetalForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs): # это для передачи начальных данных в форму
         extra_data = kwargs.pop('extra_data', None)
         super().__init__(*args, **kwargs)
         if extra_data:
@@ -28,9 +28,9 @@ class MetalForm(forms.ModelForm):
         widgets = {field: forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите элемент, %'}) for field in fields}
 
     def clean(self): # проверка для формы, а не конкретного поля
-        cleaned_data = super().clean()
+        cleaned_data = super().clean() # можно менять словарь cleaned_data
         #pattern = re.compile(r"^[-—]?\d{1,2}([.,$]\d{0,2})?$")
-        pattern = re.compile(r"^([-—]?\d{1,2}([.,$]\d{0,2})?)([-—]\d{1,2}([.,$]\d{0,2})?)?$")
+        pattern = re.compile(r"^([-—]?\d{1,2}([.,$]\d{0,2})?)([-—]\d{1,2}([.,$]\d{0,2})?)?$") #проверка учитывающая ввод диапазона
         zero = True
         for field in search_fields:
             f = cleaned_data.get(field)
@@ -45,26 +45,27 @@ class MetalForm(forms.ModelForm):
                 except Exception: self.add_error(field, ValidationError('Значение не проходит валидацию'))
         if zero and len(cleaned_data)==len(search_fields): raise ValidationError("Все поля пусты")
         #if self.has_error(NON_FIELD_ERRORS, code=None):
-        # можно что-нибудь сделать при наличии ошибки
+        # можно что-нибудь сделать при наличии ошибки но для этого не нужно бросать исключение, иначе код дальше не пойдёт
 
     # def clean_Zr(self):
     #     field='Zr'
-    #     field_data= self.cleaned_data[field]
-    #     if field_data:
-    #         if len(field_data) > 2:
-    #             raise ValidationError('Длина превышает 2 символов')
-    #     #if self.has_error(field, code=None):
-    #     # можно что-нибудь сделать при наличии ошибки
+    #     field_data = self.cleaned_data[field]
+    #     if field_data and len(field_data) > 2:
+    #         self.add_error(field, ValidationError('Длина превышает 2 символа'))
+    #     if self.has_error(field, code=None): # если ошибка
+    #         field_data = field_data[:2]
     #     return field_data
+
     @staticmethod
-    def search_for_connections(cleaned_data):
-        answer = Metal_2.objects.all().select_related("Metal", "Metal_info")
-        answer = If_0_value(answer, cleaned_data)
-        data = {key:value for key, value in cleaned_data.items() if value}
+    def search_for_connections(cleaned_data): # ОБРАБОТКА значений из формы
+        data = {key:value for key, value in cleaned_data.items() if value} # получение всех значений кроме нулевых
+        only = collapse([[f'{key}_min', f'{key}_max'] for key in data]) # перечень полей которые есть в запросе формы
+        answer = Metal_2.objects.only(*only)
+        answer = If_0_value(answer, cleaned_data) #обработка нулевых значений
         if data:
             for key in data:
                 answer = other_value(answer, data, key)
-        metal_2_to_metal = Metal.objects.filter(metal_compound__in=answer)
+        metal_2_to_metal = Metal.objects.filter(metal_compound__in=answer) #проход по связям
         return Metal_info.objects.filter(metals__in=metal_2_to_metal)
 
     # def save(self, commit=True): # вызывается один раз. Метод form.save() и кверисет.save() это разные методы
@@ -76,5 +77,5 @@ class MetalForm(forms.ModelForm):
     #         f.save()
     #     return f
 
-class NotBoundsForm(forms.Form):
-    u_name = forms.CharField(validators=[], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите'}), label="Имя пользователя")#, initial="ноунейм")
+class SearchForm(forms.Form):
+    query = forms.CharField(validators=[], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите'}), label="Имя пользователя")#, initial="ноунейм")
