@@ -33,10 +33,10 @@
                 <a class="nav-link disabled">Отключенная</a>
               </li>
             </ul>
+            <!--action="{% url 'search_list-url' %} перенаправляет на другую страницу!-->
+            <form class="d-flex" role="search" method="GET" action="{% url 'search_list-url' %}">
 
-            <form class="d-flex" role="search" method="POST" action="{% url 'search_list-url' %}">
-              {% csrf_token %}
-              <input class="form-control me-2" type="search" placeholder="Поиск" aria-label="Поиск" name="form_search">
+              <input class="form-control me-2" type="search" placeholder="Поиск" aria-label="Поиск" name="search_in_bar" value="{{ query }}">
               <button class="btn btn-outline-success" type="submit">Поиск</button>
             </form>
 

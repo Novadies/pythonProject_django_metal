@@ -9,13 +9,9 @@
     {% include 'metal/includes/buttons.html' %}
 
     {% for page in page_obj %}
-
-        {% for result in page %}
-          {{ result.name }}<br>
-        {% empty %}
-          No results found.
-        {% endfor %}
-
+      {{ page }}<br>
+    {% empty %}
+      No results found.
     {% endfor %}
 
     {% include 'metal/includes/paginator.html' %}

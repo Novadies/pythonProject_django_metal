@@ -28,7 +28,7 @@ class MetalForm(forms.ModelForm):
         widgets = {field: forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите элемент, %'}) for field in fields}
 
     def clean(self): # проверка для формы, а не конкретного поля
-        cleaned_data = super().clean()
+        cleaned_data = super().clean() # можно менять словарь cleaned_data
         #pattern = re.compile(r"^[-—]?\d{1,2}([.,$]\d{0,2})?$")
         pattern = re.compile(r"^([-—]?\d{1,2}([.,$]\d{0,2})?)([-—]\d{1,2}([.,$]\d{0,2})?)?$") #проверка учитывающая ввод диапазона
         zero = True
@@ -47,15 +47,15 @@ class MetalForm(forms.ModelForm):
         #if self.has_error(NON_FIELD_ERRORS, code=None):
         # можно что-нибудь сделать при наличии ошибки но для этого не нужно бросать исключение, иначе код дальше не пойдёт
 
-    def clean_Zr(self):
-        field='Zr'
-        field_data = self.cleaned_data[field]
-        if field_data and len(field_data) > 2:
-            self.add_error(field, ValidationError('Длина превышает 2 символа'))
-        if self.has_error(field, code=None): # если ошибка
-            field_data = field_data[:2]
-            self.cleaned_data[field] = field_data
-        return field_data
+    # def clean_Zr(self):
+    #     field='Zr'
+    #     field_data = self.cleaned_data[field]
+    #     if field_data and len(field_data) > 2:
+    #         self.add_error(field, ValidationError('Длина превышает 2 символа'))
+    #     if self.has_error(field, code=None): # если ошибка
+    #         field_data = field_data[:2]
+    #     return field_data
+
     @staticmethod
     def search_for_connections(cleaned_data): # ОБРАБОТКА значений из формы
         data = {key:value for key, value in cleaned_data.items() if value} # получение всех значений кроме нулевых

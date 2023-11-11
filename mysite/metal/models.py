@@ -22,7 +22,7 @@ class Metal_info(models.Model):
     count_manager = CountManager('metalsearch')
 
     steel = models.CharField(max_length=50, blank=True)
-    steel_info = models.TextField(blank=True,)
+    steel_info = models.TextField(blank=True,verbose_name = 'Информация по стали')
     slug = models.SlugField(max_length=100, unique=True, blank=True, null=True, db_index=True)
 
     metals_class = models.ForeignKey(
@@ -45,6 +45,8 @@ class Metal_info(models.Model):
 
     class Meta:
         ordering = ['steel']
+        verbose_name = 'Информация по сплавам'
+        verbose_name_plural = 'Информация по сплавам (список)'
 
     def __str__(self):
         return self.steel
@@ -52,13 +54,13 @@ class Metal_info(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(f"{self.steel}_{''.join(word[0] for word in self.steel_info.split())}")
-        return super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('steel-slug-url', kwargs={'slug': self.slug})
 
 class Metal_class(models.Model):
-    steel_class = models.CharField(max_length=50, unique=True, blank=True)
+    steel_class = models.CharField(max_length=99, unique=True, blank=True, verbose_name = 'Класс стали')
     slug = models.SlugField(max_length=100, unique=True, blank=True, null=True, db_index=True)
 
     def __str__(self):
@@ -67,7 +69,7 @@ class Metal_class(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(f"{self.steel_class}")
-        return super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('steel-steel_class-slug-url', kwargs={'slug': self.slug})
@@ -76,7 +78,7 @@ class AbstructForMetal(models.Model): #абстрактный класс
     _S = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N",
           "Pb", "Fe"]
     for _i in _S:
-        locals()[_i] = models.CharField(max_length=20, blank=True)
+        locals()[_i] = models.CharField(max_length=20, blank=True, verbose_name = f'Элемент {_i}')
 
     class Meta:
         abstract = True
@@ -105,8 +107,8 @@ class Metal(AbstructForMetal):
 
 class Metal_2(models.Model):
     for _min, _max in [(f'{i}_min', f'{i}_max') for i in AbstructForMetal._S[:-1]]: # исключаем Fe
-        locals()[_min] = models.FloatField(blank=True, null=True, db_index=True)
-        locals()[_max] = models.FloatField(blank=True, null=True, db_index=True)
+        locals()[_min] = models.FloatField(blank=True, null=True, db_index=True, verbose_name = f'Минимум элемента {_min}')
+        locals()[_max] = models.FloatField(blank=True, null=True, db_index=True, verbose_name = f'Максимум элемента {_max}')
     def __str__(self):
         return str(self.id)
     def get_min_max(self, arg):
@@ -153,8 +155,8 @@ class Metal_request(models.Model):
         related_name='metals_request'
     )
 
-class SearchQuery(models.Model):
-    query = models.CharField(max_length=255, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    class Meta:
-        ordering = ['-created_at']
+# class SearchQuery(models.Model):
+#     query = models.CharField(max_length=255, blank=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     class Meta:
+#         ordering = ['-created_at']

@@ -28,6 +28,8 @@ urlpatterns = [
     path('metal/', include('metal.urls')),
 ]
 handler404 = pagenotfound
+admin.site.site_header = "Панель администрирования"
+admin.site.index_title = "Список приложений"
 
 if settings.DEBUG:
     import debug_toolbar
@@ -35,5 +37,7 @@ if settings.DEBUG:
     urlpatterns = [
                       path('__debug__/', include(debug_toolbar.urls)),
                   ] + urlpatterns
+    try:
+        urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    except Exception: pass
 
-    #urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

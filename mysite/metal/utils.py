@@ -38,11 +38,6 @@ class NoSlugMixin():  # тут конкретно нет смысла перед
 class SearchMixin():
     template_name = 'metal/search.html'
     form_class = MetalForm
-    def get_context_data(self, initial=False, **kwargs): #перенёс сюда, потому что могу, добавил initial для поста запроса
-        context = super().get_context_data(**kwargs)
-        context['initial'] = initial if initial else {field: getattr(self.object, field, None) for field in self.form_Meta.fields}
-        context['form'] = self.form_class(extra_data=context['initial'])
-        return context
 
 class ContextMixin():
     pass
