@@ -32,12 +32,13 @@ admin.site.site_header = "Панель администрирования"
 admin.site.index_title = "Список приложений"
 
 if settings.DEBUG:
-    import debug_toolbar
-
-    urlpatterns = [
-                      path('__debug__/', include(debug_toolbar.urls)),
-                  ] + urlpatterns
     try:
-        urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    except Exception: pass
+        import debug_toolbar
 
+        urlpatterns = [
+                          path('__debug__/', include(debug_toolbar.urls)),
+                      ] + urlpatterns
+        try:
+            urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+        except Exception: pass
+    except Exception: pass

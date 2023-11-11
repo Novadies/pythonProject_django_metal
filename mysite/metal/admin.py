@@ -61,4 +61,5 @@ class MetalSearchAdmin(admin.ModelAdmin):
     ordering = ['date']
 
 admin.site.register(Metal_request)
-admin.site.register(SearchQuery)
+
+#admin.site.register(SearchQuery)

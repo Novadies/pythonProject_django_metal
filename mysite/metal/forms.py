@@ -1,5 +1,5 @@
 import re
-from more_itertools import collapse
+#from more_itertools import collapse
 from django import forms
 from django.core.exceptions import ValidationError
 
@@ -59,7 +59,8 @@ class MetalForm(forms.ModelForm):
     @staticmethod
     def search_for_connections(cleaned_data): # ОБРАБОТКА значений из формы
         data = {key:value for key, value in cleaned_data.items() if value} # получение всех значений кроме нулевых
-        only = collapse([[f'{key}_min', f'{key}_max'] for key in data]) # перечень полей которые есть в запросе формы
+        #only = collapse([[f'{key}_min', f'{key}_max'] for key in data]) # перечень полей которые есть в запросе формы
+        only = {}
         answer = Metal_2.objects.only(*only)
         answer = If_0_value(answer, cleaned_data) #обработка нулевых значений
         if data:
