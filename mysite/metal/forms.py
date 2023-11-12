@@ -29,7 +29,6 @@ class MetalForm(forms.ModelForm):
 
     def clean(self): # проверка для формы, а не конкретного поля
         cleaned_data = super().clean() # можно менять словарь cleaned_data
-        #pattern = re.compile(r"^[-—]?\d{1,2}([.,$]\d{0,2})?$")
         pattern = re.compile(r"^([-—]?\d{1,2}([.,$]\d{0,2})?)([-—]\d{1,2}([.,$]\d{0,2})?)?$") #проверка учитывающая ввод диапазона
         zero = True
         for field in search_fields:

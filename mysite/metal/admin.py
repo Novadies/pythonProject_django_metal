@@ -29,7 +29,7 @@ class Metal_infoAdmin(admin.ModelAdmin):
     list_filter = [Whattafuu_Filter, 'metals_class__steel_class']
     #prepopulated_fields = {"slug": ("steel_info",)} для создание слага в админ панели, корректность не известна
     filter_horizontal = ['metalsearch']
-
+    save_on_top = True
     @admin.display(description="Количество именованных элементов в названии", ordering='steel') #сортировка только по существующему в бд
     def count_letters(self, metal_info): #добавление столбца, отсутствующего в бд
         letters_count = 0

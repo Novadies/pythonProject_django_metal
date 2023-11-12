@@ -31,6 +31,7 @@
         <button type="submit" class="btn btn-primary">Показать</button>
 
       </form>
+
         {% url 'steel-result-url' as top_path %}
         {% if request.path != top_path %}
             <a class="btn btn-warning" href="{{ top_path }}" role="button">К истории поиска</a>
