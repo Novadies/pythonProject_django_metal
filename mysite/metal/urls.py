@@ -11,5 +11,5 @@ urlpatterns = [
     path('steel/result/', SearchAll.as_view(), name='steel-result-url'),
     path('steel/<slug:slug>/', Steel.as_view(), name='steel-slug-url'),
     # path('steel/function/<str:slug>/', Function_index.as_view(), name='function_index_url'),
-    #path('upload_csv/', upload_csv, name='upload_csv'),     # для загрузки файлов
+    # path('upload_csv/', upload_csv, name='upload_csv'),     # для загрузки файлов
 ]

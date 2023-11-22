@@ -43,21 +43,25 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     #'django_extensions',
     #'rest_framework'
-    #'silk',
-    #'debug_toolbar',
+    'simple_history',
+    'silk',
+    'django_filters',
+    'debug_toolbar',
     'metal'                                                          #!!!!! добавление папки metal
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'silk.middleware.SilkyMiddleware',                                # silk
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #'debug_toolbar.middleware.DebugToolbarMiddleware',
-    #'silk.middleware.SilkyMiddleware',
+    'metal.middleware.YourMiddlewareClass',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'mysite.urls'
@@ -65,7 +69,7 @@ ROOT_URLCONF = 'mysite.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],                  #!!!!! добавление папки  templates
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],                  # !!!!! добавление папки  templates
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

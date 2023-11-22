@@ -1,5 +1,5 @@
 import re
-#from more_itertools import collapse
+
 from django import forms
 from django.core.exceptions import ValidationError
 
@@ -7,17 +7,40 @@ from metal.tools.logic import If_0_value, other_value, packing
 from .models import *
 
 
-search_fields = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb"]
+search_fields = [
+    "C",
+    "Si",
+    "Mn",
+    "Cr",
+    "Ni",
+    "Ti",
+    "Al",
+    "W",
+    "Mo",
+    "Nb",
+    "V",
+    "S",
+    "P",
+    "Cu",
+    "Co",
+    "Zr",
+    "Be",
+    "Se",
+    "N",
+    "Pb",
+]
+
 
 class MetalForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs): # это для передачи начальных данных в форму
-        extra_data = kwargs.pop('extra_data', None)
+    def __init__(self, *args, **kwargs):  # это для передачи начальных данных в форму
+        extra_data = kwargs.pop("extra_data", None)
         super().__init__(*args, **kwargs)
         if extra_data:
             for i in extra_data:
                 self.fields[i].initial = extra_data[i]
 
-    template_name = "metal/includes/form_snippet.html" #имя шаблона для формы, опция
+    template_name = "metal/includes/form_snippet.html"  # имя шаблона для формы, опция
+
     # u_name = forms.CharField(validators=[], required=False,
     #                          widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите'}),
     #                          label="Имя пользователя")
@@ -25,25 +48,42 @@ class MetalForm(forms.ModelForm):
     class Meta:
         model = MetalSearch
         fields = search_fields
-        widgets = {field: forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите элемент, %'}) for field in fields}
+        widgets = {
+            field: forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "Введите элемент, %"}
+            )
+            for field in fields
+        }
 
-    def clean(self): # проверка для формы, а не конкретного поля
-        cleaned_data = super().clean() # можно менять словарь cleaned_data
-        pattern = re.compile(r"^([-—]?\d{1,2}([.,$]\d{0,2})?)([-—]\d{1,2}([.,$]\d{0,2})?)?$") #проверка учитывающая ввод диапазона
+    def clean(self):  # проверка для формы, а не конкретного поля
+        cleaned_data = super().clean()  # можно менять словарь cleaned_data
+        pattern = re.compile(
+            r"^([-—]?\d{1,2}([.,$]\d{0,2})?)([-—]\d{1,2}([.,$]\d{0,2})?)?$"
+        )  # проверка учитывающая ввод диапазона
         zero = True
         for field in search_fields:
             f = cleaned_data.get(field)
-            if f: zero = False
-            else: continue
-            if len(f) > 12:  self.add_error(field, ValidationError('Длина превышает 12 символа')) # ошибка будет в .error а не .non_field_errors
-            if not pattern.match(f): self.add_error(field, ValidationError('Введите подходящее число'))
+            if f:
+                zero = False
+            else:
+                continue
+            if len(f) > 12:
+                self.add_error(
+                    field, ValidationError("Длина превышает 12 символа")
+                )  # ошибка будет в .error а не .non_field_errors
+            if not pattern.match(f):
+                self.add_error(field, ValidationError("Введите подходящее число"))
             else:
                 try:
-                    data = f.replace(',', '.').replace(' ', '').replace('—', '-')
+                    data = f.replace(",", ".").replace(" ", "").replace("—", "-")
                     cleaned_data[field] = packing(data)
-                except Exception: self.add_error(field, ValidationError('Значение не проходит валидацию'))
-        if zero and len(cleaned_data)==len(search_fields): raise ValidationError("Все поля пусты")
-        #if self.has_error(NON_FIELD_ERRORS, code=None):
+                except Exception:
+                    self.add_error(
+                        field, ValidationError("Значение не проходит валидацию")
+                    )
+        if zero and len(cleaned_data) == len(search_fields):
+            raise ValidationError("Все поля пусты")
+        # if self.has_error(NON_FIELD_ERRORS, code=None):
         # можно что-нибудь сделать при наличии ошибки но для этого не нужно бросать исключение, иначе код дальше не пойдёт
 
     # def clean_Zr(self):
@@ -56,16 +96,20 @@ class MetalForm(forms.ModelForm):
     #     return field_data
 
     @staticmethod
-    def search_for_connections(cleaned_data): # ОБРАБОТКА значений из формы
-        data = {key:value for key, value in cleaned_data.items() if value} # получение всех значений кроме нулевых
-        #only = collapse([[f'{key}_min', f'{key}_max'] for key in data]) # перечень полей которые есть в запросе формы
+    def search_for_connections(cleaned_data):  # ОБРАБОТКА значений из формы
+        data = {
+            key: value for key, value in cleaned_data.items() if value
+        }  # получение всех значений кроме нулевых
+        # only = collapse([[f'{key}_min', f'{key}_max'] for key in data]) # перечень полей которые есть в запросе формы
         only = {}
         answer = Metal_2.objects.only(*only)
-        answer = If_0_value(answer, cleaned_data) #обработка нулевых значений
+        answer = If_0_value(answer, cleaned_data)  # обработка нулевых значений
         if data:
             for key in data:
                 answer = other_value(answer, data, key)
-        metal_2_to_metal = Metal.objects.filter(metal_compound__in=answer) #проход по связям
+        metal_2_to_metal = Metal.objects.filter(
+            metal_compound__in=answer
+        )  # проход по связям
         return Metal_info.objects.filter(metals__in=metal_2_to_metal)
 
     # def save(self, commit=True): # вызывается один раз. Метод form.save() и кверисет.save() это разные методы
@@ -77,5 +121,13 @@ class MetalForm(forms.ModelForm):
     #         f.save()
     #     return f
 
+
 class SearchForm(forms.Form):
-    query = forms.CharField(validators=[], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите'}), label="Имя пользователя")#, initial="ноунейм")
+    query = forms.CharField(
+        validators=[],
+        required=False,
+        widget=forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "Введите"}
+        ),
+        label="Имя пользователя",
+    )  # , initial="ноунейм")
