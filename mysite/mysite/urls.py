@@ -26,7 +26,7 @@ urlpatterns = [
     #path('', Start_page.as_view(), name='start_page_url'),
     path('admin/', admin.site.urls),
     path('metal/', include('metal.urls')),
-    path('silk/', include('silk.urls', namespace='silk')),
+    #path('silk/', include('silk.urls', namespace='silk')),
 ]
 handler404 = pagenotfound
 admin.site.site_header = "Панель администрирования"

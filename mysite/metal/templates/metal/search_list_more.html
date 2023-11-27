@@ -1,0 +1,32 @@
+{% extends 'metal/base_metal.html' %}
+
+{% block title %}
+  {% include 'metal/includes/menu.html' %}
+{% endblock %}
+
+{% block block_1 %}
+    
+    {% include 'metal/includes/buttons.html' %}
+
+    <form method="get">
+        {{ filter.form.as_p }}
+        <button type="submit">Filter</button>
+    </form>
+
+    {% for page in page_obj %}
+        {{ page.steel }}<br>
+        {{ page.steel_info }}<br>
+        {{ page.metals_class.steel_class }}<br>
+    {% empty %}
+      No results found.
+    {% endfor %}
+
+    {% include 'metal/includes/paginator.html' %}
+
+{% endblock %}
+
+{% block block_2 %}
+  это блок 2
+
+
+{% endblock %}

@@ -1,11 +1,14 @@
+from itertools import chain
+
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.http import HttpResponseRedirect
 from django.utils.datetime_safe import datetime
 from django.views.generic import View, ListView, FormView, CreateView, DetailView
 from django.views.generic.detail import SingleObjectMixin
 from django.utils.timezone import make_aware
+from django_filters.views import FilterView
 
-
+from .filters import Metal_infoFilter
 from .forms import *
 from .tools.decorators2 import track_queries
 from .utils import *
@@ -60,8 +63,7 @@ class GetSearch(SearchMixin, ContextMixin, SingleObjectMixin, ListView):
     ):  # перенёс сюда, потому что могу, добавил initial для поста запроса
         context = super().get_context_data(**kwargs)
         context["initial"] = (
-            initial
-            if initial
+            initial if initial
             else {
                 field: getattr(self.object, field, None)
                 for field in self.form_Meta.fields
@@ -130,9 +132,7 @@ class Steel_class_slug(ContextMixin, SingleObjectMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context[
-            self.slug_model.__name__.lower()
-        ] = self.object  # определяем имя, оно используется в шаблоне
+        context[self.slug_model.__name__.lower()] = self.object  # определяем имя, оно используется в шаблоне
         return context
 
     def get(self, request, *args, **kwargs):
@@ -142,7 +142,7 @@ class Steel_class_slug(ContextMixin, SingleObjectMixin, ListView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):  # тут object а не менеджер objects
-        return (self.object.metals_info.all())  # здесь выбирается кверисет , который будет page_obj
+        return self.object.metals_info.all()  # здесь выбирается кверисет , который будет page_obj
 
 
 class SearchAll(ContextMixin, ListView):
@@ -156,15 +156,14 @@ class SearchAll(ContextMixin, ListView):
 
 
 class SearchView(ListView):
-    paginate_by = 15
+    paginate_by = 10
     paginate_orphans = 5
     template_name = "metal/search_list.html"
     model = Metal_class
 
     def get(self, request, *args, **kwargs):
         self.query = request.GET.get(
-            "search_in_bar", ""
-        ).strip()  # Получаем значение параметра запроса из формы в бэйс форм
+            "search_in_bar", "")  # Получаем значение параметра запроса из формы в бэйс форм
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -175,9 +174,17 @@ class SearchView(ListView):
     def get_queryset(self):
         # в этом случае пагинация будет работать только по фильтрации одной модели (если не делать всё вперемешку)
         if self.query:
-            queryset = self.model.objects.filter(
-                steel_class__icontains=self.query
-            ).order_by("steel_class")
+            queryset1 = self.model.objects.filter(
+                steel_class__icontains=self.query)
+            queryset2 = Metal_info.objects.filter(
+                steel__icontains=self.query)
+            queryset = list(chain(queryset1, queryset2))
         else:
             queryset = self.model.objects.none()
         return queryset
+
+class SearchMoreView(FilterView):
+    paginate_by = 10
+    paginate_orphans = 5
+    template_name = "metal/search_list_more.html"
+    filterset_class = Metal_infoFilter

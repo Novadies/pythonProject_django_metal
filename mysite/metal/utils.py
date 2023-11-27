@@ -2,7 +2,6 @@ from django.shortcuts import get_object_or_404, get_list_or_404, render
 from django.core.paginator import Paginator
 
 from metal.forms import MetalForm
-from metal.sourse.menu import menu
 
 
 class If_paginator:

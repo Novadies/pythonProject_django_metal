@@ -1,17 +1,40 @@
+{% load custom_filter_tag %}
+<!-- тег param_replace передаёт параметры запроса, если они есть, в url строку для корректной работы фильтрации и пагинации вместе-->
+
 {% if is_paginated %}
     <nav aria-label="Пример навигации по страницам">
       <ul class="pagination">
-          <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}"><a class="page-link" href="?page={% if page_obj.has_previous %}{{ page_obj.previous_page_number}}{% endif %}" tabindex="-1">Предыдущая</a></li>
+
+            <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                {% if page_obj.has_previous %}
+                    <a class="page-link" href="?{% param_replace page=page_obj.previous_page_number %}" tabindex="-1">Предыдущая</a>
+                {% else %}
+                    <span class="page-link disabled">Там ничего нет</span>
+                {% endif %}
+            </li>
+
 
           {% for n in page_obj.paginator.page_range %}
+
             {% if page_obj.number == n %}
-                <li class="page-item active"><a class="page-link" href="?page={{ n }}">{{ n }}</a></li>
+                <li class="page-item active">
+                    <a class="page-link" href="?{% param_replace page=n %}">{{ n }}</a></li>
+
             {% elif n > page_obj.number|add:-3 and n < page_obj.number|add:3 %}
-              <li class="page-item"><a class="page-link" href="?page={{ n }}">{{ n }}</a></li>
+              <li class="page-item">
+                  <a class="page-link" href="?{% param_replace page=n %}">{{ n }}</a></li>
             {% endif %}
+
           {% endfor %}
 
-          <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}"><a class="page-link" href="?page={% if page_obj.has_next %}{{ page_obj.next_page_number}}{% endif %}" tabindex="-1">Следующая</a></li>
+
+          <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                {% if page_obj.has_next %}
+                    <a class="page-link" href="?{% param_replace page=page_obj.next_page_number %}" tabindex="-1">Следующая</a>
+                {% else %}
+                    <span class="page-link disabled">Конец!</span>
+                {% endif %}
+          </li>
       </ul>
     </nav>
 {% endif %}

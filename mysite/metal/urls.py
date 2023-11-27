@@ -5,6 +5,7 @@ urlpatterns = [
     path('start/', NewStart.as_view(), name='start-url'),
     path('search/', NewSearch.as_view(), name='search-url'),
     path('search_list/', SearchView.as_view(), name='search_list-url'),
+    path('search_list_more/', SearchMoreView.as_view(), name='search_list_more-url'),
     path('search/<slug:slug>/', NewSearch.as_view(), name='search-slug-url'),
     path('steel/steel_class/', Steel_class.as_view(), name='steel-steel_class-url'),
     path('steel/steel_class/<slug:slug>/', Steel_class_slug.as_view(), name='steel-steel_class-slug-url'),

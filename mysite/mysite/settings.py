@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     #'django_extensions',
     #'rest_framework'
     'simple_history',
-    'silk',
+    #'silk',
     'django_filters',
     'debug_toolbar',
     'metal'                                                          #!!!!! добавление папки metal
@@ -53,7 +53,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'silk.middleware.SilkyMiddleware',                                # silk
+    #'silk.middleware.SilkyMiddleware',                                # silk
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -77,7 +77,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'metal.context_processors.get_menu'
+                'mysite.context_processors.get_menu'
             ],
         },
     },
