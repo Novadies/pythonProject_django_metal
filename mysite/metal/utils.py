@@ -1,3 +1,5 @@
+from functools import reduce
+
 from django.shortcuts import get_object_or_404, get_list_or_404, render
 from django.core.paginator import Paginator
 
@@ -51,5 +53,13 @@ class SearchMixin:
     paginate_orphans = 10
 
 
-class ContextMixin:
-    pass
+class DecoratorContextMixin: # миксин применяющий список из декораторов для декорирования класса
+    def dispatch(self, *args, **kwargs):
+        decorators = getattr(self, 'decorators', [])
+        base = super().dispatch
+        for decorator in decorators:
+            if callable(decorator):  # Проверка, что декоратор вызываемый объект
+                base = decorator(base)
+            else:
+                print(f"Ошибка, нужно логировать  {decorator} ")
+        return base(*args, **kwargs)

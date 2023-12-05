@@ -79,3 +79,11 @@ def track_queries(func):
             return func(*args, **kwargs)
 
     return wrapper
+
+def print_decorator(func):
+    def wrapper(*args, **kwargs):
+        ic('Тест1')
+        func_return = func(*args, **kwargs)
+        ic('Тест2')
+        return func_return
+    return wrapper

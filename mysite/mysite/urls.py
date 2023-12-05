@@ -32,7 +32,13 @@ handler404 = pagenotfound
 admin.site.site_header = "Панель администрирования"
 admin.site.index_title = "Список приложений"
 
+from icecream import install
+
+install()
+ic.configureOutput(includeContext=True)  # указание строки и места выполнения
+
 if settings.DEBUG:
+
     try:
         import debug_toolbar
     except Exception: pass

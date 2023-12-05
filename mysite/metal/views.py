@@ -1,6 +1,5 @@
 from itertools import chain
 
-from django.core.exceptions import NON_FIELD_ERRORS
 from django.http import HttpResponseRedirect
 from django.utils.datetime_safe import datetime
 from django.views.generic import View, ListView, FormView, CreateView, DetailView
@@ -12,7 +11,6 @@ from .filters import Metal_infoFilter
 from .forms import *
 from .tools.decorators2 import track_queries
 from .utils import *
-from .tools import tools
 
 # class Start(NoSlugMixin, If_paginator, View):
 #     models = [Metal_info]
@@ -21,7 +19,7 @@ from .tools import tools
 #     dict_dop = {'menu': menu[template]}
 
 
-class NewStart(ContextMixin, ListView):
+class NewStart(DecoratorContextMixin, ListView):
     paginate_by = 20
     paginate_orphans = 5
     model = Metal_info
@@ -33,22 +31,22 @@ class NewStart(ContextMixin, ListView):
 
 
 class NewSearch(View):
-    @track_queries
+
     def get(self, request, *args, **kwargs):
         view = GetSearch.as_view()
         return view(request, *args, **kwargs)
 
-    @track_queries
     def post(self, request, *args, **kwargs):
         view = PostSearch.as_view()
         return view(request, *args, **kwargs)
 
 
-class GetSearch(SearchMixin, ContextMixin, SingleObjectMixin, ListView):
+class GetSearch(SearchMixin, DecoratorContextMixin, SingleObjectMixin, ListView):
     paginate_by = 15
     paginate_orphans = 5
     form_class = MetalForm
     form_Meta = form_class.Meta
+    decorators = [track_queries]
 
     def get_paginate_by(self, queryset):
         if self.kwargs:  # что б не было ошибки если нечего отображать
@@ -84,6 +82,7 @@ class GetSearch(SearchMixin, ContextMixin, SingleObjectMixin, ListView):
 
 
 class PostSearch(SearchMixin, CreateView):
+    decorators = [track_queries]
     @staticmethod
     def get_dop_field():
         date = make_aware(datetime.now())
@@ -108,7 +107,7 @@ class PostSearch(SearchMixin, CreateView):
     #     return render(self.request, self.template_name, self.get_context_data(initial=form.cleaned_data))
 
 
-class Steel_class(ContextMixin, ListView):
+class Steel_class(DecoratorContextMixin, ListView):
     paginate_by = 12
     paginate_orphans = 5
     model = Metal_class
@@ -118,13 +117,13 @@ class Steel_class(ContextMixin, ListView):
         return self.model.objects.order_by("steel_class")
 
 
-class Steel(ContextMixin, DetailView):
+class Steel(DecoratorContextMixin, DetailView):
     model = Metal_info
     template_name = "metal/steel-slug.html"
     context_object_name = "metal_info"
 
 
-class Steel_class_slug(ContextMixin, SingleObjectMixin, ListView):
+class Steel_class_slug(DecoratorContextMixin, SingleObjectMixin, ListView):
     template_name = "metal/steel-steel_class-slug.html"
     paginate_by = 8
     paginate_orphans = 2
@@ -145,7 +144,7 @@ class Steel_class_slug(ContextMixin, SingleObjectMixin, ListView):
         return self.object.metals_info.all()  # здесь выбирается кверисет , который будет page_obj
 
 
-class SearchAll(ContextMixin, ListView):
+class SearchAll(DecoratorContextMixin, ListView):
     paginate_by = 20
     paginate_orphans = 5
     model = MetalSearch
@@ -172,7 +171,6 @@ class SearchView(ListView):
         return context
 
     def get_queryset(self):
-        # в этом случае пагинация будет работать только по фильтрации одной модели (если не делать всё вперемешку)
         if self.query:
             queryset1 = self.model.objects.filter(
                 steel_class__icontains=self.query)
