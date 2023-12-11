@@ -5,11 +5,14 @@
 {% endblock %}
 
 {% block block_1 %}
-    
+
     {% include 'metal/includes/buttons.html' %}
 
     {% for page in page_obj %}
-      {{ page }}<br>
+
+        <a class="text-black" href="{{ page.get_absolute_url }}" role="button">{{ page }}</a><br>
+
+        <br>
     {% empty %}
       No results found.
     {% endfor %}

@@ -1,6 +1,6 @@
 from functools import reduce
 
-from django.shortcuts import get_object_or_404, get_list_or_404, render
+from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 from django.core.paginator import Paginator
 
 from metal.forms import MetalForm
@@ -63,3 +63,15 @@ class DecoratorContextMixin: # миксин применяющий список 
             else:
                 print(f"Ошибка, нужно логировать  {decorator} ")
         return base(*args, **kwargs)
+
+class UserPassesTestMixin:
+    def user_passes_test(self, user):
+        return user.is_authenticated()
+
+    def user_failed_test(self):
+        return redirect("LOGIN_URL")
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.user_passes_test(request.user):
+            return self.user_failed_test()
+        return super().dispatch(request, *args, **kwargs)
