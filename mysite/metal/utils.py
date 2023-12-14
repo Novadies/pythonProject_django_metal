@@ -1,5 +1,6 @@
 from functools import reduce
 
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 from django.core.paginator import Paginator
 
@@ -75,3 +76,22 @@ class UserPassesTestMixin:
         if not self.user_passes_test(request.user):
             return self.user_failed_test()
         return super().dispatch(request, *args, **kwargs)
+
+class BaseView: # вообще это в мидлвеар по смыслу надо засовывать
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            response = super().dispatch(request, *args, **kwargs)
+        except Exception:
+            return self._response({'errorMessage': Exception.message}, status=400)
+        if isinstance(response, (dict, list)):
+            return self._response(response)
+        else:
+            return response
+    @staticmethod
+    def _response(data, *, status=200):
+        return JsonResponse(
+            data,
+            status=status,
+            safe=not isinstance(data, list),
+            json_dumps_params={'ensure_ascii': False}
+        )
