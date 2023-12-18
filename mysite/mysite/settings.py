@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     #'django_extensions',
     #'rest_framework'
     'simple_history',
-    #'silk',
+    'silk',
     'django_filters',
     'debug_toolbar',
     'metal'                                                          #!!!!! добавление папки metal
@@ -53,7 +53,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    #'silk.middleware.SilkyMiddleware',                                # silk
+    'silk.middleware.SilkyMiddleware',                                # silk
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -154,6 +154,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        'ATOMIC_REQUESTS': True,
     }
 }
 

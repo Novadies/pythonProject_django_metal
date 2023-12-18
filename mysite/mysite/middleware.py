@@ -13,17 +13,21 @@ class YourMiddlewareClass:
             print('IC опять не отработал!!')
             ic(request.path)
 
-        try:
-            response = self.get_response(request)
-        except Exception as e:
-            response_data = {'errorMessage': str(e)} # или Exception.message ?
-            response = self._response(response_data, status=400)
+        response = self.get_response(request)
         return response
+
+    def process_exception(self, request, exception):
+        response_data = {'success': False, 'errorMessage': str(exception)}
+        status = 400
+        # залогировать
+        return self._response(response_data, status=status)
+
+
     @staticmethod
-    def _response(data, *, status=200):
+    def _response(data, *, status):
         return JsonResponse(
             data,
             status=status,
             safe=not isinstance(data, list),
-            json_dumps_params={'ensure_ascii': False}
+            json_dumps_params={'ensure_ascii': False, 'indent': 2}
         )
