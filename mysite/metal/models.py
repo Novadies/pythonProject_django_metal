@@ -45,6 +45,7 @@ class Metal_info(models.Model):
         return self.steel
 
     def save(self, *args, **kwargs):
+        """ при сохранении создаёт slug """
         if not self.slug:
             self.slug = slugify(
                 f"{self.steel}_{''.join(word[0] for word in self.steel_info.split())}"
@@ -67,6 +68,7 @@ class Metal_class(models.Model):
         return self.steel_class
 
     def save(self, *args, **kwargs):
+        """ при сохранении создаёт slug """
         if not self.slug:
             self.slug = slugify(f"{self.steel_class}")
         super().save(*args, **kwargs)
@@ -75,7 +77,8 @@ class Metal_class(models.Model):
         return reverse("steel-steel_class-slug-url", kwargs={"slug": self.slug})
 
 
-class AbstructForMetal(models.Model):  # абстрактный класс
+class AbstructForMetal(models.Model):
+    """ абстрактный класс """
     _S = [
         "C",
         "Si",
@@ -108,11 +111,15 @@ class AbstructForMetal(models.Model):  # абстрактный класс
         abstract = True
 
     @staticmethod
-    def field_S(*args):  # получение полей из бд исключая определенные
-        fields = [
-            field for field in AbstructForMetal._meta.fields if not field.one_to_one
-        ]  # явно прописываю абстрактный класс вместо self,
-        # что бы можно было использовать в других
+    def field_S(*args: str) -> list:
+        """
+        получение полей из бд исключая определенные.
+        явно прописываю абстрактный класс вместо self,
+        чтобы можно было использовать в других классах без указания на исходный
+        """
+        fields = [field for field in AbstructForMetal._meta.fields if not field.one_to_one]
+        # явно прописываю абстрактный класс вместо self,
+        # что бы можно было использовать в других классах без указания на исходный
         return [fn for field in fields if (fn := field.name) not in ["id", *args]]
 
     def return_all(self) -> dict:  # получение ключ значение выбранных полей
@@ -133,9 +140,7 @@ class Metal(AbstructForMetal):
 
 
 class Metal_2(models.Model):
-    for _min, _max in [
-        (f"{i}_min", f"{i}_max") for i in AbstructForMetal._S[:-1]
-    ]:  # исключаем Fe
+    for _min, _max in [(f"{i}_min", f"{i}_max") for i in AbstructForMetal._S[:-1]]:  # исключаем Fe
         locals()[_min] = models.FloatField(
             blank=True,
             null=True,
@@ -152,10 +157,10 @@ class Metal_2(models.Model):
     def __str__(self):
         return str(self.id)
 
-    def get_min_max(self, arg):
-        min = getattr(self, f"{arg}_min")
-        max = getattr(self, f"{arg}_max")
-        return min, max
+    # def get_min_max(self, arg):
+    #     min = getattr(self, f"{arg}_min")
+    #     max = getattr(self, f"{arg}_max")
+    #     return min, max
 
 
 class MetalSearch(AbstructForMetal):

@@ -1,43 +1,26 @@
-import re
-
 from django import forms
-from django.core.exceptions import ValidationError
 
-from metal.tools.logic import If_0_value, other_value, packing
+from metal.tools.logic import *
 from .models import *
+import logging
 
+logger = logging.getLogger('metal')
+debug_logger = logging.getLogger('debug')
 
-search_fields = [
-    "C",
-    "Si",
-    "Mn",
-    "Cr",
-    "Ni",
-    "Ti",
-    "Al",
-    "W",
-    "Mo",
-    "Nb",
-    "V",
-    "S",
-    "P",
-    "Cu",
-    "Co",
-    "Zr",
-    "Be",
-    "Se",
-    "N",
-    "Pb",
-]
+search_fields = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb"]
 
 
 class MetalForm(forms.ModelForm):
+    """Форма для получения значения % элементов,
+    данные как одно число так и несколько, так же принимается "-" как указатель на исключение значения"""
+
     def __init__(self, *args, **kwargs):  # это для передачи начальных данных в форму
         extra_data = kwargs.pop("extra_data", None)
         super().__init__(*args, **kwargs)
         if extra_data:
             for i in extra_data:
                 self.fields[i].initial = extra_data[i]
+                # debug_logger.debug(self.fields[i].initial)
 
     template_name = "metal/includes/form_snippet.html"  # имя шаблона для формы, опция
 
@@ -56,33 +39,17 @@ class MetalForm(forms.ModelForm):
         }
 
     def clean(self):  # проверка для формы, а не конкретного поля
+        """ стандартная функция валидации по всем полям """
         cleaned_data = super().clean()  # можно менять словарь cleaned_data
-        pattern = re.compile(
-            r"^([-—]?\d{1,2}([.,$]\d{0,2})?)([-—]\d{1,2}([.,$]\d{0,2})?)?$"
-        )  # проверка учитывающая ввод диапазона
-        zero = True
-        for field in search_fields:
-            f = cleaned_data.get(field)
-            if f:
-                zero = False
+
+        what_about_null_fields(cleaned_data, any)
+
+        for f, v in ((f, v) for f, v in dict(cleaned_data).items() if v):
+            if validation_for_field_in_clean(v) is not None:
+                self.add_error(f, validation_for_field_in_clean(v))
             else:
-                continue
-            if len(f) > 12:
-                self.add_error(
-                    field, ValidationError("Длина превышает 12 символа")
-                )  # ошибка будет в .error а не .non_field_errors
-            if not pattern.match(f):
-                self.add_error(field, ValidationError("Введите подходящее число"))
-            else:
-                try:
-                    data = f.replace(",", ".").replace(" ", "").replace("—", "-")
-                    cleaned_data[field] = packing(data)
-                except Exception:
-                    self.add_error(
-                        field, ValidationError("Значение не проходит валидацию")
-                    )
-        if zero and len(cleaned_data) == len(search_fields):
-            raise ValidationError("Все поля пусты")
+                cleaned_data[f] = cleaned_data_replace(v)
+
         # if self.has_error(NON_FIELD_ERRORS, code=None):
         # можно что-нибудь сделать при наличии ошибки но для этого не нужно бросать исключение, иначе код дальше не пойдёт
 
@@ -95,23 +62,6 @@ class MetalForm(forms.ModelForm):
     #         field_data = field_data[:2]
     #     return field_data
 
-    @staticmethod
-    def search_for_connections(cleaned_data):  # ОБРАБОТКА значений из формы
-        data = {
-            key: value for key, value in cleaned_data.items() if value
-        }  # получение всех значений кроме нулевых
-        # only = collapse([[f'{key}_min', f'{key}_max'] for key in data]) # перечень полей которые есть в запросе формы
-        only = {}
-        answer = Metal_2.objects.only(*only)
-        answer = If_0_value(answer, cleaned_data)  # обработка нулевых значений
-        if data:
-            for key in data:
-                answer = other_value(answer, data, key)
-        metal_2_to_metal = Metal.objects.filter(
-            metal_compound__in=answer
-        )  # проход по связям
-        return Metal_info.objects.filter(metals__in=metal_2_to_metal)
-
     # def save(self, commit=True): # вызывается один раз. Метод form.save() и кверисет.save() это разные методы
     #     f = super().save(commit=False)
     #     print(f'Послупили данные в {self.Meta.model}\n')
@@ -123,6 +73,7 @@ class MetalForm(forms.ModelForm):
 
 
 class SearchForm(forms.Form):
+    """ Форма в данный момент не используется"""
     query = forms.CharField(
         validators=[],
         required=False,

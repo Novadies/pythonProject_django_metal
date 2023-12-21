@@ -1,9 +1,9 @@
 from static.menu import menu2
 
 
-def get_menu(request):
+def get_menu(request) -> dict:
+    """ общий для проекта контекст процессор """
     context = {}
-    #context['form_search'] = SearchForm
     exclude = ['simple_history', 'silk', 'django_filters', 'debug_toolbar']
     r = request.resolver_match
     if r and r.app_name not in exclude:

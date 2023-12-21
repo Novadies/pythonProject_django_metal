@@ -3,7 +3,9 @@ from icecream import ic
 
 from django.core.paginator import Paginator
 from django.db import connection
+import logging
 
+logger = logging.getLogger('metal')
 
 def if_paginator(to_padinator, request):
     paginator = Paginator(*to_padinator, orphans=5)
@@ -58,10 +60,7 @@ def decorator_with_arguments(dict_dop, to_padinator):
 
 
 def track_queries(func):
-    """""
-    декоратор выводящий sql запросы
-    """ ""
-
+    """ декоратор выводящий sql запросы """
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
@@ -76,6 +75,7 @@ def track_queries(func):
             ic(time)
             return func_return
         except Exception:
+            logger.warning(f'декоратор track_queries не сработал, {func} не декорирована')
             return func(*args, **kwargs)
 
     return wrapper

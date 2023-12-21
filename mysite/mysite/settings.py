@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+
+from mysite.custom_json_formatter import CustomJsonFormatter
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -44,7 +47,7 @@ INSTALLED_APPS = [
     #'django_extensions',
     #'rest_framework'
     'simple_history',
-    'silk',
+    #'silk',
     'django_filters',
     'debug_toolbar',
     'metal'                                                          #!!!!! добавление папки metal
@@ -53,7 +56,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'silk.middleware.SilkyMiddleware',                                # silk
+    #'silk.middleware.SilkyMiddleware',                                # silk
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -83,78 +86,75 @@ TEMPLATES = [
     },
 ]
 
+
+
+# }
+log_file_path = os.path.join(BASE_DIR, 'logs', 'logfile.log')
 LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            '()': CustomJsonFormatter,
+        },
+        'simple': {
+            'format': '{levelname} {message} {module}',
+            'style': '{',
         },
     },
-    "root": {
-        "handlers": ["console"],
-        "level": "WARNING",
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': log_file_path,
+            'formatter': 'verbose',
+        },
+        'mail_admins': {
+            'class': 'django.utils.log.AdminEmailHandler',
+            'formatter': 'verbose',
+        },
+        'null': {
+            'class': 'logging.NullHandler',
+        },
     },
-    "loggers": {
-        "django.db.backends": {
-            "handlers": ["console"],
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file', 'mail_admins'],
+            'level': 'INFO',
+        },
+        'metal': {
+            'handlers': ['console', 'file'],
             'level': 'DEBUG',
             "propagate": False,
         },
+        'debug': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            "propagate": False,
+        },
+        'django.server': {
+            'handlers': ['null'],
+            'level': 'ERROR',  # Установите уровень ERROR, чтобы отфильтровать логи этого логгера
+        },
+        # "django.db.backends": {            # добавление отображения SQL запросоB
+        #     "handlers": ["console"],
+        #     'level': 'DEBUG',
+        #     "propagate": False,
+        # },
+
     },
 }
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'formatters': {
-#         'verbose': {
-#             'format': '{levelname} {asctime} {module} {message}',
-#             'style': '{',
-#         },
-#         'simple': {
-#             'format': '{levelname} {message}',
-#             'style': '{',
-#         },
-#     },
-#     'handlers': {
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#             'formatter': 'verbose',
-#         },
-#         'file': {
-#             'class': 'logging.FileHandler',
-#             #'filename': '/path/to/your/log/file.log',
-#             'formatter': 'verbose',
-#         },
-#         'mail_admins': {
-#             'class': 'django.utils.log.AdminEmailHandler',
-#             'level': 'ERROR',
-#             'formatter': 'verbose',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['console', 'file', 'mail_admins'],
-#             'level': 'INFO',
-#         },
-#         'metal': {
-#             'handlers': ['console', 'file'],
-#             'level': 'DEBUG',
-#         },
-#     },
-# }
 
 WSGI_APPLICATION = 'mysite.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-        'ATOMIC_REQUESTS': True,
+        'ATOMIC_REQUESTS': True
     }
 }
 
@@ -203,6 +203,5 @@ MEDIA_URL = '/media/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SESSION_COOKIE_SECURE = True
-SESSION_COOKIE_HTTPONLY = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 CSP_DEFAULT_SRC = ("'self'",)

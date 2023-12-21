@@ -1,17 +1,18 @@
 from itertools import chain
 
 from django.http import HttpResponseRedirect
-from django.utils.datetime_safe import datetime
 from django.views.generic import View, ListView, FormView, CreateView, DetailView
 from django.views.generic.detail import SingleObjectMixin
-from django.utils.timezone import make_aware
 from django_filters.views import FilterView
 
 from .filters import Metal_infoFilter
 from .forms import *
 from .tools.decorators2 import track_queries
+from .tools.logic import get_dop_field, save_to_db
 from .utils import *
+import logging
 
+logger = logging.getLogger('metal')
 # class Start(NoSlugMixin, If_paginator, View):
 #     models = [Metal_info]
 #     to_padinator = (models[0].count_manager.all(), '40')
@@ -31,7 +32,7 @@ class NewStart(DecoratorContextMixin, ListView):
 
 
 class NewSearch(View):
-
+    """ вьюха разделяется на 2. Для обработки отдельно post и get запросов """
     def get(self, request, *args, **kwargs):
         view = GetSearch.as_view()
         return view(request, *args, **kwargs)
@@ -48,17 +49,17 @@ class GetSearch(SearchMixin, DecoratorContextMixin, SingleObjectMixin, ListView)
     form_Meta = form_class.Meta
     decorators = [track_queries]
 
+
     def get_paginate_by(self, queryset):
         if self.kwargs:  # что б не было ошибки если нечего отображать
             return self.paginate_by
 
-    def get_initial(self):  # начальные значения для формы
+    def _get_initial(self):
+        """ начальные значения для формы """
         if self.kwargs:
             return self.get_object(queryset=self.form_Meta.model.objects.all())
 
-    def get_context_data(
-        self, initial=False, **kwargs
-    ):  # перенёс сюда, потому что могу, добавил initial для поста запроса
+    def get_context_data(self, initial=False, **kwargs):
         context = super().get_context_data(**kwargs)
         context["initial"] = (
             initial if initial
@@ -73,34 +74,22 @@ class GetSearch(SearchMixin, DecoratorContextMixin, SingleObjectMixin, ListView)
     def get_queryset(self):
         if self.object:
             return self.object.metals_info.select_related(
-                "metals_class", "metals"
-            ).all()  # здесь выбирается кверисет , который будет page_obj
+                "metals_class", "metals").all()  # здесь выбирается кверисет , который будет page_obj
 
     def get(self, request, *args, **kwargs):
-        self.object = self.get_initial()  # начальные значения формы
+        self.object = self._get_initial()
         return super().get(request, *args, **kwargs)
 
 
 class PostSearch(SearchMixin, CreateView):
     decorators = [track_queries]
-    @staticmethod
-    def get_dop_field():
-        date = make_aware(datetime.now())
-        slug = str(date)[-21:-6].replace(":", "_").replace(".", "-")
-        return date, slug
 
     def form_valid(self, form):
-        dop_field = {"slug": self.get_dop_field()[1], "date": self.get_dop_field()[0]}
-        # добавляем данные с формы, а так же сгенерированые самостоятельно
-        for_save_to_db = self.form_class.Meta.model.objects.create(
-            **dop_field, **form.cleaned_data
-        )  # так как нужно добавить значения,
-        # кроме тех, что в форме,то обрабатываем формы вручную
-        connections = self.form_class.search_for_connections(form.cleaned_data)
-        for_save_to_db.metals_info.add(*connections)
-        return HttpResponseRedirect(
-            reverse("search-slug-url", args=[dop_field["slug"]])
-        )
+        """ добавляем данные с формы, а так же сгенерированые самостоятельно """
+        dop_field = get_dop_field()
+        save_to_db(self, form, dop_field)
+
+        return HttpResponseRedirect(reverse("search-slug-url", args=[dop_field["slug"]]))
 
     # def form_invalid(self, form):
     # в случае если форма не прошла, можно перезанрузить страницу с исправленными данными (нужно определить get_context_data)
@@ -135,12 +124,12 @@ class Steel_class_slug(DecoratorContextMixin, SingleObjectMixin, ListView):
         return context
 
     def get(self, request, *args, **kwargs):
-        # queryset для автоматического поиска. Явно указываем queryset что искал там там где надо.
-        # .get_object можно переопределять для ручного поиска
+        """Явно указываем queryset чтоб искал там там где надо.
+         .get_object можно переопределять для ручного поиска"""
         self.object = self.get_object(queryset=self.slug_model.objects.all())
         return super().get(request, *args, **kwargs)
 
-    def get_queryset(self):  # тут object а не менеджер objects
+    def get_queryset(self):  # тут object, а не менеджер objects
         return self.object.metals_info.all()  # здесь выбирается кверисет , который будет page_obj
 
 
@@ -161,8 +150,7 @@ class SearchView(ListView):
     model = Metal_class
 
     def get(self, request, *args, **kwargs):
-        self.query = request.GET.get(
-            "search_in_bar", "")  # Получаем значение параметра запроса из формы в бэйс форм
+        self.query = request.GET.get("search_in_bar", "")  # Получаем значение параметра запроса из формы в бэйс форм
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -171,12 +159,14 @@ class SearchView(ListView):
         return context
 
     def get_queryset(self):
+        """ поиск по определённым полям модели """
         if self.query:
             queryset1 = self.model.objects.filter(
                 steel_class__icontains=self.query)
             queryset2 = Metal_info.objects.filter(
                 steel__icontains=self.query)
             queryset = list(chain(queryset1, queryset2))
+            logger.debug(queryset)
         else:
             queryset = self.model.objects.none()
         return queryset
