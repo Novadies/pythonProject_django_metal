@@ -42,7 +42,7 @@ class NewSearch(View):
         return view(request, *args, **kwargs)
 
 
-class GetSearch(SearchMixin, DecoratorContextMixin, SingleObjectMixin, ListView):
+class GetSearch(SearchMixin, SingleObjectMixin, ListView):
     paginate_by = 15
     paginate_orphans = 5
     form_class = MetalForm

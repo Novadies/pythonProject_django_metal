@@ -49,13 +49,6 @@ class NoSlugMixin:  # тут конкретно нет смысла переда
         return render(request, self.template, context=context)
 
 
-class SearchMixin:
-    template_name = "metal/search.html"
-    form_class = MetalForm
-    paginate_by = 20
-    paginate_orphans = 10
-
-
 class DecoratorContextMixin:
     """ миксин применяющий список из декораторов для декорирования класса """
 
@@ -69,6 +62,14 @@ class DecoratorContextMixin:
             else:
                 logger.warning(f'Ошибка, {decorator} не декоратор')
         return base(*args, **kwargs)
+
+
+class SearchMixin(DecoratorContextMixin):
+    template_name = "metal/search.html"
+    form_class = MetalForm
+    paginate_by = 20
+    paginate_orphans = 10
+
 
 class UserPassesTestMixin:
     def user_passes_test(self, user):
