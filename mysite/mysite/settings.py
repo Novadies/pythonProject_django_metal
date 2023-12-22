@@ -87,8 +87,6 @@ TEMPLATES = [
 ]
 
 
-
-# }
 log_file_path = os.path.join(BASE_DIR, 'logs', 'logfile.log')
 LOGGING = {
     'version': 1,
