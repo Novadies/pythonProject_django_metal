@@ -29,10 +29,9 @@
   </head>
 
   <body>
-    {% block navbar_top %}
+    {% block navbar_top %} <!-- весть блок вместе с навбаром переопределяется в бэйс метал-->
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
-            <!--            навбар переопределяется в бэйс метал-->
-          {% include 'includes/navbar.html' %}
+            {% include 'includes/navbar.html' %}
         </nav>
     {% endblock %}
 
@@ -51,6 +50,10 @@
           {% include 'includes/navbar.html' %}
         </nav>
     {% endblock %}
-
+    <tr><td valign=top>
+        <div id="footer">
+            <p>  &copy; 2023 Частичное или полное копирование информации с данного сайта для распространения на других ресурсах, в том числе и бумажных, строго разрешено.</p>
+        </div>
+    </td></tr>
   </body>
 </html>

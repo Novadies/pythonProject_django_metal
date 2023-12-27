@@ -40,6 +40,7 @@
               <button class="btn btn-outline-success" type="submit">Поиск</button>
             </form>
             <a class="navbar-brand" href="{% url 'search_list_more-url' %}">Расширенный поиск</a>
+            {% include 'users/includes/user.html' %}
           </div>
         </div>
     </nav>
@@ -47,4 +48,5 @@
 
 {% block navbar_low %}
     здесь был бар
+
 {% endblock %}

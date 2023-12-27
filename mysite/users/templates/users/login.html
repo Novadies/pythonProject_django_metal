@@ -1,0 +1,23 @@
+{% extends 'users/base_users.html' %}
+
+{% block title %}
+  {% include 'users/includes/menu.html' %}
+{% endblock %}
+
+{% block block_1 %}
+  <form method="post">
+      {% csrf_token %}
+
+      <input type="hidden" name="next" value="{{ next }}" />        <!-- перенаправляет на страницу с которой
+          пришлось делать аутентификацию-->
+
+      <div class="form-error">{{ form.non_field_errors }}</div>
+
+      {% for f in form %}
+      <p ><label class="form-label" for="{{ f.id_for_label }}">{{f.label}}: </label>{{ f }}</p>
+      <div class="form-error">{{ f.errors }}</div>
+      {% endfor %}
+
+      <p ><button type="submit">Войти</button></p>
+  </form>
+{% endblock %}

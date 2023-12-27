@@ -45,8 +45,9 @@ class MetalForm(forms.ModelForm):
         what_about_null_fields(cleaned_data, any)
 
         for f, v in ((f, v) for f, v in dict(cleaned_data).items() if v):
-            if validation_for_field_in_clean(v) is not None:
-                self.add_error(f, validation_for_field_in_clean(v))
+            errors = validation_for_field_in_clean(v)
+            if errors is not None:
+                self.add_error(f, errors)
             else:
                 cleaned_data[f] = cleaned_data_replace(v)
 

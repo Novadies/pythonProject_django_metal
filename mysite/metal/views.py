@@ -133,7 +133,7 @@ class Steel_class_slug(DecoratorContextMixin, SingleObjectMixin, ListView):
         return self.object.metals_info.all()  # здесь выбирается кверисет , который будет page_obj
 
 
-class SearchAll(DecoratorContextMixin, ListView):
+class SearchAll(LoginRequiredMixin, DecoratorContextMixin, ListView):
     paginate_by = 20
     paginate_orphans = 5
     model = MetalSearch

@@ -13,4 +13,7 @@ menu2 = {'start-url':'Обзор сплавов',
         'steel-steel_class-slug-url': 'Сталь',
         'steel-result-url': 'Вид применения стали',
         'steel-slug-url': 'Перечень запросов',
+        'users:login': "Вход",
+        'users:register': "Регистрация",
+        'users:register_done': "Успешная регистрация",
         }

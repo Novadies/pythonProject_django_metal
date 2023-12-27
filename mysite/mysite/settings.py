@@ -44,13 +44,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     #'django_extensions',
     #'rest_framework'
     'simple_history',
     #'silk',
     'django_filters',
     'debug_toolbar',
-    'metal'                                                          #!!!!! добавление папки metal
+
+    'metal',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -176,6 +179,15 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+LOGIN_REDIRECT_URL = 'start-url'
+LOGIN_URL = 'users:login'
+LOGOUT_REDIRECT_URL = 'start-url'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'users.authentication.EmailAuthBackend',
+]
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -192,9 +204,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS= [os.path.join(BASE_DIR, 'static')]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -203,3 +216,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SESSION_COOKIE_SECURE = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 CSP_DEFAULT_SRC = ("'self'",)
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
