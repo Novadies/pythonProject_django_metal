@@ -1,4 +1,3 @@
-from re import Pattern
 from typing import Optional, Tuple, Type, Callable
 
 from django.core.exceptions import ValidationError

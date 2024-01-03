@@ -136,7 +136,7 @@ LOGGING = {
             'level': 'DEBUG',
             "propagate": False,
         },
-        'django.server': {
+        'django.server': {         # исключает логи работы библиотек
             'handlers': ['null'],
             'level': 'ERROR',  # Установите уровень ERROR, чтобы отфильтровать логи этого логгера
         },
@@ -159,16 +159,15 @@ DATABASES = {
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 6,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -183,9 +182,12 @@ LOGIN_REDIRECT_URL = 'start-url'
 LOGIN_URL = 'users:login'
 LOGOUT_REDIRECT_URL = 'start-url'
 
+AUTH_USER_MODEL = 'users.User'
+
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'users.authentication.EmailAuthBackend',
+    # 'users.authentication.EmailAuthBackend', # имея свою юзер модель это теряет смысл
+    'users.authentication.CustomAuthBackend',
 ]
 
 # Internationalization
@@ -212,7 +214,6 @@ DEFAULT_USER_IMAGE = MEDIA_URL + 'users/default.png'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-AUTH_USER_MODEL = 'users.User'
 
 SESSION_COOKIE_SECURE = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True

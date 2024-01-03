@@ -58,7 +58,7 @@ class RegisterUserForm(UserCreationForm):
         return email
 
 
-class CustomUserChangeForm(UserChangeForm): # не ясно для чего это форму определять и можно ли без неё обойтись
+class CustomUserChangeForm(UserChangeForm): # todo не ясно для чего это форму определять и можно ли без неё обойтись
 
     class Meta:
         model = get_user_model()
@@ -70,9 +70,9 @@ class ProfileUserForm(forms.ModelForm):
     email = forms.CharField(disabled=True, label='E-mail', widget=forms.TextInput(attrs={'class': 'form-input'}))
     this_year = datetime.date.today().year
     date_birth = forms.DateField(widget=forms.SelectDateWidget(years=tuple(range(this_year - 100, this_year - 5))))
-    secret_login = forms.CharField(disabled=True, label='Секретный Логин', widget=forms.TextInput(attrs={'class': 'form-input'}))
-    secret_email = forms.CharField(disabled=True, label='Секретный E-mail', widget=forms.TextInput(attrs={'class': 'form-input'}))
-    secret_password = forms.CharField(disabled=True, label='Секретный пароль', widget=forms.TextInput(attrs={'class': 'form-input'}))
+    secret_login = forms.CharField(label='Секретный Логин', widget=forms.TextInput(attrs={'class': 'form-input'}))
+    secret_email = forms.CharField(label='Секретный E-mail', widget=forms.TextInput(attrs={'class': 'form-input'}))
+    secret_password = forms.CharField(label='Секретный пароль', widget=forms.TextInput(attrs={'class': 'form-input'}))
     class Meta:
         model = get_user_model()
         fields = ['username', 'email', 'first_name', 'last_name', 'secret_login', 'secret_email', 'secret_password']

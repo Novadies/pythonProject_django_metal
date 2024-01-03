@@ -1,5 +1,5 @@
 
-cd ../pythonProject_django_metal/mysite
+cd mysite
 
 
 python manage.py runserver
@@ -13,3 +13,4 @@ python manage.py createsuperuser
 pip install -r requirements.txt
 
 python manage.py shell_plus --print-sql
+

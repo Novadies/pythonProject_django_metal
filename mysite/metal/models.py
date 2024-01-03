@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.shortcuts import reverse
@@ -171,7 +172,7 @@ class MetalSearch(AbstructForMetal):
     )
     date = models.DateTimeField(blank=True, null=True)
     user_search = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
@@ -199,7 +200,7 @@ class Metal_request(models.Model):
         related_name="metals_request",
     )
     user_request = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         blank=True,
         null=True,

@@ -3,6 +3,7 @@ from pythonjsonlogger import jsonlogger
 
 
 class CustomJsonFormatter(jsonlogger.JsonFormatter):
+    """ часть настройки логгирования """
     def add_fields(self, log_record, record, message_dict):
         """ стандартная функция описание форматтера """
         super(CustomJsonFormatter, self).add_fields(log_record, record, message_dict)

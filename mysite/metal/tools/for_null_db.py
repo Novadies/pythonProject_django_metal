@@ -20,4 +20,5 @@ if START_DB:
         MetalSearch.objects.all().delete()
 
     from metal.tools.csv_to_bd import zapis
-    with open(f'{STATICFILES_DIRS}\metal.csv') as f: zapis(f) # может быть ошибка в пути
+    print(f'{STATICFILES_DIRS[0]}\\metal.csv')
+    with open(f'{STATICFILES_DIRS[0]}\\metal.csv') as f: zapis(f) # может быть ошибка в пути
