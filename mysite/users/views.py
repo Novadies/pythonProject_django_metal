@@ -32,7 +32,7 @@ class RegisterDone(TemplateView):
     template_name = 'users/register_done.html'
 
 
-class ProfileUser(LoginRequiredMixin, UpdateView):
+class ProfileUser(LoginRequiredMixin, UpdateView): # todo: ут видимо нужно переопределить form_valid что б сохрантьс кэш секретного пароля
     """ профиль пользователя """
     model = get_user_model()
     form_class = ProfileUserForm

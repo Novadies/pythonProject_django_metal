@@ -33,6 +33,8 @@ class CustomUserManager(BaseUserManager):
 
 class User(AbstractUser):
     """ дополнение базового юзера """
+    objects = CustomUserManager()
+
     email = models.EmailField(unique=True)
     secret_login = models.CharField(max_length=128, unique=True, null=True)
     secret_email = models.EmailField(unique=True, null=True)
@@ -47,10 +49,16 @@ class User(AbstractUser):
     )
     REQUIRED_FIELDS = ['username']  # обязательные поля
     USERNAME_FIELD = 'email'  # вместо логина
-    objects = CustomUserManager()
+
 
     def __str__(self):
         return self.first_name or self.username
+
+    def save(self, *args, **kwargs): # todo не только пароль но вообще никакие поля не сохраняются из формы
+        """ сохраняет хэш пароля """
+        if self.secret_password:
+            self.secret_password = make_password(self. secret_password)
+        super().save(*args, **kwargs)
 
     def check_secret_password(self, raw_password):
         """ зеркальный обычному check_password но для secret_password"""
