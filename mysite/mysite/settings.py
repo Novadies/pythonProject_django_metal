@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 
-from mysite.custom_json_formatter import CustomJsonFormatter
+from .custom_json_formatter import CustomJsonFormatter
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -54,6 +54,7 @@ INSTALLED_APPS = [
 
     'metal',
     'users',
+    #'axes',
 ]
 
 MIDDLEWARE = [
@@ -68,6 +69,7 @@ MIDDLEWARE = [
     'mysite.middleware.YourMiddlewareClass',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
+    #'axes.middleware.AxesMiddleware',
 ]
 
 ROOT_URLCONF = 'mysite.urls'
@@ -185,8 +187,10 @@ LOGOUT_REDIRECT_URL = 'start-url'
 AUTH_USER_MODEL = 'users.User'
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    # 'users.authentication.EmailAuthBackend', # имея свою юзер модель это теряет смысл
+    #'axes.backends.AxesStandaloneBackend',
+
+    #'django.contrib.auth.backends.ModelBackend',
+    'users.authentication.EmailOrLoginBackend',
     'users.authentication.CustomAuthBackend',
 ]
 

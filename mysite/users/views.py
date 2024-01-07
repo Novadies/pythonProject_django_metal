@@ -6,7 +6,7 @@ from django.contrib.auth.views import LoginView, PasswordChangeDoneView, Passwor
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, TemplateView, UpdateView
 
-from users.forms import LoginUserForm, RegisterUserForm, ProfileUserForm, UserPasswordChangeForm
+from .forms import LoginUserForm, RegisterUserForm, ProfileUserForm, UserPasswordChangeForm
 
 
 class LoginUser(LoginView):

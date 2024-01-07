@@ -16,4 +16,4 @@ def user_logged_in_handler(sender, request, user, **kwargs):
     """
     Обработчик сигнала user_logged_in, который будет вызван после успешной аутентификации пользователя.
     """
-    print(f"Пользователь {user.username} вошел в систему")
+    print(f"Стандартный сигнал. Пользователь {user.username} вошел в систему")
