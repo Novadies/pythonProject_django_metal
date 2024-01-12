@@ -1,5 +1,4 @@
 from django.apps import apps
-from django.contrib.auth import password_validation
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import AbstractUser
@@ -41,7 +40,7 @@ class CustomUserManager(BaseUserManager):
                 conditions |= Q(**{field: username})
             return self.get(conditions)
         else:
-            return self.get(**{self.model.USERNAME_FIELD: username})
+            return self.get_by_natural_key(username)
 
 
 class User(AbstractUser):

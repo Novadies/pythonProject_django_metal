@@ -1,19 +1,22 @@
 from itertools import chain
 
+from django.core.cache import cache
 from django.http import HttpResponseRedirect
+from django.urls import reverse_lazy
 from django.views.generic import View, ListView, FormView, CreateView, DetailView
 from django.views.generic.detail import SingleObjectMixin
 from django_filters.views import FilterView
 
 from .filters import Metal_infoFilter
-from .forms import *
+from .forms import ContactForm
+from metal.models import *
 from .tools.decorators2 import track_queries
 from .tools.logic import get_dop_field, save_to_db
 from .utils import *
 from .tools.for_null_db import *
-import logging
 
-logger = logging.getLogger('metal')
+from logs.logger import debug
+
 # class Start(NoSlugMixin, If_paginator, View):
 #     models = [Metal_info]
 #     to_padinator = (models[0].count_manager.all(), '40')
@@ -125,7 +128,7 @@ class Steel_class_slug(DecoratorContextMixin, SingleObjectMixin, ListView):
         return context
 
     def get(self, request, *args, **kwargs):
-        """Явно указываем queryset чтоб искал там там где надо.
+        """Явно указываем queryset чтоб искал там где надо.
          .get_object можно переопределять для ручного поиска"""
         self.object = self.get_object(queryset=self.slug_model.objects.all())
         return super().get(request, *args, **kwargs)
@@ -141,7 +144,10 @@ class SearchAll(LoginRequiredMixin, DecoratorContextMixin, ListView):
     template_name = "metal/steel-result.html"
 
     def get_queryset(self):
-        return self.model.count_manager.order_by("-date")
+        """ Используется кэш cache.get_or_set """
+        queryset = self.model.count_manager.order_by("-date")
+        queryset = cache.get_or_set('searchall', queryset, 60)
+        return queryset
 
 
 class SearchView(ListView):
@@ -173,7 +179,28 @@ class SearchView(ListView):
         return queryset
 
 class SearchMoreView(FilterView):
+    """
+    Представление для работы с фильтром.
+    Для корректной работы пагинации необходимо использовать
+    templatetags.custom_filter_tag.param_replace"""
     paginate_by = 10
     paginate_orphans = 5
     template_name = "metal/search_list_more.html"
     filterset_class = Metal_infoFilter
+
+
+class ContactFormView(FormView):
+    """ форма обратной связи """             # todo должна слать письмо
+    form_class = ContactForm
+    template_name = 'metal/feedback.html'
+    success_url = reverse_lazy('start-url')
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['action_name'] = 'contact_form_submission'
+        return context
+
+    def form_valid(self, form):
+        debug.info(form.cleaned_data)
+        return super().form_valid(form)
+

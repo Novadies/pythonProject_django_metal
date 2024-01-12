@@ -1,8 +1,9 @@
 import django_filters
 from django.db.models import QuerySet
 
-from .models import Metal_info
 import logging
+
+from metal.models import Metal_info
 
 debug_logger = logging.getLogger('debug')
 
@@ -25,7 +26,7 @@ class Metal_infoFilter(django_filters.FilterSet):
     class Meta:
         model = Metal_info
         exclude = [field.name for field in model._meta.fields + model._meta.many_to_many]
-        debug_logger.debug(exclude)
+
 
     @property
     def qs(self) -> QuerySet:  # если не переопределять init

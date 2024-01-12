@@ -4,6 +4,7 @@ from django.contrib.auth.backends import ModelBackend
 from .signals import user_logged_with_secret_password
 
 def authenticate(request, username=None, password=None, **kwargs):
+    """ часть функции ModelBackend.authenticate с дополненным user-ом """
     user_model = get_user_model()
     if username is None:
         username = kwargs.get(user_model.USERNAME_FIELD)

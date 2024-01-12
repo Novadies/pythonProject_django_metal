@@ -15,7 +15,7 @@ import os
 
 from .custom_json_formatter import CustomJsonFormatter
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.flatpages',     # todo убедиться в работе
+    'django.contrib.sites',
 
     #'django_extensions',
     #'rest_framework'
@@ -51,33 +53,46 @@ INSTALLED_APPS = [
     #'silk',
     'django_filters',
     'debug_toolbar',
+    'snowpenguin.django.recaptcha3', # todo убедиться в работе
+
+    'axes',
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google', # опционально
 
     'metal',
     'users',
-    #'axes',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    #'silk.middleware.SilkyMiddleware',                                # silk
+    #'silk.middleware.SilkyMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+
     'mysite.middleware.YourMiddlewareClass',
+
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
-    #'axes.middleware.AxesMiddleware',
+
+    "allauth.account.middleware.AccountMiddleware",
+    'axes.middleware.AxesMiddleware',                            #  axes должен быть последним
 ]
 
 ROOT_URLCONF = 'mysite.urls'
+SITE_ID = 1
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],                  # !!!!! добавление папки  templates
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],                  #  добавление папки  templates
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -85,7 +100,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'mysite.context_processors.get_menu'
+                'mysite.context_processors.get_menu',
             ],
         },
     },
@@ -187,12 +202,22 @@ LOGOUT_REDIRECT_URL = 'start-url'
 AUTH_USER_MODEL = 'users.User'
 
 AUTHENTICATION_BACKENDS = [
-    #'axes.backends.AxesStandaloneBackend',
-
+    'axes.backends.AxesStandaloneBackend',                     #  axes должен быть первым
+    'allauth.account.auth_backends.AuthenticationBackend',
     #'django.contrib.auth.backends.ModelBackend',
     'users.authentication.EmailOrLoginBackend',
     'users.authentication.CustomAuthBackend',
 ]
+
+SOCIALACCOUNT_PROVIDERS = {    # при регистрации указывался локал хост
+    'google': {
+        'APP': {
+            'client_id': '191735540274-vp3kiqb88djb2ubuepu5tm59jeied4ql.apps.googleusercontent.com',
+            'secret': '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',
+            'key': ''
+        }
+    }
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -217,14 +242,39 @@ DEFAULT_USER_IMAGE = MEDIA_URL + 'users/default.png'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+""" джанго axes """
+AXES_USERNAME_FORM_FIELD = 'login' # переопределяем поле для django-allauth
 
+AXES_ENABLED = True                # выключить axes
+AXES_FAILURE_LIMIT = 3
+AXES_LOCK_OUT_AT_FAILURE = True    # блокировать или нет
+AXES_COOLOFF_TIME = 1              # часа
+AXES_RESET_ON_SUCCESS = True
+# AXES_WHITELIST_CALLABLE = 'users.whitelist' # белый лист, функция не определена!
+AXES_NEVER_LOCKOUT_WHITELIST = True
 
+""" reCAPTCHA """
+RECAPTCHA_PUBLIC_KEY = '6Levk0spAAAAABWWfA2tHLHqguqDlFBq6KAWc8G6'
+RECAPTCHA_PRIVATE_KEY = '6Levk0spAAAAAOKDpQ2-vBo9yOJ7Pt4W51gaK8Cu'
+RECAPTCHA_DEFAULT_ACTION = 'generic'
+RECAPTCHA_SCORE_THRESHOLD = 0.5
+
+""" настройки безопасности"""
 SESSION_COOKIE_SECURE = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 CSP_DEFAULT_SRC = ("'self'",)
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+""" кэширование """
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': os.path.join(BASE_DIR, 'my_cache'),
+        'TIMEOUT': 60,
+    }
+}
 
+""" настройки почтового сервера """
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.yandex.ru"
 EMAIL_PORT = 465
 EMAIL_HOST_USER = "alekseirysyuk@yandex.ru"

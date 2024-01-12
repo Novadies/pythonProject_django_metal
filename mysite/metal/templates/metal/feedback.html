@@ -1,0 +1,26 @@
+{% extends 'metal/base_metal.html' %}
+
+{% block title %}
+  {% include 'metal/includes/menu.html' %}
+{% endblock %}
+
+{% block block_1 %}
+
+    {% if user.is_authenticated %}
+        <h1>Уважаемый {{ user.username }}!
+        Воспользуйтесь формой обратной связи.</h1>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% include 'metal/includes/simple_form.html' %}
+
+            <button type="submit">Отправить</button>
+
+        </form>
+
+    {% else %}
+      <h1>Уважаемый незнакомец, для осуществления обратной связи, пожалуйста, войдите или зарегистрируйтесь.</h1>
+    {% endif %}
+
+{% endblock %}

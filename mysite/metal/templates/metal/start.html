@@ -10,20 +10,21 @@
 
 
    {% include 'metal/includes/buttons.html' %}
+   {% load cache %}
+   {% cache 600 start %}
+       {% for page in page_obj %}
 
-   {% for page in page_obj %}
+            <div class="container text-center">
+                <div class="row">
+                    <div class="col"><a href="{{ page.get_absolute_url }}">{{page.steel}}</a></div>
+                    <div class="col">{{page.total}}</div>
+                    <div class="col"><a href="{{ page.metals_class.get_absolute_url }}">{{page.metals_class.steel_class}}</a></div>
+                    <div class="col">{{page.steel_info}}</div>
 
-        <div class="container text-center">
-            <div class="row">
-                <div class="col"><a href="{{ page.get_absolute_url }}">{{page.steel}}</a></div>
-                <div class="col">{{page.total}}</div>
-                <div class="col"><a href="{{ page.metals_class.get_absolute_url }}">{{page.metals_class.steel_class}}</a></div>
-                <div class="col">{{page.steel_info}}</div>
-
+                </div>
             </div>
-        </div>
-    {% endfor %}
-
+        {% endfor %}
+    {% endcache %}
     {% include 'metal/includes/paginator.html' %}
 
 {% endblock %}

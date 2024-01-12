@@ -1,11 +1,9 @@
 from django import forms
+from .tools.reCaptcha import ReCaptchaField
 
-from metal.tools.logic import *
+from .tools.logic import *
 from .models import *
-import logging
 
-logger = logging.getLogger('metal')
-debug_logger = logging.getLogger('debug')
 
 search_fields = ["C", "Si", "Mn", "Cr", "Ni", "Ti", "Al", "W", "Mo", "Nb", "V", "S", "P", "Cu", "Co", "Zr", "Be", "Se", "N", "Pb"]
 
@@ -20,7 +18,7 @@ class MetalForm(forms.ModelForm):
         if extra_data:
             for i in extra_data:
                 self.fields[i].initial = extra_data[i]
-                # debug_logger.debug(self.fields[i].initial)
+                # debug.debug(self.fields[i].initial)
 
     template_name = "metal/includes/form_snippet.html"  # имя шаблона для формы, опция
 
@@ -52,7 +50,7 @@ class MetalForm(forms.ModelForm):
                 cleaned_data[f] = cleaned_data_replace(v)
 
         # if self.has_error(NON_FIELD_ERRORS, code=None):
-        # можно что-нибудь сделать при наличии ошибки но для этого не нужно бросать исключение, иначе код дальше не пойдёт
+        # можно что-нибудь сделать при наличии ошибки, но для этого не нужно бросать исключение, иначе код дальше не пойдёт
 
     # def clean_Zr(self):
     #     field='Zr'
@@ -83,3 +81,9 @@ class SearchForm(forms.Form):
         ),
         label="Имя пользователя",
     )  # , initial="ноунейм")
+
+class ContactForm(forms.Form): # todo эта форма по идее должна присылать на почту ответ
+    name = forms.CharField(label='Имя', max_length=255)
+    email = forms.EmailField(label='Email')
+    content = forms.CharField(widget=forms.Textarea(attrs={'cols': 60, 'rows': 10}))
+    captcha = ReCaptchaField()

@@ -1,5 +1,5 @@
 {% load static %}
-
+{% load recaptcha3 %} <!-- загружаем рекапчу -->
 <!doctype html>
 <html lang="ru">
   <head>
@@ -26,6 +26,12 @@
         базовая страница
       {% endblock %}
     </title>
+
+    {% block additional_head %} <!-- подключаем рекапчу -->
+        {% recaptcha_init %}
+        {% recaptcha_ready action_name=action_name %}
+    {% endblock %}
+
   </head>
 
   <body>
