@@ -10,6 +10,7 @@ from django_filters.views import FilterView
 from .filters import Metal_infoFilter
 from .forms import ContactForm
 from metal.models import *
+from .signals import must_send_mail_signals
 from .tools.decorators2 import track_queries
 from .tools.logic import get_dop_field, save_to_db
 from .utils import *
@@ -190,7 +191,7 @@ class SearchMoreView(FilterView):
 
 
 class ContactFormView(FormView):
-    """ форма обратной связи """             # todo должна слать письмо
+    """ форма обратной связи """
     form_class = ContactForm
     template_name = 'metal/feedback.html'
     success_url = reverse_lazy('start-url')
@@ -201,6 +202,6 @@ class ContactFormView(FormView):
         return context
 
     def form_valid(self, form):
-        debug.info(form.cleaned_data)
+        #debug.info(form.cleaned_data)
+        must_send_mail_signals.send(sender=self.__class__, form=form)
         return super().form_valid(form)
-

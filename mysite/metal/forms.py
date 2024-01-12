@@ -1,6 +1,6 @@
 from django import forms
-from .tools.reCaptcha import ReCaptchaField
 
+from .tools.reCaptcha import ReCaptchaField
 from .tools.logic import *
 from .models import *
 
@@ -82,7 +82,8 @@ class SearchForm(forms.Form):
         label="Имя пользователя",
     )  # , initial="ноунейм")
 
-class ContactForm(forms.Form): # todo эта форма по идее должна присылать на почту ответ
+class ContactForm(forms.Form):
+    """ Форма обратной связи, посылает сообщение на почту юзеру и сама себе """
     name = forms.CharField(label='Имя', max_length=255)
     email = forms.EmailField(label='Email')
     content = forms.CharField(widget=forms.Textarea(attrs={'cols': 60, 'rows': 10}))

@@ -1,11 +1,8 @@
 import django_filters
 from django.db.models import QuerySet
 
-import logging
-
 from metal.models import Metal_info
 
-debug_logger = logging.getLogger('debug')
 
 
 class Metal_infoFilter(django_filters.FilterSet):

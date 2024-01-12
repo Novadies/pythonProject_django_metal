@@ -1,5 +1,7 @@
 from django.db import models
 from django.db.models import Count
+
+
 class CountManager(models.Manager):
     """ пользовательский процессор """
     _name = "total"

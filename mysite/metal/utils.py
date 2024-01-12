@@ -1,14 +1,10 @@
-from functools import reduce
-
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
-from django.core.paginator import Paginator
+from django.shortcuts import redirect
 
+from logs.logger import logger
 from metal.forms import MetalForm
-import logging
 
-logger = logging.getLogger('metal')
 
 # class If_paginator:
 #     def if_paginator(self, request):

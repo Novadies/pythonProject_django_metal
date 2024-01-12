@@ -1,4 +1,3 @@
-from axes.utils import reset
 from django.contrib.auth import user_logged_in, user_login_failed
 from django.db.models.signals import Signal
 from django.dispatch import receiver
