@@ -191,7 +191,7 @@ class SearchMoreView(FilterView):
 
 
 class ContactFormView(FormView):
-    """ форма обратной связи """
+    """ Форма обратной связи """
     form_class = ContactForm
     template_name = 'metal/feedback.html'
     success_url = reverse_lazy('start-url')

@@ -1,5 +1,6 @@
-from django.contrib import admin, messages
+from django.contrib import admin
 
+from .forms import Metal_infoAdminForm
 from .models import *
 
 
@@ -15,7 +16,7 @@ class Whattafuu_Filter(admin.SimpleListFilter):
 
     def queryset(
         self, request, queryset
-    ):  # собственно фильтр. Можно добавлять больше двух значений
+    ):  # Собственно фильтр. Можно добавлять больше двух значений
         if self.value() == "long":
             return queryset.filter(steel=True)
         elif self.value() == "small":
@@ -25,6 +26,7 @@ class Whattafuu_Filter(admin.SimpleListFilter):
 @admin.register(Metal_info)
 class Metal_infoAdmin(admin.ModelAdmin):
     readonly_fields = ["slug"]
+    form = Metal_infoAdminForm         # подключение ckeditor
     list_display = ("steel", "steel_info", "metals_class", "count_letters")
     list_display_links = "steel", "count_letters"
     list_per_page = 218
@@ -59,7 +61,6 @@ class Metal_infoAdmin(admin.ModelAdmin):
 
 admin.site.register(Metal)
 admin.site.register(Metal_2)
-
 
 @admin.register(Metal_class)
 class Metal_classAdmin(admin.ModelAdmin):

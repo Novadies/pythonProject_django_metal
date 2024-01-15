@@ -1,5 +1,6 @@
 import datetime
 
+from ckeditor.widgets import CKEditorWidget
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordChangeForm, UserChangeForm
 from django import forms
@@ -73,6 +74,8 @@ class ProfileUserForm(forms.ModelForm):
     secret_login = forms.CharField(label='Секретный Логин', widget=forms.TextInput(attrs={'class': 'form-input'}))
     secret_email = forms.CharField(label='Секретный E-mail', widget=forms.TextInput(attrs={'class': 'form-input'}))
     secret_password = forms.CharField(label='Секретный пароль', widget=forms.TextInput(attrs={'class': 'form-input'}))
+    about_user = forms.CharField(widget=CKEditorWidget())  # todo нет связи с моделью
+
     class Meta:
         model = get_user_model()
         fields = ['username', 'email', 'first_name', 'last_name', 'secret_login', 'secret_email', 'secret_password']

@@ -1,3 +1,4 @@
+from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django import forms
 
 from .tools.reCaptcha import ReCaptchaField
@@ -86,5 +87,12 @@ class ContactForm(forms.Form):
     """ Форма обратной связи, посылает сообщение на почту юзеру и сама себе """
     name = forms.CharField(label='Имя', max_length=255)
     email = forms.EmailField(label='Email')
-    content = forms.CharField(widget=forms.Textarea(attrs={'cols': 60, 'rows': 10}))
-    captcha = ReCaptchaField()
+    content = forms.CharField(label='', widget=CKEditorUploadingWidget())
+    captcha = ReCaptchaField(label='')
+
+class Metal_infoAdminForm(forms.ModelForm):
+    """ Форма для отображения ckeditor в админ панели, для модели Metal_info """
+    steel_info = forms.CharField(widget=CKEditorUploadingWidget())
+    class Meta:
+        model = Metal_info
+        fields = '__all__'
