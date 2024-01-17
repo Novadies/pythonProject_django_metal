@@ -4,14 +4,15 @@ from django.urls import path
 from django.urls import include
 
 from . import settings
-from .views import pagenotfound
+from .views import pagenotfound, redirect_page, decorator_redirect_page
 
 urlpatterns = [
-    #path('', Start_page.as_view(), name='start_page_url'),
+    path('', decorator_redirect_page('search-url')(redirect_page), name='start_page_url'),
     path('admin/', admin.site.urls),
     path('metal/', include('metal.urls')),
     path('users/', include('users.urls', namespace="users")),
     path('ckeditor/', include('ckeditor_uploader.urls')),
+    path('users/', include('allauth.urls')),
     #path('pages/', include('django.contrib.flatpages.urls')),
     #path('silk/', include('silk.urls', namespace='silk')),
 ]

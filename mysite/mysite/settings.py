@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.flatpages',
+    'django.contrib.flatpages',           # todo не находит страницу
     'django.contrib.sites',
     # инструменты отладки и мониторинга
     #'django_extensions',
@@ -193,20 +193,11 @@ AUTH_USER_MODEL = 'users.User'
 AUTHENTICATION_BACKENDS = [
     'axes.backends.AxesStandaloneBackend',                     #  axes должен быть первым
     'allauth.account.auth_backends.AuthenticationBackend',
-    #'django.contrib.auth.backends.ModelBackend',
+    # 'django.contrib.auth.backends.ModelBackend',
     'users.authentication.EmailOrLoginBackend',
     'users.authentication.CustomAuthBackend',
 ]
 
-SOCIALACCOUNT_PROVIDERS = {    # при регистрации указывался localhost
-    'google': {
-        'APP': {
-            'client_id': '191735540274-vp3kiqb88djb2ubuepu5tm59jeied4ql.apps.googleusercontent.com',
-            'secret': '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',
-            'key': ''
-        }
-    }
-}
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -235,13 +226,31 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 """ джанго AXES """
 AXES_USERNAME_FORM_FIELD = 'login' # переопределяем поле для django-allauth
-AXES_ENABLED = True                # выключить axes
+AXES_ENABLED = False#True                # выключить axes
 AXES_FAILURE_LIMIT = 3
 AXES_LOCK_OUT_AT_FAILURE = True    # блокировать или нет
 AXES_COOLOFF_TIME = 1              # часа
 AXES_RESET_ON_SUCCESS = True
 # AXES_WHITELIST_CALLABLE = 'users.whitelist' # белый лист, функция не определена!
 AXES_NEVER_LOCKOUT_WHITELIST = True
+
+""" джанго allauth """
+# ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_USERNAME_BLACKLIST = ["admin", "administrator", "moderator"]
+ACCOUNT_MAX_EMAIL_ADDRESSES = 3
+ACCOUNT_LOGIN_ATTEMPTS_LIMIT = None # количество неудачных попыток входа в систему
+
+SOCIALACCOUNT_PROVIDERS = {    # todo при регистрации указывался localhost
+    'google': {
+        'APP': {
+            'client_id': '191735540274-vp3kiqb88djb2ubuepu5tm59jeied4ql.apps.googleusercontent.com',
+            'secret': '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',
+            'key': ''
+        },
+        # 'EMAIL_AUTHENTICATION': True,
+        }
+    }
 
 """ reCAPTCHA """
 RECAPTCHA_PUBLIC_KEY = '6Levk0spAAAAABWWfA2tHLHqguqDlFBq6KAWc8G6'

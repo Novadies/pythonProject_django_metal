@@ -8,13 +8,13 @@
     <h1>Введите ваши данные</h1>
   <form method="post">
       {% csrf_token %}
-
-      <input type="hidden" name="next" value="{{ next }}" />        <!-- перенаправляет на страницу с которой
-          пришлось делать аутентификацию-->
+        <!-- перенаправляет на страницу с которой пришлось делать аутентификацию-->
+      <input type="hidden" name="next" value="{{ next }}" />
 
       {% include 'users/includes/form_for_user.html' %}
 
       <p ><button type="submit">Войти</button></p>
+      <a href="{% url 'google_login' %}">Хотите войти через аккаунт Google?</a>
       <p ><a href="{% url 'users:password_reset' %}">Забыли пароль?</a></p>
   </form>
 {% endblock %}

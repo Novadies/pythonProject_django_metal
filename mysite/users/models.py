@@ -1,14 +1,13 @@
 from django.apps import apps
-from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.hashers import check_password, make_password
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.contrib.auth.password_validation import validate_password
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.db.models import Q
 
 
-class CustomUserManager(BaseUserManager):
+class CustomUserManager(UserManager):
     """ кастомный юзер. Переопределён метод _create_user и создан метод на основе get_by_natural_key"""
     def _create_user(self, username, email, password, **extra_fields):
         """ добавлено поле secret_password. """  # todo Работа под вопросом
@@ -47,7 +46,7 @@ class User(AbstractUser):
     """ дополнение базового юзера """
     objects = CustomUserManager()
 
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, null=True)
     secret_login = models.CharField(max_length=128, unique=True, null=True)
     secret_email = models.EmailField(unique=True, null=True)
     secret_password = models.CharField(max_length=128, null=True,
@@ -65,6 +64,12 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.first_name or self.username
+
+    def save(self, *args, **kwargs):
+        """ Иначе email будут пустыми, что выкинет ошибку """
+        if self.email == "":
+            self.email = None
+        super().save(*args, **kwargs)
 
     def check_secret_password(self, raw_password):
         """ зеркальный обычному check_password но для secret_password"""

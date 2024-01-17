@@ -14,10 +14,14 @@ def user_logged_in_handler(sender, request, user, model, **kwargs):
 @receiver(user_logged_in)   # стандартный сигнал при логине
 def user_logged_in_handler(sender, request, user, **kwargs):
     """
-    Обработчик сигнала user_logged_in, который будет вызван после успешной аутентификации пользователя.
+    Обработчик сигнала user_logged_in, который будет вызван ВСЕГДА после успешной аутентификации пользователя
+    ЛЮБЫМ бэкендом.
     """
-    print(f"Стандартный сигнал. Пользователь {user.username} вошел в систему")
-
+    try:
+        print(f"Стандартный сигнал. Пользователь {user.username} вошел в систему")
+    except Exception as e:
+        print(f"Произошло исключение {e} ")
+        
 @receiver(user_login_failed)
 def handle_login_failed(sender, credentials, request, **kwargs):
     """ здесь можно что-то сделать с неудачными попытками входа """

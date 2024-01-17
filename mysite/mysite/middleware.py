@@ -1,18 +1,24 @@
 from django.http import JsonResponse
-import logging
 
+from logs.logger import logger
 from mysite.settings import DEBUG
 
-logger = logging.getLogger('metal')
 
 class YourMiddlewareClass:
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
-        logger.debug(f'Вызвано {request}')
+        logger.info(f'Вызвано {request}')
         response = self.get_response(request)
         return response
+    @staticmethod
+    def process_view(request, view_func, view_args, view_kwargs):
+        """ Вызывается непосредственно перед тем, как Django вызывает представление """
+        if hasattr(request, 'user') and request.user.is_authenticated:
+            backend_name = request.session.get('_auth_user_backend')
+            if backend_name:
+                logger.info(f'Использован бэкенд аутентификации: {backend_name}')
 
     def process_exception(self, request, exception)-> JsonResponse:
         """ стандартная функция обработки исключений """
@@ -24,7 +30,7 @@ class YourMiddlewareClass:
 
     @staticmethod
     def _response(data:str, *, status:int) -> JsonResponse:
-        """ формирование Json ответа """
+        """ Формирование Json ответа """
         return JsonResponse(
             data,
             status=status,
