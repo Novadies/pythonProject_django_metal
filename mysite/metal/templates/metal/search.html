@@ -36,7 +36,11 @@
         {% if request.path != top_path %}
             <a class="btn btn-warning" href="{{ top_path }}" role="button">К истории поиска</a>
         {% endif %}
+
+        {% include 'metal/includes/messages.html' %}
     </div>
+
+
 
     {% if page_obj %}
         <div class="container text-center">Всего найдено совпадений: {{page_obj.paginator.count}}</div>

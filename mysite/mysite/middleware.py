@@ -9,7 +9,7 @@ class YourMiddlewareClass:
         self.get_response = get_response
 
     def __call__(self, request):
-        logger.info(f'Вызвано {request}')
+        logger.debug(f'Вызвано {request}')
         response = self.get_response(request)
         return response
     @staticmethod
@@ -18,10 +18,10 @@ class YourMiddlewareClass:
         if hasattr(request, 'user') and request.user.is_authenticated:
             backend_name = request.session.get('_auth_user_backend')
             if backend_name:
-                logger.info(f'Использован бэкенд аутентификации: {backend_name}')
+                logger.debug(f'Использован бэкенд аутентификации: {backend_name}')
 
     def process_exception(self, request, exception)-> JsonResponse:
-        """ стандартная функция обработки исключений """
+        """ Стандартная функция обработки исключений """
         if not DEBUG:
             response_data = {'success': False, 'errorMessage': str(exception)}
             status = 400

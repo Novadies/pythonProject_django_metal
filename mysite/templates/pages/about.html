@@ -1,10 +1,10 @@
-{% extends 'base.html' %}
+{% extends 'metal/base_metal.html' %}
 
 {% block title %}
     {{ flatpage.title }}
 {% endblock %}
 
 {% block block_1 %}
-   <h1>Страница не найдена!</h1>
+      {{ flatpage.content }}
 {% endblock %}
 

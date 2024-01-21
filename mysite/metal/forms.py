@@ -21,8 +21,8 @@ class MetalForm(forms.ModelForm):
                 self.fields[i].initial = extra_data[i]
                 # debug.debug(self.fields[i].initial)
 
-    template_name = "metal/includes/form_snippet.html"  # имя шаблона для формы, опция
-
+    template_name = "metal/includes/form_snippet.html"              # имя шаблона для формы, опция
+    captcha = ReCaptchaField(label='')                              # рекапчу нужно исключить из кастомных валидаторов!
     # u_name = forms.CharField(validators=[], required=False,
     #                          widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите'}),
     #                          label="Имя пользователя")
@@ -38,9 +38,10 @@ class MetalForm(forms.ModelForm):
         }
 
     def clean(self):  # проверка для формы, а не конкретного поля
-        """ стандартная функция валидации по всем полям """
-        cleaned_data = super().clean()  # можно менять словарь cleaned_data
-
+        """ Функция валидации по всем полям,
+        рекапчу нужно исключить из кастомных валидаторов """
+        cleaned_data = super().clean()
+        cleaned_data.pop('captcha')
         what_about_null_fields(cleaned_data, any)
 
         for f, v in ((f, v) for f, v in dict(cleaned_data).items() if v):

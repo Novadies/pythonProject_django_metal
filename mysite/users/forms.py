@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 
 
 class LoginUserForm(AuthenticationForm):
+    """ Форма входа """
     class Meta:
         model = get_user_model()
         fields = ['username', 'password']
@@ -33,6 +34,7 @@ class LoginUserForm(AuthenticationForm):
 
 
 class RegisterUserForm(UserCreationForm):
+    """ Форма регистрации """
     username = forms.CharField(label='Логин', widget=forms.TextInput(attrs={'class': 'form-input'}))
     password1 = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
     password2 = forms.CharField(label='Повтор пароля', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
@@ -63,22 +65,26 @@ class CustomUserChangeForm(UserChangeForm): # todo не ясно для чего
 
     class Meta:
         model = get_user_model()
-        fields = ('username', 'email')
+        fields = ['username', 'email']
 
 
 class ProfileUserForm(forms.ModelForm):
+    """ Форма профиля пользователя"""
+    this_year = datetime.date.today().year
+
     username = forms.CharField(disabled=True, label='Логин', widget=forms.TextInput(attrs={'class': 'form-input'}))
     email = forms.CharField(disabled=True, label='E-mail', widget=forms.TextInput(attrs={'class': 'form-input'}))
-    this_year = datetime.date.today().year
-    date_birth = forms.DateField(widget=forms.SelectDateWidget(years=tuple(range(this_year - 100, this_year - 5))))
     secret_login = forms.CharField(label='Секретный Логин', widget=forms.TextInput(attrs={'class': 'form-input'}))
     secret_email = forms.CharField(label='Секретный E-mail', widget=forms.TextInput(attrs={'class': 'form-input'}))
     secret_password = forms.CharField(label='Секретный пароль', widget=forms.TextInput(attrs={'class': 'form-input'}))
-    about_user = forms.CharField(widget=CKEditorWidget())  # todo нет связи с моделью
+    # todo нет связи с моделью UserExtraField
+    date_birth = forms.DateField(widget=forms.SelectDateWidget(years=tuple(range(this_year - 100, this_year - 5))))
+    about_user = forms.CharField(widget=CKEditorWidget())
+    photo = forms.ImageField(label='Выберите фото',widget=forms.FileInput(attrs={'accept': 'image/*'}))
 
     class Meta:
         model = get_user_model()
-        fields = ['username', 'email', 'first_name', 'last_name', 'secret_login', 'secret_email', 'secret_password']
+        fields = ['username', 'email', 'first_name', 'last_name', 'secret_login', 'secret_email', 'secret_password', ]
         labels = {
             'first_name': 'Имя',
             'last_name': 'Фамилия',
@@ -90,6 +96,7 @@ class ProfileUserForm(forms.ModelForm):
 
 
 class UserPasswordChangeForm(PasswordChangeForm):
+    """ Форма смены пароля """
     old_password = forms.CharField(label="Старый пароль", widget=forms.PasswordInput(attrs={'class': 'form-input'}))
     new_password1 = forms.CharField(label="Новый пароль", widget=forms.PasswordInput(attrs={'class': 'form-input'}))
     new_password2 = forms.CharField(label="Подтверждение пароля", widget=forms.PasswordInput(attrs={'class': 'form-input'}))

@@ -47,9 +47,9 @@ class User(AbstractUser):
     objects = CustomUserManager()
 
     email = models.EmailField(unique=True, null=True)
-    secret_login = models.CharField(max_length=128, unique=True, null=True)
-    secret_email = models.EmailField(unique=True, null=True)
-    secret_password = models.CharField(max_length=128, null=True,
+    secret_login = models.CharField(max_length=128, unique=True, null=True, default=None)
+    secret_email = models.EmailField(unique=True, null=True, default=None)
+    secret_password = models.CharField(max_length=128, null=True, default=None,
                                        validators=[MinLengthValidator(8),
                                                    validate_password])
     user_extra_field = models.OneToOneField(
@@ -85,11 +85,11 @@ class User(AbstractUser):
         self._password = raw_password
 
 
-class UserExtraField(models.Model):
+class UserExtraField(models.Model): # todo есть ли возможность работать в связки с основной моделью? Может абстрактная модель?
     """ расширение модели юзера """
     votes = models.IntegerField(default=0)
     photo = models.ImageField(upload_to="users/%Y/%m/%d/", blank=True, null=True, verbose_name="Фотография")
     date_birth = models.DateTimeField(blank=True, null=True, verbose_name="Дата рождения")
-
+    about_user = models.CharField(max_length=128, null=True)
     def __str__(self):
         return self.pk

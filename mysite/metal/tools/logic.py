@@ -12,7 +12,7 @@ import logging
 logger = logging.getLogger('metal')
 
 
-def query_method(exist: str, answer):
+def query_method(exist: str, answer: QuerySet):
     """ выбор между exclude и filter"""
     return answer.exclude if exist else answer.filter
 
@@ -33,13 +33,13 @@ def If_0_value(answer: QuerySet, cleaned_data: dict) -> QuerySet:
 def other_value(answer: QuerySet, data: dict, key: str) -> QuerySet:
     """ основной обработчик значений"""
     dk = data[key]
-    if isinstance(dk, float):  # если значение одно число
+    if isinstance(dk, float):           # если значение одно число
         prefix = str(dk).startswith('-')
         value = float(str(dk)[1:]) if prefix else dk
         key_model_lte = {f'{key}_min__lte': value}
         key_model_gte = {f'{key}_max__gte': value}
         answer = query_method(prefix, answer)(**key_model_lte, **key_model_gte)
-    else:  # если значение диапазон
+    else:                              # если значение диапазон
         *prefix, value1, value2 = dk.split("-")
         key_model_min__range = {f'{key}_min__range': (float(value1), float(value2))}
         key_model_max__range = {f'{key}_max__range': (float(value1), float(value2))}
@@ -82,8 +82,7 @@ def _search_for_connections(cleaned_data: dict, model=Metal_2) -> QuerySet:
 
 def filter_chain(answer: QuerySet) -> QuerySet:
     """ проход по связям таблиц """
-    metal_2_to_metal = Metal.objects.filter(
-        metal_compound__in=answer)
+    metal_2_to_metal = Metal.objects.filter(metal_compound__in=answer)
     return Metal_info.objects.filter(metals__in=metal_2_to_metal)
 
 
@@ -91,8 +90,7 @@ def _get_pattern(pattern=None):
     """ шаблон для валидации"""
     default = re.compile(
         r"^([-—]?\d{1,2}([.,$]\d{0,2})?)([-—]\d{1,2}([.,$]\d{0,2})?)?$")  # проверка учитывающая ввод диапазона
-    pattern = pattern if pattern is not None else default
-    return pattern
+    return pattern or default
 
 
 def what_about_null_fields(cleaned_data, logic):

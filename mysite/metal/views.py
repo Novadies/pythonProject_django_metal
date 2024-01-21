@@ -1,5 +1,6 @@
 from itertools import chain
 
+from django.contrib import messages
 from django.core.cache import cache
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
@@ -51,9 +52,9 @@ class GetSearch(SearchMixin, SingleObjectMixin, ListView):
     paginate_by = 15
     paginate_orphans = 5
     form_class = MetalForm
-    form_Meta = form_class.Meta
     decorators = [track_queries]
 
+    form_Meta = form_class.Meta
 
     def get_paginate_by(self, queryset):
         if self.kwargs:  # что б не было ошибки если нечего отображать
@@ -66,14 +67,9 @@ class GetSearch(SearchMixin, SingleObjectMixin, ListView):
 
     def get_context_data(self, initial=False, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["initial"] = (
-            initial if initial
-            else {
-                field: getattr(self.object, field, None)
-                for field in self.form_Meta.fields
-            }
-        )
+        context["initial"] = initial or {field: getattr(self.object, field, None) for field in self.form_Meta.fields}
         context["form"] = self.form_class(extra_data=context["initial"])
+        context['action_name'] = 'search_form'
         return context
 
     def get_queryset(self):
@@ -83,12 +79,13 @@ class GetSearch(SearchMixin, SingleObjectMixin, ListView):
 
     def get(self, request, *args, **kwargs):
         self.object = self._get_initial()
+        if request.user.is_staff:                           # отправка сообщения на страницу
+            messages.add_message(request, messages.INFO, f"Нравится этот сайт?", fail_silently=True)
         return super().get(request, *args, **kwargs)
 
 
 class PostSearch(SearchMixin, CreateView):
     decorators = [track_queries]
-
     def form_valid(self, form):
         """ добавляем данные с формы, а так же сгенерированые самостоятельно """
         dop_field = get_dop_field()
@@ -198,7 +195,7 @@ class ContactFormView(FormView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['action_name'] = 'contact_form_submission'
+        context['action_name'] = 'contact_form_submission'   # подключение капчи
         return context
 
     def form_valid(self, form):

@@ -14,7 +14,7 @@ def decorator_redirect_page(name):
         return wrapper
     return decorator
 
-def pagenotfound(request, exeption):
+def pagenotfound(request, *args, **kwargs):
     return render(request, '404.html', status=404)
 
 def redirect_page(request, name='start-url'):

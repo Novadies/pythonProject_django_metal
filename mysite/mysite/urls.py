@@ -4,10 +4,10 @@ from django.urls import path
 from django.urls import include
 
 from . import settings
-from .views import pagenotfound, redirect_page, decorator_redirect_page
+from .views import redirect_page, decorator_redirect_page
 
 urlpatterns = [
-    path('', decorator_redirect_page('search-url')(redirect_page), name='start_page_url'),
+    path('', decorator_redirect_page('search-url')(redirect_page)),
     path('admin/', admin.site.urls),
     path('metal/', include('metal.urls')),
     path('users/', include('users.urls', namespace="users")),
@@ -17,7 +17,7 @@ urlpatterns = [
     #path('silk/', include('silk.urls', namespace='silk')),
 ]
 
-handler404 = pagenotfound
+handler404 = 'mysite.views.pagenotfound'
 
 admin.site.site_header = "Панель администрирования"
 admin.site.index_title = "Список приложений"

@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.flatpages',           # todo не находит страницу
+    'django.contrib.flatpages',           # todo изменить хоста при деплое
     'django.contrib.sites',
     # инструменты отладки и мониторинга
     #'django_extensions',
