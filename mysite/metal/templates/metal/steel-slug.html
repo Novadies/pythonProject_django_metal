@@ -15,7 +15,7 @@
 
             <div class="col">{{metal_info.steel}}</div>
             <div class="col"><a href="{{metal_info.metals_class.get_absolute_url }}">{{metal_info.metals_class.steel_class}}</a></div>
-            <div class="col">{{metal_info.steel_info}}</div>
+            <div class="col">{{metal_info.steel_info|safe}}</div>
             <hr>
             {% with m=metal_info.metals %}
                 <div class="row row-cols-3">

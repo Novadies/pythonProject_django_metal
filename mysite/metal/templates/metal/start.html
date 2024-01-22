@@ -19,7 +19,7 @@
                     <div class="col"><a href="{{ page.get_absolute_url }}">{{page.steel}}</a></div>
                     <div class="col">{{page.total}}</div>
                     <div class="col"><a href="{{ page.metals_class.get_absolute_url }}">{{page.metals_class.steel_class}}</a></div>
-                    <div class="col">{{page.steel_info}}</div>
+                    <div class="col">{{page.steel_info|safe}}</div>
 
                 </div>
             </div>

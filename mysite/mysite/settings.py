@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     # сторонние библиотеки
     'snowpenguin.django.recaptcha3',
     'ckeditor',
-    'ckeditor_uploader',  # todo попробывать загрузить изображение
+    'ckeditor_uploader',
     # сторонние библиотеки аутентификации
     'axes',
     'allauth',
@@ -222,7 +222,6 @@ MEDIA_URL = '/media/'
 DEFAULT_USER_IMAGE = MEDIA_URL + 'users/default.png'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 
 """ джанго AXES """
 AXES_USERNAME_FORM_FIELD = 'login' # переопределяем поле для django-allauth

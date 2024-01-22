@@ -9,7 +9,7 @@
 
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-
+        {{form.media}}
         {% if user.user_extra_field.photo %}
         <p ><img src="{{ user.user_extra_field.photo.url }}">
         {% else %}

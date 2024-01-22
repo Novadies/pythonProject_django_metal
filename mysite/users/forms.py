@@ -74,9 +74,12 @@ class ProfileUserForm(forms.ModelForm):
 
     username = forms.CharField(disabled=True, label='Логин', widget=forms.TextInput(attrs={'class': 'form-input'}))
     email = forms.CharField(disabled=True, label='E-mail', widget=forms.TextInput(attrs={'class': 'form-input'}))
-    secret_login = forms.CharField(label='Секретный Логин', widget=forms.TextInput(attrs={'class': 'form-input'}))
-    secret_email = forms.CharField(label='Секретный E-mail', widget=forms.TextInput(attrs={'class': 'form-input'}))
-    secret_password = forms.CharField(label='Секретный пароль', widget=forms.TextInput(attrs={'class': 'form-input'}))
+    secret_login = forms.CharField(
+        label='Секретный Логин', widget=forms.TextInput(attrs={'class': 'form-input'}), required=False)
+    secret_email = forms.CharField(
+        label='Секретный E-mail', widget=forms.TextInput(attrs={'class': 'form-input'}), required=False)
+    secret_password = forms.CharField(
+        label='Секретный пароль', widget=forms.TextInput(attrs={'class': 'form-input'}), required=False)
     # todo нет связи с моделью UserExtraField
     date_birth = forms.DateField(widget=forms.SelectDateWidget(years=tuple(range(this_year - 100, this_year - 5))))
     about_user = forms.CharField(widget=CKEditorWidget())
