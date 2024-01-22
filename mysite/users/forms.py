@@ -61,11 +61,14 @@ class RegisterUserForm(UserCreationForm):
         return email
 
 
-class CustomUserChangeForm(UserChangeForm): # todo не ясно для чего это форму определять и можно ли без неё обойтись
-
-    class Meta:
-        model = get_user_model()
-        fields = ['username', 'email']
+class UserForm(UserChangeForm):
+    """ Форма для CustomUserAdmin.
+        Можно внести дополнительные поля, не связанные с моделью и соответственные методы.
+    """
+    pass
+    # class Meta:
+    #     model = get_user_model()
+    #     fields = "__all__"
 
 
 class ProfileUserForm(forms.ModelForm):

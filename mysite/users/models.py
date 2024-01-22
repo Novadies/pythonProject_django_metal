@@ -52,12 +52,7 @@ class User(AbstractUser):
     secret_password = models.CharField(max_length=128, null=True, default=None,
                                        validators=[MinLengthValidator(8),
                                                    validate_password])
-    user_extra_field = models.OneToOneField(
-        "UserExtraField",
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-    )
+
     REQUIRED_FIELDS = ['username']  # обязательные поля
     USERNAME_FIELD = 'email'  # вместо логина
     ALL_USERNAME_FIELD = 'email', 'username' # это кастомная константа, имеет приоритет перед USERNAME_FIELD
@@ -85,11 +80,19 @@ class User(AbstractUser):
         self._password = raw_password
 
 
-class UserExtraField(models.Model): # todo есть ли возможность работать в связки с основной моделью? Может абстрактная модель?
+class UserExtraField(models.Model): # todo есть ли возможность работать в связки с основной моделью?
     """ расширение модели юзера """
     votes = models.IntegerField(default=0)
     photo = models.ImageField(upload_to="users/%Y/%m/%d/", blank=True, null=True, verbose_name="Фотография")
     date_birth = models.DateTimeField(blank=True, null=True, verbose_name="Дата рождения")
     about_user = models.CharField(max_length=128, null=True)
+
+    user_extra_field = models.OneToOneField(
+        "User",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    )
+
     def __str__(self):
-        return self.pk
+        return self.pk # self.objects.get(user__username)

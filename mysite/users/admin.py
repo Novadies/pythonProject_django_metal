@@ -3,8 +3,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import Group
 
-from users.forms import RegisterUserForm, CustomUserChangeForm
-from users.models import User
+from users.forms import RegisterUserForm, UserForm
+from users.models import User, UserExtraField
 
 admin.site.unregister(Group)
 @admin.register(Group)
@@ -17,13 +17,19 @@ class CustomGroupAdmin(GroupAdmin):
     def has_delete_permission(self, request, obj=None):
         return request.user.is_superuser
 
+class ExtraUserInline(admin.StackedInline):
+    model = UserExtraField
+    can_delete = False
+    verbose_name_plural = 'Поля пользователя'
+
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
-    form = CustomUserChangeForm # todo а так же зачем эта форма
-    add_form = RegisterUserForm     # todo в админ панели должна быть вся информация профиля юзера
+    form = UserForm
+    add_form = RegisterUserForm     # здесь нужно просто указать свою форму регистрации наследуемую от UserCreationForm
     model = get_user_model()
     list_display = ['email', 'username', ]
     readonly_fields = ['secret_password']
+    inlines = (ExtraUserInline,)
 
     def get_readonly_fields(self, request, obj=None):
         """ Запретить пользователям, не являющимся суперпользователями,
@@ -77,3 +83,8 @@ class CustomUserAdmin(UserAdmin):
         if not request.user.has_perm(*perm):
             actions = {k: v for k, v in actions.items() if k not in actions_disabled}
         return actions
+
+    def get_form(self, request, obj=None, **kwargs):
+        # if request.user.is_superuser:
+        #     kwargs["form"] = MySuperuserForm
+        return super().get_form(request, obj, **kwargs)
