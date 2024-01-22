@@ -52,7 +52,6 @@ class Metal_infoAdmin(admin.ModelAdmin):
         "metals_class__steel_class",
     ]  # metals_class внешний ключ, необходимо указать поле явно
     list_filter = [Whattafuu_Filter, "metals_class__steel_class"]
-    # prepopulated_fields = {"slug": ("steel_info",)} для создание слага в админ панели, корректность не известна
     filter_horizontal = ["metalsearch"]
     save_on_top = True
 
