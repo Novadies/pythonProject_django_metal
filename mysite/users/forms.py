@@ -2,7 +2,8 @@ import datetime
 
 from ckeditor.widgets import CKEditorWidget
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordChangeForm, UserChangeForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordChangeForm, UserChangeForm, \
+    ReadOnlyPasswordHashField, UsernameField
 from django import forms
 from django.core.exceptions import ValidationError
 
@@ -66,31 +67,31 @@ class UserForm(UserChangeForm):
         Можно внести дополнительные поля, не связанные с моделью и соответственные методы.
     """
     pass
-    # class Meta:
-    #     model = get_user_model()
-    #     fields = "__all__"
-
 
 class ProfileUserForm(forms.ModelForm):
     """ Форма профиля пользователя"""
+    # def __init__(self, *args, **kwargs):  # это для передачи начальных данных в форму
+    #     field_data = kwargs.pop('secret_password', None)
+    #     super().__init__(*args, **kwargs)
+    #     self.fields['secret_password'].widget.attrs['value'] = 'Установлен' if field_data else 'Отсутствует'
+
     this_year = datetime.date.today().year
 
     username = forms.CharField(disabled=True, label='Логин', widget=forms.TextInput(attrs={'class': 'form-input'}))
     email = forms.CharField(disabled=True, label='E-mail', widget=forms.TextInput(attrs={'class': 'form-input'}))
-    secret_login = forms.CharField(
-        label='Секретный Логин', widget=forms.TextInput(attrs={'class': 'form-input'}), required=False)
     secret_email = forms.CharField(
         label='Секретный E-mail', widget=forms.TextInput(attrs={'class': 'form-input'}), required=False)
     secret_password = forms.CharField(
-        label='Секретный пароль', widget=forms.TextInput(attrs={'class': 'form-input'}), required=False)
+        label='Секретный пароль', widget=forms.TextInput(attrs={'class': 'form-input'}), required=False, disabled=True)
+
     # todo нет связи с моделью UserExtraField
     date_birth = forms.DateField(widget=forms.SelectDateWidget(years=tuple(range(this_year - 100, this_year - 5))))
-    about_user = forms.CharField(widget=CKEditorWidget())
-    photo = forms.ImageField(label='Выберите фото',widget=forms.FileInput(attrs={'accept': 'image/*'}))
+    about_user = forms.CharField(widget=CKEditorWidget(), required=False)
+    photo = forms.ImageField(label='Выберите фото', widget=forms.FileInput(attrs={'accept': 'image/*'}), required=False)
 
     class Meta:
         model = get_user_model()
-        fields = ['username', 'email', 'first_name', 'last_name', 'secret_login', 'secret_email', 'secret_password', ]
+        fields = ['username', 'email', 'first_name', 'last_name', 'secret_email', 'secret_password']
         labels = {
             'first_name': 'Имя',
             'last_name': 'Фамилия',
@@ -99,7 +100,14 @@ class ProfileUserForm(forms.ModelForm):
             'first_name': forms.TextInput(attrs={'class': 'form-input'}),
             'last_name': forms.TextInput(attrs={'class': 'form-input'}),
         }
-
+    def clean(self):
+        cleaned_data = super().clean()
+        print(cleaned_data)
+    def clean_secret_password(self):
+        """ Замена на булевое значение"""
+        print(self.cleaned_data)
+        field_data = self.cleaned_data.get('secret_password', False)
+        return 'Установлен' if field_data else 'Отсутствует'
 
 class UserPasswordChangeForm(PasswordChangeForm):
     """ Форма смены пароля """

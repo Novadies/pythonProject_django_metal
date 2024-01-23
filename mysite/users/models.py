@@ -1,3 +1,4 @@
+from ckeditor_uploader.fields import RichTextUploadingField
 from django.apps import apps
 from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import AbstractUser, UserManager
@@ -47,7 +48,6 @@ class User(AbstractUser):
     objects = CustomUserManager()
 
     email = models.EmailField(unique=True, null=True)
-    secret_login = models.CharField(max_length=128, unique=True, null=True, default=None)
     secret_email = models.EmailField(unique=True, null=True, default=None)
     secret_password = models.CharField(max_length=128, null=True, default=None,
                                        validators=[MinLengthValidator(8),
@@ -62,8 +62,10 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         """ Иначе email будут пустыми, что выкинет ошибку """
-        if self.email == "":
-            self.email = None
+        fields_to_check = ['email', 'secret_email', 'secret_password']
+        for field in fields_to_check:
+            if getattr(self, field) == "":
+                setattr(self, field, None)
         super().save(*args, **kwargs)
 
     def check_secret_password(self, raw_password):
@@ -85,7 +87,7 @@ class UserExtraField(models.Model): # todo есть ли возможность 
     votes = models.IntegerField(default=0)
     photo = models.ImageField(upload_to="users/%Y/%m/%d/", blank=True, null=True, verbose_name="Фотография")
     date_birth = models.DateTimeField(blank=True, null=True, verbose_name="Дата рождения")
-    about_user = models.CharField(max_length=128, null=True)
+    about_user = RichTextUploadingField(null=True)
 
     user_extra_field = models.OneToOneField(
         "User",
@@ -95,4 +97,4 @@ class UserExtraField(models.Model): # todo есть ли возможность 
     )
 
     def __str__(self):
-        return self.pk # self.objects.get(user__username)
+        return f'{self.pk}'

@@ -19,17 +19,26 @@ class CustomGroupAdmin(GroupAdmin):
 
 class ExtraUserInline(admin.StackedInline):
     model = UserExtraField
-    can_delete = False
-    verbose_name_plural = 'Поля пользователя'
-
+    verbose_name = 'Дополнительные поля пользователя'
+    fieldsets = (
+            ('Дополнительная информация', {'fields': ('votes', 'photo')}),
+            ('О пользователе', {'fields': ('date_birth', 'about_user',)}),
+        )
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     form = UserForm
     add_form = RegisterUserForm     # здесь нужно просто указать свою форму регистрации наследуемую от UserCreationForm
     model = get_user_model()
-    list_display = ['email', 'username', ]
+    list_display = ['email', 'username', "is_staff"]    # отображение в корневой папке Пользователи
     readonly_fields = ['secret_password']
     inlines = (ExtraUserInline,)
+    fieldsets = (
+        ('Основные данные', {'fields': ('username', 'password', 'email')}),
+        ('ФИО', {'fields': ('first_name', 'last_name',), 'classes': ('collapse',)}),
+        ('Права', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Важные даты', {'fields': ('last_login', 'date_joined')}),
+        ('Дополнительная аутентификация', {'fields': ('secret_email', 'secret_password',)}),
+    )
 
     def get_readonly_fields(self, request, obj=None):
         """ Запретить пользователям, не являющимся суперпользователями,
@@ -88,3 +97,9 @@ class CustomUserAdmin(UserAdmin):
         # if request.user.is_superuser:
         #     kwargs["form"] = MySuperuserForm
         return super().get_form(request, obj, **kwargs)
+
+    def lookup_allowed(self, lookup, value):
+        """ Запретить поиск паролей """
+        return not lookup.startswith("secret_password") and super().lookup_allowed(lookup, value)
+
+

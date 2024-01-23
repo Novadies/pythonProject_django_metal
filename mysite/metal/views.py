@@ -144,6 +144,7 @@ class SearchAll(LoginRequiredMixin, DecoratorContextMixin, ListView):
     def get_queryset(self):
         """ Используется кэш cache.get_or_set """
         queryset = self.model.count_manager.order_by("-date")
+        # queryset = self.model.count_manager.filter(user=self.request.user).order_by("-date")
         queryset = cache.get_or_set('searchall', queryset, 60)
         return queryset
 

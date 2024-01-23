@@ -20,8 +20,8 @@ class EmailOrLoginBackend(ModelBackend):
     """ стандартная аутентификация за исключением , что на вход как логин так и email """
     def authenticate(self, request, username=None, password=None, **kwargs):
         user = authenticate(request, username, password, **kwargs)
-        if self.user_can_authenticate(user) and user.check_password(password):
-            return user
+        if user is not None and user.check_password(password):
+            return user if self.user_can_authenticate(user) else None
 
 
 class CustomAuthBackend(ModelBackend):
@@ -31,8 +31,9 @@ class CustomAuthBackend(ModelBackend):
     """
     def authenticate(self, request, username=None, password=None, **kwargs):
         user = authenticate(request, username, password, **kwargs)
-        if self.user_can_authenticate(user) and user.check_secret_password(password):
-            user_logged_with_secret_password.send(sender=user.__class__, request=request, user=user, model=self.__class__.__name__)
+        if user is not None and self.user_can_authenticate(user) and user.check_secret_password(password):
+            user_logged_with_secret_password.send(
+                sender=user.__class__, request=request, user=user, model=self.__class__.__name__)
             return user
 
 
