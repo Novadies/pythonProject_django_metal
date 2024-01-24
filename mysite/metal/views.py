@@ -60,11 +60,6 @@ class GetSearch(SearchMixin, SingleObjectMixin, ListView):
         if self.kwargs:  # что б не было ошибки если нечего отображать
             return self.paginate_by
 
-    def _get_initial(self):
-        """ начальные значения для формы """
-        if self.kwargs:
-            return self.get_object(queryset=self.form_Meta.model.objects.all())
-
     def get_context_data(self, initial=False, **kwargs):
         context = super().get_context_data(**kwargs)
         context["initial"] = initial or {field: getattr(self.object, field, None) for field in self.form_Meta.fields}
@@ -78,8 +73,10 @@ class GetSearch(SearchMixin, SingleObjectMixin, ListView):
                 "metals_class", "metals").all()  # здесь выбирается кверисет , который будет page_obj
 
     def get(self, request, *args, **kwargs):
-        self.object = self._get_initial()
-        if request.user.is_staff:                           # отправка сообщения на страницу
+        """ начальные значения для формы """
+        self.object = self.get_object(queryset=self.form_Meta.model.objects.all()) if self.kwargs else None
+
+        if not request.user.is_staff:                           # отправка сообщения на страницу
             messages.add_message(request, messages.INFO, f"Нравится этот сайт?", fail_silently=True)
         return super().get(request, *args, **kwargs)
 

@@ -87,7 +87,7 @@ class UserExtraField(models.Model): # todo есть ли возможность 
     votes = models.IntegerField(default=0)
     photo = models.ImageField(upload_to="users/%Y/%m/%d/", blank=True, null=True, verbose_name="Фотография")
     date_birth = models.DateTimeField(blank=True, null=True, verbose_name="Дата рождения")
-    about_user = RichTextUploadingField(null=True)
+    about_user = RichTextUploadingField(blank=True)
 
     user_extra_field = models.OneToOneField(
         "User",

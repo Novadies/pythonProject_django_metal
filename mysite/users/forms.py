@@ -70,11 +70,6 @@ class UserForm(UserChangeForm):
 
 class ProfileUserForm(forms.ModelForm):
     """ Форма профиля пользователя"""
-    # def __init__(self, *args, **kwargs):  # это для передачи начальных данных в форму
-    #     field_data = kwargs.pop('secret_password', None)
-    #     super().__init__(*args, **kwargs)
-    #     self.fields['secret_password'].widget.attrs['value'] = 'Установлен' if field_data else 'Отсутствует'
-
     this_year = datetime.date.today().year
 
     username = forms.CharField(disabled=True, label='Логин', widget=forms.TextInput(attrs={'class': 'form-input'}))
@@ -100,14 +95,7 @@ class ProfileUserForm(forms.ModelForm):
             'first_name': forms.TextInput(attrs={'class': 'form-input'}),
             'last_name': forms.TextInput(attrs={'class': 'form-input'}),
         }
-    def clean(self):
-        cleaned_data = super().clean()
-        print(cleaned_data)
-    def clean_secret_password(self):
-        """ Замена на булевое значение"""
-        print(self.cleaned_data)
-        field_data = self.cleaned_data.get('secret_password', False)
-        return 'Установлен' if field_data else 'Отсутствует'
+
 
 class UserPasswordChangeForm(PasswordChangeForm):
     """ Форма смены пароля """

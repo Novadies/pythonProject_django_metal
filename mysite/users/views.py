@@ -6,6 +6,7 @@ from django.contrib.auth.views import LoginView, PasswordChangeDoneView, Passwor
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, TemplateView, UpdateView
 
+from logs.logger import logger
 from .forms import LoginUserForm, RegisterUserForm, ProfileUserForm, UserPasswordChangeForm
 
 
@@ -32,12 +33,21 @@ class RegisterDone(TemplateView):
     template_name = 'users/register_done.html'
 
 
-class ProfileUser(LoginRequiredMixin, UpdateView): # todo: ут видимо нужно переопределить form_valid что б сохрантьс кэш секретного пароля
+class ProfileUser(LoginRequiredMixin, UpdateView):
     """ профиль пользователя """
     model = get_user_model()
     form_class = ProfileUserForm
     template_name = 'users/profile.html'
     extra_context = {'default_image': settings.DEFAULT_USER_IMAGE}
+
+    def get_form_kwargs(self):
+        """ Начальные значения для формы """
+        kwargs = super().get_form_kwargs()
+        try:
+            kwargs['initial']['secret_password'] = 'Установлен' if self.get_object().secret_password else 'Отсутствует'
+        except Exception as e:
+            logger.warning(f'Словарь {kwargs} Произошло исключение {e}')
+        return kwargs
 
     def get_success_url(self):
         return reverse_lazy('users:profile')
