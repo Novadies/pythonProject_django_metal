@@ -6,7 +6,7 @@
 
 {% block block_1 %}
     <h1>Профиль</h1>
-
+    <p ><a href="{% url 'start-url' %}">Назад</a></p>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{form.media}}
@@ -22,4 +22,14 @@
     </form>
     <hr>
     <p ><a href="{% url 'users:password_change' %}">Сменить пароль</a></p>
+
+    <p ><a href="{% url 'users:password_secret_change' %}">
+    {% if user.secret_password %}
+        Изменить секретный пароль
+    {% else %}
+        Установить секретный пароль
+    {% endif %}
+    </a></p>
+
+
 {% endblock %}

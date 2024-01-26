@@ -9,27 +9,7 @@ from django.db.models import Q
 
 
 class CustomUserManager(UserManager):
-    """ кастомный юзер. Переопределён метод _create_user и создан метод на основе get_by_natural_key"""
-    def _create_user(self, username, email, password, **extra_fields):
-        """ добавлено поле secret_password. """  # todo Работа под вопросом
-        if not username:
-            raise ValueError("The given username must be set")
-        email = self.normalize_email(email)
-        GlobalUserModel = apps.get_model(
-            self.model._meta.app_label, self.model._meta.object_name)
-        username = GlobalUserModel.normalize_username(username)
-        user = self.model(username=username, email=email, **extra_fields)
-        user.password = make_password(password)
-
-        try:
-            secret_password = extra_fields.get("secret_password")
-            if secret_password:
-                user.secret_password = make_password(secret_password)
-        except Exception as e:
-            print(f"Error processing secret_password: {e}")
-
-        user.save(using=self._db)
-        return user
+    """ кастомный юзер. Cоздан метод на основе get_by_natural_key"""
 
     def get_by_natural_key_v2(self, username):
         """ используется кастомный ALL_USERNAME_FIELD """

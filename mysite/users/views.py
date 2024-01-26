@@ -7,7 +7,8 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, TemplateView, UpdateView
 
 from logs.logger import logger
-from .forms import LoginUserForm, RegisterUserForm, ProfileUserForm, UserPasswordChangeForm
+from .forms import LoginUserForm, RegisterUserForm, ProfileUserForm, UserPasswordChangeForm, \
+    UserPasswordSecretChangeForm
 
 
 class LoginUser(LoginView):
@@ -49,6 +50,16 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
             logger.warning(f'Словарь {kwargs} Произошло исключение {e}')
         return kwargs
 
+    def form_valid(self, form):
+        instance = form.save(commit=False)
+        for field, value in form.cleaned_data.items():
+            if not form.fields[field].disabled:
+                setattr(instance, field, form.cleaned_data[field])
+            else:
+                instance.pop(field)
+        instance.save()
+        return super().form_valid(form)
+
     def get_success_url(self):
         return reverse_lazy('users:profile')
 
@@ -61,7 +72,6 @@ class PasswordChange(PasswordChangeView):
     form_class = UserPasswordChangeForm
     success_url = reverse_lazy("users:password_change_done")
     template_name = "users/password_actions/password_change_form.html"
-
 
 class PasswordChangeDone(PasswordChangeDoneView):
     """ успешное изменение пароля """
@@ -89,3 +99,17 @@ class PasswordResetConfirm(PasswordResetConfirmView):
 class PasswordResetComplete(PasswordResetCompleteView):
     """ пароль успешно восстановлен """
     template_name = "users/password_actions/password_reset_complete.html"
+
+
+class PasswordeSecretChange(PasswordChangeView): # todo: так же нужно предусмотреть удаление пароля
+    """ изменение секретного пароля """
+    form_class = UserPasswordSecretChangeForm
+    success_url = reverse_lazy("users:password_change_done")
+    template_name = "users/password_actions/password_change_secret_form.html"
+
+    def form_valid(self, form): # todo проверить работу
+        """ Переопределение, чтоб убрать выход из сеансов,
+        здесь это поведение бессмысленно.
+        """
+        form.save()
+        return super().form_valid(form)
