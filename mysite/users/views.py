@@ -10,7 +10,6 @@ from django.views.generic import CreateView, TemplateView, UpdateView
 from logs.logger import logger
 from .forms import LoginUserForm, RegisterUserForm, ProfileUserForm, UserPasswordChangeForm, \
     UserPasswordSecretChangeForm
-from .models import UserExtraField
 
 
 class LoginUser(LoginView):
@@ -28,12 +27,7 @@ class RegisterUser(CreateView):
     form_class = RegisterUserForm
     template_name = 'users/register.html'
     success_url = reverse_lazy('users:register_done')
-    # def form_valid(self, form):
-    #     """ """
-    #     s
-    #     UserExtraField.objects.create(to_user=user)
-    #
-    #     return super().form_valid(form)
+
 
 class RegisterDone(TemplateView):
     """ пользователь успешно зарегистрирован """
