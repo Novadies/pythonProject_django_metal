@@ -10,6 +10,7 @@ from django.views.generic import CreateView, TemplateView, UpdateView
 from logs.logger import logger
 from .forms import LoginUserForm, RegisterUserForm, ProfileUserForm, UserPasswordChangeForm, \
     UserPasswordSecretChangeForm
+from .models import UserExtraField
 
 
 class LoginUser(LoginView):
@@ -27,7 +28,12 @@ class RegisterUser(CreateView):
     form_class = RegisterUserForm
     template_name = 'users/register.html'
     success_url = reverse_lazy('users:register_done')
-
+    # def form_valid(self, form):
+    #     """ """
+    #     s
+    #     UserExtraField.objects.create(to_user=user)
+    #
+    #     return super().form_valid(form)
 
 class RegisterDone(TemplateView):
     """ пользователь успешно зарегистрирован """
@@ -59,11 +65,9 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
         user = self.model.objects.filter(username=self.get_object().username)
         user.update(**model_form)
 
-        # user = self.model.objects.get(username=self.get_object().username)
-        # try:
-        #     user.user_extra_field.update(**free_form)
-        # except Exception as e:
-        #     user.user_extra_field.create(**free_form)
+        user = self.model.objects.get(username=self.get_object().username)
+
+        UserExtraField.objects.update_or_create(to_user=user, **free_form)
 
         return HttpResponseRedirect(self.get_success_url())
 
