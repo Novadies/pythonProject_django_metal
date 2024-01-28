@@ -7,6 +7,8 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 from django.db.models import Q
 
+from users.tool.logic import true_or_None
+
 
 class CustomUserManager(UserManager):
     """ кастомный юзер. Cоздан метод на основе get_by_natural_key"""
@@ -43,9 +45,7 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         """ Иначе email будут пустыми, что выкинет ошибку """
         fields_to_check = ['email', 'secret_email', 'secret_password']
-        for field in fields_to_check:
-            if getattr(self, field) == "":
-                setattr(self, field, None)
+        true_or_None(self, fields_to_check)
         super().save(*args, **kwargs)
 
     def check_secret_password(self, raw_password):
@@ -58,22 +58,24 @@ class User(AbstractUser):
         return check_password(raw_password, self.secret_password, setter)
 
     def set_secret_password(self, raw_password):
-        self.secret_password = make_password(raw_password)
+        """ Пустой пароль не должен хэшироваться """
+        self.secret_password = make_password(raw_password) if raw_password else None
         self._password = raw_password
 
 
-class UserExtraField(models.Model): # todo есть ли возможность работать в связки с основной моделью?
+class UserExtraField(models.Model):
     """ расширение модели юзера """
     votes = models.IntegerField(default=0)
     photo = models.ImageField(upload_to="users/%Y/%m/%d/", blank=True, null=True, verbose_name="Фотография")
     date_birth = models.DateTimeField(blank=True, null=True, verbose_name="Дата рождения")
     about_user = RichTextUploadingField(blank=True)
 
-    user_extra_field = models.OneToOneField(
+    to_user = models.OneToOneField(
         "User",
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
+        related_name="user_extra_field",
     )
 
     def __str__(self):

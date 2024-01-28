@@ -1,11 +1,13 @@
 import datetime
 
-from ckeditor.widgets import CKEditorWidget
-from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordChangeForm, UserChangeForm, \
-    ReadOnlyPasswordHashField, UsernameField
+from django.contrib.auth import get_user_model, password_validation
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordChangeForm, UserChangeForm
 from django import forms
 from django.core.exceptions import ValidationError
+
+from ckeditor.widgets import CKEditorWidget
+
+from users.tool.logic import true_or_None
 
 
 class LoginUserForm(AuthenticationForm):
@@ -79,7 +81,7 @@ class ProfileUserForm(forms.ModelForm):
     secret_password = forms.CharField(
         label='Секретный пароль', widget=forms.TextInput(attrs={'class': 'form-input'}), required=False, disabled=True)
 
-    # todo нет связи с моделью UserExtraField
+    """ формы вне модели user """
     date_birth = forms.DateField(widget=forms.SelectDateWidget(years=tuple(range(this_year - 100, this_year - 5))))
     about_user = forms.CharField(widget=CKEditorWidget(), required=False)
     photo = forms.ImageField(label='Выберите фото', widget=forms.FileInput(attrs={'accept': 'image/*'}), required=False)
@@ -95,6 +97,12 @@ class ProfileUserForm(forms.ModelForm):
             'first_name': forms.TextInput(attrs={'class': 'form-input'}),
             'last_name': forms.TextInput(attrs={'class': 'form-input'}),
         }
+    def clean(self):
+        """ Удаляяем поля формы определённые как disabled из сохраняемых """
+        self.cleaned_data = {field: self.cleaned_data[field] for field
+                             in self.cleaned_data.keys() if not self.fields[field].disabled}
+        fields_to_check = ['email', 'secret_email', 'secret_password']
+        true_or_None(self, fields_to_check)
 
 
 class UserPasswordChangeForm(PasswordChangeForm):
@@ -107,18 +115,22 @@ class UserPasswordSecretChangeForm(PasswordChangeForm):
     """ Форма смены секретного пароля """
     old_password = forms.CharField(label="Пароль", widget=forms.PasswordInput(
         attrs={'class': 'form-input', "autofocus": True}))
-    new_password1 = forms.CharField(label="Секретный пароль", widget=forms.PasswordInput(attrs={'class': 'form-input'}))
-    new_password2 = forms.CharField(label="Подтверждение пароля", widget=forms.PasswordInput(attrs={'class': 'form-input'}))
-    # def clean_new_password2(self):
-    #     password1 = self.cleaned_data.get("new_password1")
-    #     password2 = self.cleaned_data.get("new_password2")
-    #     if password1 and password2 and password1 != password2:
-    #         raise ValidationError(
-    #             self.error_messages["password_mismatch"],
-    #             code="password_mismatch",
-    #         )
-    #     password_validation.validate_password(password2, self.user)
-    #     return password2
+    new_password1 = forms.CharField(
+        label="Секретный пароль", widget=forms.PasswordInput(attrs={'class': 'form-input'}), required=False)
+    new_password2 = forms.CharField(
+        label="Подтверждение пароля", widget=forms.PasswordInput(attrs={'class': 'form-input'}), required=False)
+    def clean_new_password2(self):
+        """ Переопределяем что бы допускался пустой пароль '', что идентично отсутствию секретного пароля """
+        password1 = self.cleaned_data.get("new_password1")
+        password2 = self.cleaned_data.get("new_password2")
+        if password1 != password2:
+            raise ValidationError(
+                self.error_messages["password_mismatch"],
+                code="password_mismatch",
+            )
+        if password2:
+            password_validation.validate_password(password2, self.user)
+        return password2
     def save(self, commit=True):
         password = self.cleaned_data["new_password1"]
         self.user.set_secret_password(password)

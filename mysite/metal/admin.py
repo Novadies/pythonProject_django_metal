@@ -6,7 +6,7 @@ from django.contrib import admin
 
 class MetalInline(admin.StackedInline):
     model = Metal_info
-    # fk_name = "metals_class"            # при нескольких внешних ключах указывать явно
+    fk_name = "metals_class"            # при нескольких внешних ключах указывать явно
     extra = 1
     readonly_fields = ['slug', 'metalsearch']
     def has_add_permission(self, request, obj):
