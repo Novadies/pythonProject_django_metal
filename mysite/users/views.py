@@ -1,5 +1,6 @@
+import warnings
+
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, PasswordChangeDoneView, PasswordChangeView, PasswordResetView, \
     PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
@@ -28,16 +29,10 @@ class RegisterUser(CreateView):
     form_class = RegisterUserForm
     template_name = 'users/register.html'
     success_url = reverse_lazy('users:register_done')
-    # def form_valid(self, form):
-    #     """ """
-    #     s
-    #     UserExtraField.objects.create(to_user=user)
-    #
-    #     return super().form_valid(form)
+
 
 class RegisterDone(TemplateView):
     """ пользователь успешно зарегистрирован """
-    # model = get_user_model()
     template_name = 'users/register_done.html'
 
 
@@ -45,6 +40,7 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
     """ профиль пользователя """
     form_class = ProfileUserForm
     model = form_class.Meta.model
+    bound_model = UserExtraField
     template_name = 'users/profile.html'
     extra_context = {'default_image': settings.DEFAULT_USER_IMAGE}
 
@@ -53,6 +49,8 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
         kwargs = super().get_form_kwargs()
         try:
             kwargs['initial']['secret_password'] = 'Установлен' if self.get_object().secret_password else 'Отсутствует'
+            kwargs['initial']['date_birth'] = self._get_user().get().user_extra_field.date_birth
+            kwargs['initial']['about_user'] = self._get_user().get().user_extra_field.about_user
         except Exception as e:
             logger.warning(f'Словарь {kwargs} Произошло исключение {e}')
         return kwargs
@@ -62,16 +60,11 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
         model_form = {key: form.cleaned_data[key] for key in form.cleaned_data if key in self.form_class.Meta.fields}
         free_form = {key: form.cleaned_data[key] for key in form.cleaned_data if key not in model_form}
 
-        user = self.model.objects.filter(username=self.get_object().username)
-        user.update(**model_form)
-
-        user = self.model.objects.get(username=self.get_object().username)
-        try:
-            UserExtraField.objects.create(to_user=user, **free_form)
-        except Exception:
-            UserExtraField.objects.update(to_user=user, **free_form)
-
-
+        self._get_user().update(**model_form)
+        with warnings.catch_warnings():  # убрать встроенное предупреждение о часовых поясах
+            warnings.simplefilter("ignore")
+            self.bound_model.objects.update_or_create(to_user=self._get_user().get(),   # .get() создаёт объект
+                                                      defaults=free_form)
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
@@ -80,12 +73,17 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         return self.request.user
 
+    def _get_user(self):
+        """ возвращает юзер в виде кверисет """
+        return self.model.objects.filter(username=self.get_object().username)
+
 
 class PasswordChange(PasswordChangeView):
     """ изменение пароля """
     form_class = UserPasswordChangeForm
     success_url = reverse_lazy("users:password_change_done")
     template_name = "users/password_actions/password_change_form.html"
+
 
 class PasswordChangeDone(PasswordChangeDoneView):
     """ успешное изменение пароля """

@@ -1,4 +1,5 @@
 import datetime
+import warnings
 
 from django.contrib.auth import get_user_model, password_validation
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordChangeForm, UserChangeForm
@@ -7,6 +8,7 @@ from django.core.exceptions import ValidationError
 
 from ckeditor.widgets import CKEditorWidget
 
+from logs.logger import debug
 from users.tool.logic import true_or_None
 
 
@@ -132,7 +134,12 @@ class UserPasswordSecretChangeForm(PasswordChangeForm):
             password_validation.validate_password(password2, self.user)
         return password2
     def save(self, commit=True):
+        """ Если секретный пароль совпадает с обычным, то сохранения не происходит """
         password = self.cleaned_data["new_password1"]
-        self.user.set_secret_password(password)
-        if commit: self.user.save()
+        old_password = self.cleaned_data["old_password"]
+        if old_password != password:
+            self.user.set_secret_password(password)
+            if commit: self.user.save()
+        else:
+            debug.info("Пользователь пытается ввести совпадающие пароли: стандартный и секретный")
         return self.user
