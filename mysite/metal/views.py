@@ -123,8 +123,7 @@ class Steel_class_slug(DecoratorContextMixin, SingleObjectMixin, ListView):
         return context
 
     def get(self, request, *args, **kwargs):
-        """Явно указываем queryset чтоб искал там где надо.
-         .get_object можно переопределять для ручного поиска"""
+        """ Явно указываем queryset, иначе будет искать в get_queryset() """
         self.object = self.get_object(queryset=self.slug_model.objects.all())
         return super().get(request, *args, **kwargs)
 

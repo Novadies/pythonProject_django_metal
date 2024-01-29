@@ -1,5 +1,5 @@
 from ckeditor_uploader.fields import RichTextUploadingField
-from django.apps import apps
+
 from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.contrib.auth.password_validation import validate_password
@@ -12,24 +12,6 @@ from users.tool.logic import true_or_None
 
 class CustomUserManager(UserManager):
     """ кастомный юзер. Cоздан метод на основе get_by_natural_key"""
-
-    # def _create_user(self, username, email, password, **extra_fields):
-    #     user = super()._create_user(username, email, password, **extra_fields)
-    #     UserExtraField.objects.create(to_user=user)
-    #     print("хуета!")
-    #     return user
-    # def create_user(self, username, email=None, password=None, **extra_fields):
-    #     if not email:
-    #         raise ValueError('The Email field must be set')
-    #     extra_fields.setdefault("is_staff", False)
-    #     extra_fields.setdefault("is_superuser", False)
-    #     email = self.normalize_email(email)
-    #     user = self.model(username=username, email=email, **extra_fields)
-    #     user.set_password(password)
-    #     print('аботэн?')
-    #     user.save(using=self._db)
-    #     UserExtraField.objects.create(to_user=user)
-    #     return user
     def get_by_natural_key_v2(self, username):
         """ используется кастомный ALL_USERNAME_FIELD """
         all_fields = getattr(self.model, "ALL_USERNAME_FIELD", None)
@@ -72,7 +54,8 @@ class User(AbstractUser):
             self._password = None
             self.save(update_fields=["secret_password"])
         #setter(raw_password) # Attention! это устанавливает новый пароль и хэширует его в бд
-        return check_password(raw_password, self.secret_password, setter)
+        if self.secret_password:
+            return check_password(raw_password, self.secret_password, setter)
 
     def set_secret_password(self, raw_password):
         """ Пустой пароль не должен хэшироваться """
@@ -96,4 +79,4 @@ class UserExtraField(models.Model):
     )
 
     def __str__(self):
-        return f'{self.pk}'
+        return f'{self.to_user}'
