@@ -1,4 +1,7 @@
+from django.contrib.flatpages.models import FlatPage
+from django.core.cache import cache
 from django.http import JsonResponse
+from django.contrib.flatpages.middleware import FlatpageFallbackMiddleware
 
 from logs.logger import logger
 from mysite.settings import DEBUG
@@ -36,3 +39,17 @@ class YourMiddlewareClass:
             status=status,
             safe=not isinstance(data, list),
             json_dumps_params={'ensure_ascii': False, 'indent': 2},)
+
+class FlatpagesCacheMiddleware(FlatpageFallbackMiddleware):
+    """ установить кэш для flatpages """
+    def process_request(self, request):
+        cache_key = 'flatpages_cache'
+        flatpages_cache = cache.get(cache_key)
+
+        if not flatpages_cache:
+            flatpages_cache = {}
+            flatpages = FlatPage.objects.all()
+            for flatpage in flatpages:
+                flatpages_cache[flatpage.url] = flatpage.content
+            cache.set(cache_key, flatpages_cache, timeout=3600)
+        request.flatpages_cache = flatpages_cache
