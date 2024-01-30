@@ -74,6 +74,7 @@ class GetSearch(SearchMixin, SingleObjectMixin, ListView):
 
     def get(self, request, *args, **kwargs):
         """ начальные значения для формы """
+        # альтернатива: чтобы получить self.object можно переопределить get_object()
         self.object = self.get_object(queryset=self.form_Meta.model.objects.all()) if self.kwargs else None
 
         if not request.user.is_staff:                           # отправка сообщения на страницу

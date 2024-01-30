@@ -44,26 +44,27 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
     template_name = 'users/profile.html'
     extra_context = {'default_image': settings.DEFAULT_USER_IMAGE}
 
-    def get_form_kwargs(self):
+    def get_initial(self):
         """ Начальные значения для формы """
-        kwargs = super().get_form_kwargs()
+        initial = super().get_initial()
         try:
-            kwargs['initial']['secret_password'] = 'Установлен' if self.get_object().secret_password else 'Отсутствует'
-            kwargs['initial']['date_birth'] = self._get_user().get().user_extra_field.date_birth
-            kwargs['initial']['about_user'] = self._get_user().get().user_extra_field.about_user
+            initial['secret_password'] = 'Установлен' if self.object.secret_password else 'Отсутствует'
+            initial['date_birth'] = self.object.user_extra_field.date_birth
+            initial['about_user'] = self.object.user_extra_field.about_user
+            pass
         except Exception as e:
-            logger.warning(f'Словарь {kwargs} Произошло исключение {e}')
-        return kwargs
+            logger.warning(f'Словарь {initial} Произошло исключение {e}')
+        return initial
 
     def form_valid(self, form):
         """ Получаем два словаря один с полями формы модели, другой связонной модели """
         model_form = {key: form.cleaned_data[key] for key in form.cleaned_data if key in self.form_class.Meta.fields}
         free_form = {key: form.cleaned_data[key] for key in form.cleaned_data if key not in model_form}
-
-        self._get_user().update(**model_form)
+        """ использование update налагает много ограничений, есть ли в нём смысл? """
+        self.model.objects.filter(pk=self.object.pk).update(**model_form)  # обновление model (юзера)
         with warnings.catch_warnings():  # убрать встроенное предупреждение о часовых поясах
             warnings.simplefilter("ignore")
-            self.bound_model.objects.update_or_create(to_user=self._get_user().get(),   # .get() создаёт объект
+            self.bound_model.objects.update_or_create(to_user=self.object,   # обновление связанной модели
                                                       defaults=free_form)
         return HttpResponseRedirect(self.get_success_url())
 
@@ -71,12 +72,11 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
         return reverse_lazy('users:profile')
 
     def get_object(self, queryset=None):
-        return self.request.user
-
-    def _get_user(self):
-        """ возвращает юзер в виде кверисет """
-        return self.model.objects.filter(username=self.get_object().username)
-
+        """ явный поиск пользователя, лучше использовать pk.
+            А так же select_related.
+            Возвращает self.object
+        """
+        return self.model.objects.select_related('user_extra_field').get(pk=self.request.user.pk)
 
 class PasswordChange(PasswordChangeView):
     """ изменение пароля """

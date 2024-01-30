@@ -72,9 +72,9 @@ class UserExtraField(models.Model):
 
     to_user = models.OneToOneField(
         "User",
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
+        primary_key=True,                   # to_user будет ключом
+        on_delete=models.CASCADE,
+        unique=True,
         related_name="user_extra_field",
     )
 
