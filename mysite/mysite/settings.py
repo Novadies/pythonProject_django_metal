@@ -63,9 +63,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 
-
+    'mysite.middleware.FlatpagesCacheMiddleware',     # наследуется от FlatpageFallbackMiddleware,
     'mysite.middleware.YourMiddlewareClass',
 
     'debug_toolbar.middleware.DebugToolbarMiddleware',
