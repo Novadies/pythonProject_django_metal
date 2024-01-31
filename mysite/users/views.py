@@ -47,8 +47,9 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
     def get_initial(self):
         """ Начальные значения для формы """
         initial = super().get_initial()
-        try:
-            initial['secret_password'] = 'Установлен' if self.object.secret_password else 'Отсутствует'
+        try:      # если пользователь зашёл под секретным паролем, то он будет отображаться как "Отсутствует"
+            initial['secret_password'] = 'Отсутствует' if any([self.request.session.get('invisible_mod') == 'true',
+                                                               not self.object.secret_password]) else 'Установлен'
             initial['date_birth'] = self.object.user_extra_field.date_birth
             initial['about_user'] = self.object.user_extra_field.about_user
         except Exception as e:

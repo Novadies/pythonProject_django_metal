@@ -34,6 +34,7 @@ class CustomAuthBackend(ModelBackend):
         if user is not None and self.user_can_authenticate(user) and user.check_secret_password(password):
             user_logged_with_secret_password.send(
                 sender=user.__class__, request=request, user=user, model=self.__class__.__name__)
+            request.session['invisible_mod'] = 'true'           # добавляем в сессию информацию
             return user
 
 
