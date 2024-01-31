@@ -51,7 +51,6 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
             initial['secret_password'] = 'Установлен' if self.object.secret_password else 'Отсутствует'
             initial['date_birth'] = self.object.user_extra_field.date_birth
             initial['about_user'] = self.object.user_extra_field.about_user
-            pass
         except Exception as e:
             logger.warning(f'Словарь {initial} Произошло исключение {e}')
         return initial

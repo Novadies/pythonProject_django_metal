@@ -44,7 +44,9 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         """ Иначе email будут пустыми, что выкинет ошибку """
         fields_to_check = ['email', 'secret_email', 'secret_password']
-        true_or_None(self, fields_to_check)
+        for field in fields_to_check:
+            if getattr(self, field) == "":
+                setattr(self, field, None)
         super().save(*args, **kwargs)
 
     def check_secret_password(self, raw_password):

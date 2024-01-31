@@ -104,7 +104,7 @@ class ProfileUserForm(forms.ModelForm):
         self.cleaned_data = {field: self.cleaned_data[field] for field
                              in self.cleaned_data.keys() if not self.fields[field].disabled}
         fields_to_check = ['email', 'secret_email', 'secret_password']
-        true_or_None(self, fields_to_check)
+        self.cleaned_data = true_or_None(self.cleaned_data, fields_to_check)
 
 
 class UserPasswordChangeForm(PasswordChangeForm):
