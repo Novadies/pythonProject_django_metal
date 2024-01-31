@@ -68,19 +68,19 @@ class GetSearch(SearchMixin, SingleObjectMixin, ListView):
         return context
 
     def get_queryset(self):
-        if self.object:
+        if self.object is not None:
             return self.object.metals_info.select_related(
                 "metals_class", "metals").all()  # здесь выбирается кверисет , который будет page_obj
 
     def get(self, request, *args, **kwargs):
         """ начальные значения для формы """
-        # альтернатива: чтобы получить self.object можно переопределить get_object()
-        self.object = self.get_object(queryset=self.form_Meta.model.objects.all()) if self.kwargs else None
-
+        self.object = self.get_object()          # необходимо явно прописать self.object так как основной класс ListView
         if not request.user.is_staff:                           # отправка сообщения на страницу
             messages.add_message(request, messages.INFO, f"Нравится этот сайт?", fail_silently=True)
         return super().get(request, *args, **kwargs)
-
+    def get_object(self, queryset=form_Meta.model.objects.all()):
+        if self.kwargs:
+            return super().get_object(queryset=queryset)
 
 class PostSearch(SearchMixin, CreateView):
     decorators = [track_queries]

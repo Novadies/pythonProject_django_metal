@@ -37,7 +37,7 @@ class RegisterDone(TemplateView):
 
 
 class ProfileUser(LoginRequiredMixin, UpdateView):
-    """ профиль пользователя """
+    """ Профиль пользователя """
     form_class = ProfileUserForm
     model = form_class.Meta.model
     bound_model = UserExtraField
@@ -64,8 +64,7 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
         self.model.objects.filter(pk=self.object.pk).update(**model_form)  # обновление model (юзера)
         with warnings.catch_warnings():  # убрать встроенное предупреждение о часовых поясах
             warnings.simplefilter("ignore")
-            self.bound_model.objects.update_or_create(to_user=self.object,   # обновление связанной модели
-                                                      defaults=free_form)
+            self.bound_model.objects.update_or_create(to_user=self.object, defaults=free_form)    # обновление связанной модели
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
