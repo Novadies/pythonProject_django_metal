@@ -2,15 +2,17 @@ from django.contrib.auth import user_logged_in, user_login_failed
 from django.db.models.signals import Signal
 from django.dispatch import receiver
 
+from logs.logger import logger
+
 user_logged_with_secret_password = Signal()
+change_view = Signal()
 @receiver(user_logged_with_secret_password)
-def user_logged_in_handler(sender, request, user, model, **kwargs):
+def user_logged_in_handler(sender, request, user, model, **kwargs):  # не забывать экспортировать в apps
     """
     Обработчик сигнала user_logged_with_secret_password, который будет вызван после успешной аутентификации пользователя,
     последством ввода секретного пароля
     """
-    # todo при входе посредством секретного пароля, его сделать не видимым!
-    print(f"Пользователь {user.username} вошел в систему с помощью секретного пароля. Отправитель {model}")
+    logger.info(f"Пользователь {user.username} вошел в систему с помощью секретного пароля. Отправитель {model}")
 
 @receiver(user_logged_in)   # стандартный сигнал при логине
 def user_logged_in_handler(sender, request, user, **kwargs):
@@ -18,12 +20,9 @@ def user_logged_in_handler(sender, request, user, **kwargs):
     Обработчик сигнала user_logged_in, который будет вызван ВСЕГДА после успешной аутентификации пользователя
     ЛЮБЫМ бэкендом.
     """
-
-    print(f"Стандартный сигнал. Пользователь {user.username} вошел в систему")
+    logger.info(f"Стандартный сигнал. Пользователь {user.username} вошел в систему")
         
-@receiver(user_login_failed)
+@receiver(user_login_failed)  # стандартный сигнал при неудачном входе
 def handle_login_failed(sender, credentials, request, **kwargs):
     """ здесь можно что-то сделать с неудачными попытками входа """
-    print(f"Failed login attempt with credentials: {credentials}")
-    # username = "novadies"
-    # reset(username=credentials.get(username))
+    logger.info(f"Попытка неудачного входа: {credentials}")

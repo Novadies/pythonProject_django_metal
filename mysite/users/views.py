@@ -37,7 +37,7 @@ class RegisterDone(TemplateView):
 
 
 class ProfileUser(LoginRequiredMixin, UpdateView):
-    """ Профиль пользователя """
+    """ профиль пользователя """
     form_class = ProfileUserForm
     model = form_class.Meta.model
     bound_model = UserExtraField
@@ -47,11 +47,14 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
     def get_initial(self):
         """ Начальные значения для формы """
         initial = super().get_initial()
-        try:      # если пользователь зашёл под секретным паролем, то он будет отображаться как "Отсутствует"
-            initial['secret_password'] = 'Отсутствует' if any([self.request.session.get('invisible_mod') == 'true',
-                                                               not self.object.secret_password]) else 'Установлен'
+        try:
+            # статус secret_password не должен показываться как 'Установлен' если аутентификация произошла посредством него же
+            initial['secret_password'] = 'Отсутствует' \
+                if (self.request.session.get('invisible_mod') == 'true' or not self.object.secret_password) \
+                else 'Установлен'
             initial['date_birth'] = self.object.user_extra_field.date_birth
             initial['about_user'] = self.object.user_extra_field.about_user
+            pass
         except Exception as e:
             logger.warning(f'Словарь {initial} Произошло исключение {e}')
         return initial
@@ -64,7 +67,8 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
         self.model.objects.filter(pk=self.object.pk).update(**model_form)  # обновление model (юзера)
         with warnings.catch_warnings():  # убрать встроенное предупреждение о часовых поясах
             warnings.simplefilter("ignore")
-            self.bound_model.objects.update_or_create(to_user=self.object, defaults=free_form)    # обновление связанной модели
+            self.bound_model.objects.update_or_create(to_user=self.object,   # обновление связанной модели
+                                                      defaults=free_form)
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):

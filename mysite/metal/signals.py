@@ -42,7 +42,7 @@ def send_mail_feedback(sender, form, **kwargs):
         # send_mass_mail не поддерживает html_message="html"
         s1 = send_mail(*send1, fail_silently=False, html_message=send1[1])
         s2 = send_mail(*send2, fail_silently=False, html_message=send2[1])
-    except  SMTPException as e:
+    except SMTPException as e:
         logger.error(f'Ошибка при отправке письма. Ошибка - {e}')
     except Exception as e:
         logger.error(f'Произошло исключение: {e}')
