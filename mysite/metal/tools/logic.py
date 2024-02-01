@@ -48,18 +48,19 @@ def other_value(answer: QuerySet, data: dict, key: str) -> QuerySet:
     return answer
 
 
-def get_dop_field(*, str_date="date", str_slug='slug') -> dict:
-    """ текущая дата и slug на её основе"""
+def get_field_from_model(model, *, str_date="date", str_slug='slug', user_search_id='user_search_id') -> dict:
+    """ текущая дата, slug на её основе, привязка к текущему user """
     date = make_aware(datetime.now())
     slug = str(date)[-21:-6].replace(":", "_").replace(".", "-")
-    return {str_date: date, str_slug: slug}
+    user_search = model.request.user.pk
+    return {str_date: date, str_slug: slug, user_search_id: user_search}
 
 
 def save_to_db(model, form, /, *args: dict) -> None:
     """ так как нужно добавить значения,
      кроме тех, что в форме,то обрабатываем формы вручную"""
     unpacked_dicts = {key: value for dictionary in args for key, value in dictionary.items()}  # распаковка кортежа из словарей в один мега словарь
-    for_save_to_db = model.form_class.Meta.model.objects.create(
+    for_save_to_db = model.form_class.Meta.model.objects.create(    # создание строки в MetalSearch
         **unpacked_dicts, **form.cleaned_data)
     connections = _search_for_connections(form.cleaned_data)
     for_save_to_db.metals_info.add(*connections)

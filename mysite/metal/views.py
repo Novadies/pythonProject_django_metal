@@ -6,25 +6,17 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import View, ListView, FormView, CreateView, DetailView
 from django.views.generic.detail import SingleObjectMixin
+
 from django_filters.views import FilterView
 
 from .filters import Metal_infoFilter
 from .forms import ContactForm
-from metal.models import *
 from .signals import must_send_mail_signals
 from .tools.decorators2 import track_queries
-from .tools.logic import get_dop_field, save_to_db
+from .tools.logic import get_field_from_model, save_to_db
 from .utils import *
-from .tools.for_null_db import *
-
-from logs.logger import debug
-
-# class Start(NoSlugMixin, If_paginator, View):
-#     models = [Metal_info]
-#     to_padinator = (models[0].count_manager.all(), '40')
-#     template = 'metal/start.html'
-#     dict_dop = {'menu': menu[template]}
-
+from .models import *
+if settings.DEBUG: from .tools.for_null_db import *
 
 class NewStart(DecoratorContextMixin, ListView):
     paginate_by = 20
@@ -86,7 +78,7 @@ class PostSearch(SearchMixin, CreateView):
     decorators = [track_queries]
     def form_valid(self, form):
         """ добавляем данные с формы, а так же сгенерированые самостоятельно """
-        dop_field = get_dop_field()
+        dop_field = get_field_from_model(self)
         save_to_db(self, form, dop_field)
 
         return HttpResponseRedirect(reverse("search-slug-url", args=[dop_field["slug"]]))
@@ -140,9 +132,8 @@ class SearchAll(LoginRequiredMixin, DecoratorContextMixin, ListView):
 
     def get_queryset(self):
         """ Используется кэш cache.get_or_set """
-        queryset = self.model.count_manager.order_by("-date")
-        # queryset = self.model.count_manager.filter(user=self.request.user).order_by("-date")
-        queryset = cache.get_or_set('searchall', queryset, 60)
+        queryset = self.model.count_manager.filter(user_search=self.request.user.pk).order_by("-date")
+        #queryset = cache.get_or_set('searchall', queryset, 60)     # todo кэшировать здесь так себе идея
         return queryset
 
 

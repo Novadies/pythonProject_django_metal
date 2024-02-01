@@ -47,16 +47,12 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
     def get_initial(self):
         """ Начальные значения для формы """
         initial = super().get_initial()
-        try:
-            # статус secret_password не должен показываться как 'Установлен' если аутентификация произошла посредством него же
-            initial['secret_password'] = 'Отсутствует' \
-                if (self.request.session.get('invisible_mod') == 'true' or not self.object.secret_password) \
-                else 'Установлен'
-            initial['date_birth'] = self.object.user_extra_field.date_birth
-            initial['about_user'] = self.object.user_extra_field.about_user
-            pass
-        except Exception as e:
-            logger.warning(f'Словарь {initial} Произошло исключение {e}')
+        # статус secret_password не должен показываться как 'Установлен' если аутентификация произошла посредством него же
+        initial['secret_password'] = 'Отсутствует' \
+            if (self.request.session.get('invisible_mod') == 'true' or not self.object.secret_password) \
+            else 'Установлен'
+        initial['date_birth'] = self.object.user_extra_field.date_birth
+        initial['about_user'] = self.object.user_extra_field.about_user
         return initial
 
     def form_valid(self, form):

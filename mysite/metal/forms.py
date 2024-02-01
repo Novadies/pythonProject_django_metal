@@ -41,7 +41,7 @@ class MetalForm(forms.ModelForm):
         """ Функция валидации по всем полям,
         рекапчу нужно исключить из кастомных валидаторов """
         cleaned_data = super().clean()
-        cleaned_data.pop('captcha')
+        cleaned_data.pop('captcha', None)
         what_about_null_fields(cleaned_data, any)
 
         for f, v in ((f, v) for f, v in dict(cleaned_data).items() if v):

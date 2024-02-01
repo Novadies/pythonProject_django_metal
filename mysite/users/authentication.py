@@ -36,6 +36,3 @@ class CustomAuthBackend(ModelBackend):
                 sender=user.__class__, request=request, user=user, model=self.__class__.__name__)
             request.session['invisible_mod'] = 'true'           # добавляем в сессию информацию
             return user
-
-
-
