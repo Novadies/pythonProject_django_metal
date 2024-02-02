@@ -133,7 +133,7 @@ class SearchAll(LoginRequiredMixin, DecoratorContextMixin, ListView):
     def get_queryset(self):
         """ Используется кэш cache.get_or_set """
         queryset = self.model.count_manager.filter(user_search=self.request.user.pk).order_by("-date")
-        #queryset = cache.get_or_set('searchall', queryset, 60)     # todo кэшировать здесь так себе идея
+        #queryset = cache.get_or_set('searchall', queryset, 60)     # кэшировать здесь так себе идея
         return queryset
 
 
@@ -154,11 +154,11 @@ class SearchView(ListView):
 
     def get_queryset(self):
         """ поиск по определённым полям модели """
-        if self.query:
+        if q := self.query:
             queryset1 = self.model.objects.filter(
-                steel_class__icontains=self.query)
+                steel_class__icontains=q)
             queryset2 = Metal_info.objects.filter(
-                steel__icontains=self.query)
+                steel__icontains=q)
             queryset = list(chain(queryset1, queryset2))
             logger.debug(queryset)
         else:

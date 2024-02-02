@@ -22,7 +22,7 @@ handler404 = 'mysite.views.pagenotfound'
 admin.site.site_header = "Панель администрирования"
 admin.site.index_title = "Список приложений"
 
-from icecream import install
+from icecream import install   # todo при деплое вырезать ic
 
 install()
 ic.configureOutput(includeContext=True)  # указание строки и места выполнения

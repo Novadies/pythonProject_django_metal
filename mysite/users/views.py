@@ -61,7 +61,7 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
         free_form = {key: form.cleaned_data[key] for key in form.cleaned_data if key not in model_form}
         """ использование update налагает много ограничений, есть ли в нём смысл? """
         self.model.objects.filter(pk=self.object.pk).update(**model_form)  # обновление model (юзера)
-        with warnings.catch_warnings():  # убрать встроенное предупреждение о часовых поясах
+        with warnings.catch_warnings():   # убрать бессмысленный RuntimeWarning
             warnings.simplefilter("ignore")
             self.bound_model.objects.update_or_create(to_user=self.object,   # обновление связанной модели
                                                       defaults=free_form)

@@ -72,7 +72,6 @@ class MetalForm(forms.ModelForm):
     #         f.save()
     #     return f
 
-
 class SearchForm(forms.Form):
     """ Форма в данный момент не используется"""
     query = forms.CharField(
