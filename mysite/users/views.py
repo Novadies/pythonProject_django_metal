@@ -75,7 +75,7 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
             А так же select_related.
             Возвращает self.object
         """
-        return self.model.objects.select_related('user_extra_field').get(pk=self.request.user.pk)
+        return self.model.objects.select_related('user_extra_field').filter(pk=self.request.user.pk).first()
 
 class PasswordChange(PasswordChangeView):
     """ изменение пароля """
