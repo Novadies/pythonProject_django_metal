@@ -8,12 +8,14 @@ from django.views.generic import View, ListView, FormView, CreateView, DetailVie
 from django.views.generic.detail import SingleObjectMixin
 
 from django_filters.views import FilterView
+from icecream import ic
 
 from .filters import Metal_infoFilter
 from .forms import ContactForm
 from .signals import must_send_mail_signals
 from .tools.decorators2 import track_queries
-from .tools.logic import get_field_from_model, save_to_db
+from .tools.logic import get_field_from_model, save_to_db, save_in_session
+from .tools.simple_send_mail import send_results_by_email
 from .utils import *
 from .models import *
 if settings.DEBUG: from .tools.for_null_db import *
@@ -43,10 +45,8 @@ class NewSearch(View):
 class GetSearch(SearchMixin, SingleObjectMixin, ListView):
     paginate_by = 15
     paginate_orphans = 5
-    form_class = MetalForm
-    decorators = [track_queries]
 
-    form_Meta = form_class.Meta
+    decorators = [track_queries]
 
     def get_paginate_by(self, queryset):
         if self.kwargs:  # что б не было ошибки если нечего отображать
@@ -57,6 +57,8 @@ class GetSearch(SearchMixin, SingleObjectMixin, ListView):
         context["initial"] = initial or {field: getattr(self.object, field, None) for field in self.form_Meta.fields}
         context["form"] = self.form_class(extra_data=context["initial"])
         context['action_name'] = 'search_form'
+
+        ic(context["form"])
         return context
 
     def get_queryset(self):
@@ -67,20 +69,28 @@ class GetSearch(SearchMixin, SingleObjectMixin, ListView):
     def get(self, request, *args, **kwargs):
         """ начальные значения для формы """
         self.object = self.get_object()          # необходимо явно прописать self.object так как основной класс ListView
+        response = super().get(request, *args, **kwargs) # что бы получить self.object_list нужно вызвать get()
+
         if not request.user.is_staff:                           # отправка сообщения на страницу
-            messages.add_message(request, messages.INFO, f"Нравится этот сайт?", fail_silently=True)
-        return super().get(request, *args, **kwargs)
-    def get_object(self, queryset=form_Meta.model.objects.all()):
+            messages.add_message(request, messages.INFO, f"Нравится этот сервис?\nПопробуйте получить результыты по почте", fail_silently=True)
+        else:
+            send_results_by_email(request, self.object_list)
+
+        return response
+
+    def get_object(self, queryset=None):
         if self.kwargs:
+            queryset = self.form_Meta.model.objects.all()
             return super().get_object(queryset=queryset)
 
 class PostSearch(SearchMixin, CreateView):
     decorators = [track_queries]
+
     def form_valid(self, form):
         """ добавляем данные с формы, а так же сгенерированые самостоятельно """
+        save_in_session(self, form, in_session='mail_checkbox')
         dop_field = get_field_from_model(self)
         save_to_db(self, form, dop_field)
-
         return HttpResponseRedirect(reverse("search-slug-url", args=[dop_field["slug"]]))
 
     # def form_invalid(self, form):

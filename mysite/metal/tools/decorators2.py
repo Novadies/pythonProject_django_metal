@@ -70,7 +70,7 @@ def track_queries(func):
             executed_queries = connection.queries[q:]
             time = 0
             for n, query in enumerate(executed_queries):
-                ic(f"{n + 1}___________{query}")
+                # ic(f"{n + 1}___________{query}")
                 time += float(query["time"])
             ic(time)
             return func_return

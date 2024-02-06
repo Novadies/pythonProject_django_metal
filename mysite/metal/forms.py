@@ -19,13 +19,11 @@ class MetalForm(forms.ModelForm):
         if extra_data:
             for i in extra_data:
                 self.fields[i].initial = extra_data[i]
-                # debug.debug(self.fields[i].initial)
 
     template_name = "metal/includes/form_snippet.html"              # имя шаблона для формы, опция
-    captcha = ReCaptchaField(label='')                              # рекапчу нужно исключить из кастомных валидаторов!
-    # u_name = forms.CharField(validators=[], required=False,
-    #                          widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите'}),
-    #                          label="Имя пользователя")
+    mail_checkbox = forms.BooleanField(label='Отправить почтой?', required=False)
+    captcha = ReCaptchaField(label='')                      # рекапчу нужно исключить из кастомных валидаторов!
+
     # field_order = ['u_name'] #изменение порядка вывода форм, достаточно указать лишь определённую часть
     class Meta:
         model = MetalSearch
@@ -41,15 +39,16 @@ class MetalForm(forms.ModelForm):
         """ Функция валидации по всем полям,
         рекапчу нужно исключить из кастомных валидаторов """
         cleaned_data = super().clean()
-        cleaned_data.pop('captcha', None)
-        what_about_null_fields(cleaned_data, any)
-
-        for f, v in ((f, v) for f, v in dict(cleaned_data).items() if v):
-            errors = validation_for_field_in_clean(v)
-            if errors is not None:
-                self.add_error(f, errors)
-            else:
-                cleaned_data[f] = cleaned_data_replace(v)
+        cleaned_data.pop('captcha', None)   # captcha требует явного удаление, НЕ через генератор. И в целом ведёт себя не адекватно
+        mail_checkbox = 'mail_checkbox'
+        checkbox = cleaned_data.pop(mail_checkbox, None)  # временно удаляем, чтоб осуществить валидацию по полям
+        # генерация полей с ошибками
+        for field, errors in process_cleaned_data(cleaned_data):
+            self.add_error(field, errors)
+        # возврат значения checkbox
+        if checkbox is not None and isinstance(checkbox, bool):
+            cleaned_data[mail_checkbox] = checkbox
+            ic(cleaned_data[mail_checkbox])
 
         # if self.has_error(NON_FIELD_ERRORS, code=None):
         # можно что-нибудь сделать при наличии ошибки, но для этого не нужно бросать исключение, иначе код дальше не пойдёт

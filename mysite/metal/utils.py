@@ -64,6 +64,7 @@ class DecoratorContextMixin:
 class SearchMixin(LoginRequiredMixin, DecoratorContextMixin):
     template_name = "metal/search.html"
     form_class = MetalForm
+    form_Meta = form_class.Meta
     paginate_by = 20
     paginate_orphans = 10
 
