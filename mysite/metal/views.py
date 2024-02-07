@@ -1,14 +1,13 @@
 from itertools import chain
 
 from django.contrib import messages
-from django.core.cache import cache
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import View, ListView, FormView, CreateView, DetailView
 from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.edit import FormMixin
 
 from django_filters.views import FilterView
-from icecream import ic
 
 from .filters import Metal_infoFilter
 from .forms import ContactForm
@@ -42,7 +41,7 @@ class NewSearch(View):
         return view(request, *args, **kwargs)
 
 
-class GetSearch(SearchMixin, SingleObjectMixin, ListView):
+class GetSearch(SearchMixin, SingleObjectMixin, ListView, FormMixin):
     paginate_by = 15
     paginate_orphans = 5
 
@@ -52,14 +51,25 @@ class GetSearch(SearchMixin, SingleObjectMixin, ListView):
         if self.kwargs:  # что б не было ошибки если нечего отображать
             return self.paginate_by
 
-    def get_context_data(self, initial=False, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["initial"] = initial or {field: getattr(self.object, field, None) for field in self.form_Meta.fields}
-        context["form"] = self.form_class(extra_data=context["initial"])
         context['action_name'] = 'search_form'
+        context['model_fields'] = self.form_Meta.fields
 
-        ic(context["form"])
+        initial = {field: getattr(self.object, field, None) for field in self.form_Meta.fields}
+        initial['mail_checkbox'] = self.request.session.get('mail_checkbox', False)
+
+        context["form"] = self.form_class(extra_data=initial)
         return context
+
+    # def get_initial(self):
+    #     """ Начальные значения для формы """
+    #     initial = super().get_initial()
+    #     initial['mail_checkbox'] = self.request.session.get('mail_checkbox', False)
+    #     # initial ["initial"] = {field: getattr(self.object, field, None) for field in self.form_Meta.fields}
+    #     # initial ["form"] = self.form_class(extra_data={field: getattr(self.object, field, None) for field in self.form_Meta.fields})
+    #
+    #     return initial
 
     def get_queryset(self):
         if self.object is not None:
@@ -89,6 +99,7 @@ class PostSearch(SearchMixin, CreateView):
     def form_valid(self, form):
         """ добавляем данные с формы, а так же сгенерированые самостоятельно """
         save_in_session(self, form, in_session='mail_checkbox')
+
         dop_field = get_field_from_model(self)
         save_to_db(self, form, dop_field)
         return HttpResponseRedirect(reverse("search-slug-url", args=[dop_field["slug"]]))
@@ -147,7 +158,7 @@ class SearchAll(LoginRequiredMixin, DecoratorContextMixin, ListView):
         return queryset
 
 
-class SearchView(ListView):
+class SearchView(ListView):  # todo поиск по сайту должен быть используя контент тайп или типо того и может он долен быть как отдельное приложение?
     paginate_by = 10
     paginate_orphans = 5
     template_name = "metal/search_list.html"

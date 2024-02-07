@@ -48,11 +48,9 @@
             <div class="container text-center">
                 <div class="col"><a href="{{page.get_absolute_url}}">{{page.steel}}</a></div>
 
-                {%for key, value in initial.items%}
-                    {% if value is not None %}
-                        {{key}}
-                        {{page.metals|getattribute:key}}
-                    {% endif %}
+                {%for f in model_fields %}
+                        {{f}}
+                        {{page.metals|getattribute:f}}
                 {% endfor %}
 
                 <div class="col"><a href="{{page.get_absolute_url}}">{{page.metals_class.steel_class}}</a></div>

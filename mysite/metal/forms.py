@@ -39,8 +39,9 @@ class MetalForm(forms.ModelForm):
         """ Функция валидации по всем полям,
         рекапчу нужно исключить из кастомных валидаторов """
         cleaned_data = super().clean()
-        cleaned_data.pop('captcha', None)   # captcha требует явного удаление, НЕ через генератор. И в целом ведёт себя не адекватно
-        mail_checkbox = 'mail_checkbox'
+        captcha = self['captcha'].name
+        cleaned_data.pop(captcha, None)   # captcha требует явного удаление, НЕ через генератор. И в целом ведёт себя не адекватно
+        mail_checkbox = self['mail_checkbox'].name
         checkbox = cleaned_data.pop(mail_checkbox, None)  # временно удаляем, чтоб осуществить валидацию по полям
         # генерация полей с ошибками
         for field, errors in process_cleaned_data(cleaned_data):
