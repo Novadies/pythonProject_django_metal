@@ -13,13 +13,6 @@ class MetalForm(forms.ModelForm):
     """Форма для получения значения % элементов,
     данные как одно число так и несколько, так же принимается "-" как указатель на исключение значения"""
 
-    def __init__(self, *args, **kwargs):  # это для передачи начальных данных в форму
-        extra_data = kwargs.pop("extra_data", None)
-        super().__init__(*args, **kwargs)
-        if extra_data:
-            for i in extra_data:
-                self.fields[i].initial = extra_data[i]
-
     template_name = "metal/includes/form_snippet.html"              # имя шаблона для формы, опция
     mail_checkbox = forms.BooleanField(label='Отправить почтой?', required=False)
     captcha = ReCaptchaField(label='')                      # рекапчу нужно исключить из кастомных валидаторов!
@@ -49,7 +42,6 @@ class MetalForm(forms.ModelForm):
         # возврат значения checkbox
         if checkbox is not None and isinstance(checkbox, bool):
             cleaned_data[mail_checkbox] = checkbox
-            ic(cleaned_data[mail_checkbox])
 
         # if self.has_error(NON_FIELD_ERRORS, code=None):
         # можно что-нибудь сделать при наличии ошибки, но для этого не нужно бросать исключение, иначе код дальше не пойдёт

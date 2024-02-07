@@ -55,21 +55,14 @@ class GetSearch(SearchMixin, SingleObjectMixin, ListView, FormMixin):
         context = super().get_context_data(**kwargs)
         context['action_name'] = 'search_form'
         context['model_fields'] = self.form_Meta.fields
-
-        initial = {field: getattr(self.object, field, None) for field in self.form_Meta.fields}
-        initial['mail_checkbox'] = self.request.session.get('mail_checkbox', False)
-
-        context["form"] = self.form_class(extra_data=initial)
         return context
 
-    # def get_initial(self):
-    #     """ Начальные значения для формы """
-    #     initial = super().get_initial()
-    #     initial['mail_checkbox'] = self.request.session.get('mail_checkbox', False)
-    #     # initial ["initial"] = {field: getattr(self.object, field, None) for field in self.form_Meta.fields}
-    #     # initial ["form"] = self.form_class(extra_data={field: getattr(self.object, field, None) for field in self.form_Meta.fields})
-    #
-    #     return initial
+    def get_initial(self):
+        """ Начальные значения для формы """
+        initial = super().get_initial()
+        initial.update({field: getattr(self.object, field, None) for field in self.form_Meta.fields})
+        initial['mail_checkbox'] = self.request.session.get('mail_checkbox', False) # сохранение состояния mail_checkbox происходит только при POST запросах
+        return initial
 
     def get_queryset(self):
         if self.object is not None:

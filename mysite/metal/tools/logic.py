@@ -136,4 +136,3 @@ def save_in_session(model, form, in_session: str):
     """ Сохранение в сессию значения из поля in_session, по этому ключу """
     if model.request.session.get(in_session, None) is not (value := form.cleaned_data[in_session]):
         model.request.session[in_session] = value
-        ic(value)
