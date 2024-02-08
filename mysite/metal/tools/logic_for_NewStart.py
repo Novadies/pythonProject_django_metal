@@ -26,12 +26,11 @@ def save_to_db(model, form, /, *args: dict) -> None:
     """ unpacked_dicts по умолчанию есть get_field_from_model(), однако предусмотрено получение нескольких словарей"""
     unpacked_dicts = {key: value for dictionary in args for key, value in
                       dictionary.items()}  # распаковка кортежа из словарей в один мега словарь
-    form.cleaned_data = {key: value for key, value in form.cleaned_data.items()
-                         if
-                         key in model.form_Meta.fields}  # очистка данных для сохранения в модель от не модельных полей
+    new_cleaned_data = {key: value for key, value in form.cleaned_data.items()
+                         if key in model.form_Meta.fields}  # очистка данных для сохранения в модель от не модельных полей
     for_save_to_db = model.form_class.Meta.model.objects.create(  # создание строки в MetalSearch
-        **unpacked_dicts, **form.cleaned_data)
-    connections = _search_for_connections(form.cleaned_data)
+        **unpacked_dicts, **new_cleaned_data)
+    connections = _search_for_connections(new_cleaned_data)
     for_save_to_db.metals_info.add(*connections)  # создание связей
 
 
@@ -132,7 +131,15 @@ def cleaned_data_replace(data: str) -> str:
     logger.debug(string)
     return string
 
-def save_in_session(model, form, in_session: str):
-    """ Сохранение в сессию значения из поля in_session, по этому ключу """
-    if model.request.session.get(in_session, None) is not (value := form.cleaned_data[in_session]):
-        model.request.session[in_session] = value
+def save_in_session(model, form, name_in_session: str, checkbox_name='mail_checkbox'):
+    print(model.request.session.get(name_in_session, None))
+    """ Сохранение в сессию значения из name_in_session, по этому ключу """
+    if model.request.session.get(name_in_session, None) is not (value := form.cleaned_data[checkbox_name]):
+        model.request.session[name_in_session] = value
+        ic(f'Данные сессии изменены.{checkbox_name} : {value}')
+
+def save_in_cookie(model, form, responses, name_in_cookie: str, checkbox_name='mail_checkbox'):
+    """ Сохранение в cookies значения из поля name_in_cookie, по этому ключу """
+    if model.request.COOKIES.get(name_in_cookie, None) is not (value := form.cleaned_data[checkbox_name]):
+        responses.set_cookie(name_in_cookie, value)
+        ic(f'Данные куки изменены.{checkbox_name} : {value}')

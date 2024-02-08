@@ -1,9 +1,8 @@
-import warnings
-
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, PasswordChangeDoneView, PasswordChangeView, PasswordResetView, \
     PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, TemplateView, UpdateView
@@ -12,6 +11,7 @@ from logs.logger import logger
 from .forms import LoginUserForm, RegisterUserForm, ProfileUserForm, UserPasswordChangeForm, \
     UserPasswordSecretChangeForm
 from .models import UserExtraField
+from .tool.logic import catch_warnings_simplefilter_ignore
 
 
 class LoginUser(LoginView):
@@ -47,12 +47,17 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
     def get_initial(self):
         """ Начальные значения для формы """
         initial = super().get_initial()
-        # статус secret_password не должен показываться как 'Установлен' если аутентификация произошла посредством него же
+        """ статус secret_password не должен показываться как 'Установлен' если аутентификация произошла посредством него же """
         initial['secret_password'] = 'Отсутствует' \
             if (self.request.session.get('invisible_mod') == 'true' or not self.object.secret_password) \
             else 'Установлен'
-        initial['date_birth'] = self.object.user_extra_field.date_birth
-        initial['about_user'] = self.object.user_extra_field.about_user
+        try:
+            initial['date_birth'] = self.object.user_extra_field.date_birth
+            initial['about_user'] = self.object.user_extra_field.about_user
+        except ObjectDoesNotExist as odne:
+            logger.warning(f'Записи в связанной модели ещё не существует. Исключение {odne}')
+        except Exception as e:
+            logger.warning(f'Произошло исключение {e}')
         return initial
 
     def form_valid(self, form):
@@ -61,10 +66,9 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
         free_form = {key: form.cleaned_data[key] for key in form.cleaned_data if key not in model_form}
         """ использование update налагает много ограничений, есть ли в нём смысл? """
         self.model.objects.filter(pk=self.object.pk).update(**model_form)  # обновление model (юзера)
-        with warnings.catch_warnings():   # убрать бессмысленный RuntimeWarning
-            warnings.simplefilter("ignore")
-            self.bound_model.objects.update_or_create(to_user=self.object,   # обновление связанной модели
-                                                      defaults=free_form)
+        """ обновление связанной модели. С сохранением даты рождения из даты по умолчанию, это не желательное поведение """
+        catch_warnings_simplefilter_ignore(self.bound_model.objects.update_or_create,
+                                           to_user=self.object, defaults=free_form)
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):

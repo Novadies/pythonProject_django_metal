@@ -1,8 +1,8 @@
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django import forms
 
+from .tools.logic_for_NewStart import process_cleaned_data
 from .tools.reCaptcha import ReCaptchaField
-from .tools.logic import *
 from .models import *
 
 

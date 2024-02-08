@@ -8,7 +8,7 @@ from mysite.settings import DEFAULT_FROM_EMAIL
 
 def send_results_by_email(requests, queryset):
     """ отправка письма с содержимым queryset на почту requests.user.email """
-    if not requests.session.get('mail_checkbox', None):  # todo после того как будет инициализация значений нужно дополнительное тестирование
+    if not requests.session.get('mail_checkbox', None):
         return None
     email_subject = "Результаты поиска"
     template = "metal/email/send_results_by_email.html"   # todo заменить хост в теле письма при деплое

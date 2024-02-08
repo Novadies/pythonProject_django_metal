@@ -13,7 +13,8 @@ from .filters import Metal_infoFilter
 from .forms import ContactForm
 from .signals import must_send_mail_signals
 from .tools.decorators2 import track_queries
-from .tools.logic import get_field_from_model, save_to_db, save_in_session
+from .tools.logic_for_NewStart import save_in_session, get_field_from_model, save_to_db
+
 from .tools.simple_send_mail import send_results_by_email
 from .utils import *
 from .models import *
@@ -62,6 +63,7 @@ class GetSearch(SearchMixin, SingleObjectMixin, ListView, FormMixin):
         initial = super().get_initial()
         initial.update({field: getattr(self.object, field, None) for field in self.form_Meta.fields})
         initial['mail_checkbox'] = self.request.session.get('mail_checkbox', False) # сохранение состояния mail_checkbox происходит только при POST запросах
+        
         return initial
 
     def get_queryset(self):
@@ -91,7 +93,7 @@ class PostSearch(SearchMixin, CreateView):
 
     def form_valid(self, form):
         """ добавляем данные с формы, а так же сгенерированые самостоятельно """
-        save_in_session(self, form, in_session='mail_checkbox')
+        save_in_session(self, form, name_in_session='mail_checkbox')
 
         dop_field = get_field_from_model(self)
         save_to_db(self, form, dop_field)
