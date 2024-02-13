@@ -132,13 +132,12 @@ def cleaned_data_replace(data: str) -> str:
     return string
 
 def save_in_session(model, form, name_in_session: str, checkbox_name='mail_checkbox'):
-    print(model.request.session.get(name_in_session, None))
     """ Сохранение в сессию значения из name_in_session, по этому ключу """
     if model.request.session.get(name_in_session, None) is not (value := form.cleaned_data[checkbox_name]):
         model.request.session[name_in_session] = value
         ic(f'Данные сессии изменены.{checkbox_name} : {value}')
 
-def save_in_cookie(model, form, responses, name_in_cookie: str, checkbox_name='mail_checkbox'):
+def save_in_cookies(model, form, responses, name_in_cookie: str, checkbox_name='mail_checkbox'):
     """ Сохранение в cookies значения из поля name_in_cookie, по этому ключу """
     if model.request.COOKIES.get(name_in_cookie, None) is not (value := form.cleaned_data[checkbox_name]):
         responses.set_cookie(name_in_cookie, value)

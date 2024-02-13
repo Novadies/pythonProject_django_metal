@@ -1,5 +1,4 @@
 from pathlib import Path
-import os
 
 from .custom_json_formatter import CustomJsonFormatter
 
@@ -80,7 +79,7 @@ SITE_ID = 1
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],                  #  добавление папки  templates
+        'DIRS': [BASE_DIR.joinpath('templates')],                 #  добавление папки  templates
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -95,7 +94,7 @@ TEMPLATES = [
 ]
 
 
-log_file_path = os.path.join(BASE_DIR, 'logs', 'logfile.log')
+log_file_path = BASE_DIR.joinpath('logs', 'logfile.log')
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -214,9 +213,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-#STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-MEDIA_ROOT = BASE_DIR / 'media'
+STATICFILES_DIRS = [BASE_DIR.joinpath('static')]
+#STATIC_ROOT = BASE_DIR.joinpath('static')
+MEDIA_ROOT = BASE_DIR.joinpath('media')
 MEDIA_URL = '/media/'
 DEFAULT_USER_IMAGE = MEDIA_URL + 'users/default.png'
 
@@ -265,7 +264,7 @@ CSP_DEFAULT_SRC = ("'self'",)
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': os.path.join(BASE_DIR, 'my_cache'),
+        'LOCATION': BASE_DIR.joinpath('my_cache'),
         'TIMEOUT': 60,
     }
 }
