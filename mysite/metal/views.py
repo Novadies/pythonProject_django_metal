@@ -154,7 +154,8 @@ class SearchAll(LoginRequiredMixin, DecoratorContextMixin, ListView):
     def get_queryset(self):
         """ Используется кэш cache.get_or_set """
         queryset = self.model.count_manager.filter(user_search=self.request.user.pk).order_by("-date")
-        # todo  о кэше. Нужно обязательно предусматривать реализацию удаления кэша. Можно удалять кэш используя сигналы
+        # todo  о кэше. Нужно обязательно предусматривать реализацию удаления кэша. Можно удалять кэш используя сигналы.
+        #  Имена кэша можно хранить в сеттингс, или возможно в другом целевом корневом файле, что бы обращаться к нему без проблем
         #queryset = cache.get_or_set('searchall', queryset, 60)     # кэшировать здесь так себе идея
         return queryset
 
