@@ -63,7 +63,7 @@ class GetSearch(SearchMixin, SingleObjectMixin, ListView, FormMixin):
         initial = super().get_initial()
         initial.update({field: getattr(self.object, field, None) for field in self.form_Meta.fields})
         initial['mail_checkbox'] = self.request.session.get('mail_checkbox', False) # сохранение состояния mail_checkbox происходит только при POST запросах
-        checkbox = 'mail_checkbox'     # fixme c куками не работает
+        # checkbox = 'mail_checkbox'     # fixme c куками не работает
         # initial[checkbox] = value_in_cook if \
         #     (value_in_cook := self.request.COOKIES.get(checkbox, None)) is not None \
         #     else self.request.session.get(checkbox, False)

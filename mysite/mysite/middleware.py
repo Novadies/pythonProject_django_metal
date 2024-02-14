@@ -2,9 +2,9 @@ from django.contrib.flatpages.models import FlatPage
 from django.core.cache import cache
 from django.http import JsonResponse
 from django.contrib.flatpages.middleware import FlatpageFallbackMiddleware
+from django.conf import settings
 
 from logs.logger import logger
-from mysite import DEBUG
 
 
 class YourMiddlewareClass:
@@ -24,8 +24,8 @@ class YourMiddlewareClass:
                 logger.debug(f'Использован бэкенд аутентификации: {backend_name}')
 
     def process_exception(self, request, exception)-> JsonResponse:
-        """ Стандартная функция обработки исключений """
-        if not DEBUG:
+        """ Стандартная функция обработки исключений в случае Json ответов"""
+        if not settings.DEBUG:
             response_data = {'success': False, 'errorMessage': str(exception)}
             status = 400
             logger.warning(f'Исключение обрабатываемое в Мидлвеар, {response_data["errorMessage"]}')
