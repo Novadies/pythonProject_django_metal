@@ -1,4 +1,4 @@
-from mysite.settings import STATICFILES_DIRS
+from mysite import STATICFILES_DIRS
 
 DieMigrationsDie = False
 START_DB=False

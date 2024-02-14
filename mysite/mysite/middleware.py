@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.contrib.flatpages.middleware import FlatpageFallbackMiddleware
 
 from logs.logger import logger
-from mysite.settings import DEBUG
+from mysite import DEBUG
 
 
 class YourMiddlewareClass:

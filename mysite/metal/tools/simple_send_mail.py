@@ -4,7 +4,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 
 from logs.logger import logger
-from mysite.settings import DEFAULT_FROM_EMAIL
+from mysite import DEFAULT_FROM_EMAIL
 
 def send_results_by_email(requests, queryset):
     """ отправка письма с содержимым queryset на почту requests.user.email """

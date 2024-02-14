@@ -221,6 +221,15 @@ DEFAULT_USER_IMAGE = MEDIA_URL + 'users/default.png'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+""" CELERY """
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+# CELERY_ACCEPT_CONTENT = ['application/json']
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+
 """ джанго AXES """
 AXES_USERNAME_FORM_FIELD = 'login' # переопределяем поле для django-allauth
 AXES_ENABLED = False#True                # выключить axes

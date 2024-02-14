@@ -27,8 +27,8 @@ class NewStart(DecoratorContextMixin, ListView):
     template_name = "metal/start.html"
 
     def get_queryset(self):
-        # prefetch_related делает на 1 запрос больше чем select_related, но в итоге быстрее раза в 3
-        return self.model.count_manager.prefetch_related("metals_class").all()
+        """ Можно использовать prefetch_related, делает на 1 запрос больше чем select_related, но по времени ~ тоже самое """
+        return self.model.count_manager.select_related("metals_class").all()
 
 
 class NewSearch(View):

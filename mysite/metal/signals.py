@@ -6,7 +6,7 @@ from django.dispatch import receiver
 from django.template.loader import render_to_string
 
 from logs.logger import logger
-from mysite.settings import DEFAULT_FROM_EMAIL
+from mysite import DEFAULT_FROM_EMAIL
 
 must_send_mail_signals = Signal()
 
