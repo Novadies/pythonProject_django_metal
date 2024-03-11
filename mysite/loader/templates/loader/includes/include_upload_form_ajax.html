@@ -1,0 +1,75 @@
+<form method="POST" enctype="multipart/form-data" class="form-horizontal" id="uploadForm">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="exel_files" class="col-md-3 col-sm-3 col-xs-12 control-label">{{ form.file_to_upload.label }}</label>
+        <div class="col-md-8">
+            <input type="file" name="file_to_upload" id="exel_files" class="form-control" accept=".xlsx,.xlsm" multiple>
+            <ul id="file-list"></ul> <!-- Список для отображения выбранных файлов -->
+        </div>
+    </div>
+
+    {% include 'loader/includes/messages.html' %}
+
+    <div class="form-group">
+        <label for="{{ form.mail_checkbox.id_for_label }}" class="col-md-3 col-sm-3 col-xs-12 control-label">{{ form.mail_checkbox.label }}</label>
+        <div class="col-md-8">
+            {{ form.mail_checkbox }}
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-3 col-sm-3 col-xs-12 col-md-offset-3" style="margin-bottom:10px;">
+             <button type="button" id="submitBtn" class="btn btn-primary"> <span class="glyphicon glyphicon-upload" style="margin-right:5px;"></span>Загрузить</button>
+        </div>
+    </div>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li>{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</form>
+
+<script>
+document.getElementById('exel_files').addEventListener('change', function() {
+    var fileList = this.files;
+    var list = document.getElementById('file-list');
+    for (var i = 0; i < fileList.length; i++) {
+        var item = document.createElement('li');
+        item.textContent = fileList[i].name;
+        list.appendChild(item);
+    }
+});
+
+document.getElementById('submitBtn').addEventListener('click', function() {
+    var form = document.getElementById('uploadForm');
+    var formData = new FormData(form);
+
+    var xhr = new XMLHttpRequest();
+    var url = window.location.href; // Получаем текущий URL страницы
+
+    xhr.open('POST', url); // Указываем метод и текущий URL
+
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            console.log('Файлы успешно загружены');
+            // Очистка значений полей формы после успешной отправки данных
+            form.reset();
+            // Очистка списка файлов
+            var list = document.getElementById('file-list');
+            list.innerHTML = '';
+            // Вывод сообщения об успешной отправке
+            var successMessage = document.createElement('li');
+            successMessage.textContent = 'Отправка успешно выполнена';
+            list.appendChild(successMessage);
+        } else {
+            console.log('Ошибка при загрузке файлов');
+        }
+    };
+
+    xhr.send(formData);
+});
+</script>

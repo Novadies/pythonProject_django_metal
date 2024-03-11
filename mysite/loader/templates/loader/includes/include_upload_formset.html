@@ -1,0 +1,49 @@
+
+<form method="POST" enctype="multipart/form-data" class="form-horizontal">
+{% csrf_token %}
+
+<div class="form-group">
+    <label for="exel_files" class="col-md-3 col-sm-3 col-xs-12 control-label">{{ form.file_to_upload.label }}</label>
+    <div class="col-md-8">
+
+<!--     <input type="file" name="file_to_upload" id="exel_files" class="form-control" accept=".xlsx,.xlsm,.xlsb,.xltx,.xltm,.xls,.xlt,.xml,.xlam, .csv" multiple>-->
+
+    {{ formset }}
+        <ul id="file-list"></ul> <!-- Список для отображения выбранных файлов -->
+    </div>
+</div>
+    {% include 'loader/includes/messages.html' %}
+<div class="form-group">
+    <label for="{{ form.mail_checkbox.id_for_label }}" class="col-md-3 col-sm-3 col-xs-12 control-label">{{ form.mail_checkbox.label }}</label>
+    <div class="col-md-8">
+        {{ form.mail_checkbox }}
+    </div>
+</div>
+
+<div class="form-group">
+    <div class="col-md-3 col-sm-3 col-xs-12 col-md-offset-3" style="margin-bottom:10px;">
+         <button class="btn btn-primary"> <span class="glyphicon glyphicon-upload" style="margin-right:5px;"></span>Загрузить</button>
+    </div>
+</div>
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li>{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+</form>
+
+<script>
+document.getElementById('exel_files').addEventListener('change', function() {
+    var fileList = this.files;
+    var list = document.getElementById('file-list');
+
+    for (var i = 0; i < fileList.length; i++) {
+        var item = document.createElement('li');
+        item.textContent = fileList[i].name;
+        list.appendChild(item);
+    }
+});
+</script>
+

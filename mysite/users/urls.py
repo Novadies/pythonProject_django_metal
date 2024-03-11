@@ -1,7 +1,7 @@
 from django.contrib.auth.views import LogoutView
 from django.urls import path
 
-from mysite import redirect_page, decorator_redirect_page
+from mysite.views import decorator_redirect_page, redirect_page
 from .views import *
 
 app_name = "users"

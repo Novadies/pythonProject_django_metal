@@ -1,12 +1,13 @@
 from smtplib import SMTPException
 
+from django.conf import settings
 from django.core.mail import send_mail, send_mass_mail, EmailMessage
 from django.db.models.signals import Signal
 from django.dispatch import receiver
 from django.template.loader import render_to_string
 
 from logs.logger import logger
-from mysite import DEFAULT_FROM_EMAIL
+
 
 must_send_mail_signals = Signal()
 
@@ -28,13 +29,13 @@ def send_mail_feedback(sender, form, **kwargs):
     send1 = ( # входящее письмо от юзера
         'Обратная связь',
         f'Имя: {name}\nEmail: {email}\nСообщение: {content}',
-        DEFAULT_FROM_EMAIL,
-        [DEFAULT_FROM_EMAIL],
+        settings.DEFAULT_FROM_EMAIL,
+        [settings.DEFAULT_FROM_EMAIL],
     )
     send2 = ( # исходящее письмо юзеру
         'Благодарим за обращение',
         f'{message}',
-        DEFAULT_FROM_EMAIL,
+        settings.DEFAULT_FROM_EMAIL,
         [email],
     )
     # send1.content_subtype = "html" # альтернатива html_message=send1[1]
@@ -72,13 +73,13 @@ def send_mass_mail_feedback(sender, form, **kwargs):
     send1 = ( # входящее письмо от юзера
         'Обратная связь',
         html1,
-        DEFAULT_FROM_EMAIL,
-        [DEFAULT_FROM_EMAIL],
+        settings.DEFAULT_FROM_EMAIL,
+        [settings.DEFAULT_FROM_EMAIL],
     )
     send2 = ( # исходящее письмо юзеру
         'Благодарим за обращение',
         html2,
-        DEFAULT_FROM_EMAIL,
+        settings.DEFAULT_FROM_EMAIL,
         [email],
     )
     try:

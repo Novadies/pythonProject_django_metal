@@ -1,4 +1,4 @@
-from mysite import STATICFILES_DIRS
+
 
 DieMigrationsDie = False
 START_DB=False
@@ -20,5 +20,5 @@ if START_DB:
         MetalSearch.objects.all().delete()
 
     from metal.tools.csv_to_bd import zapis
-    print(f'{STATICFILES_DIRS[0]}\\metal.csv')
-    with open(f'{STATICFILES_DIRS[0]}\\metal.csv') as f: zapis(f) # может быть ошибка в пути
+    print(f'{settings.STATICFILES_DIRS[0]}\\metal.csv')
+    with open(f'{settings.STATICFILES_DIRS[0]}\\metal.csv') as f: zapis(f) # может быть ошибка в пути
