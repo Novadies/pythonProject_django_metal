@@ -22,20 +22,19 @@ HTML, CSS для фронтенда и визуального представл
 Установка и запуск проекта
 Склонируйте репозиторий с помощью команды:
 
-bash
-Copy code
+
 git clone https://github.com/Novadies/pythonProject_django_metal.git
 Установите зависимости, выполнив следующую команду:
 
-Copy code
+
 pip install -r requirements.txt
 Примените миграции для создания базы данных:
 
-Copy code
+
 python manage.py migrate
 Запустите сервер разработки Django:
 
-Copy code
+
 python manage.py runserver
 Теперь вы можете открыть приложение в браузере по адресу http://127.0.0.1:8000/.
 
@@ -44,5 +43,6 @@ python manage.py runserver
 
 Открыть issue с описанием найденной ошибки или предложением новой функциональности.
 Форкнуть репозиторий, внести необходимые изменения и отправить pull request.
+
 Лицензия
 Этот проект лицензирован в соответствии с MIT License.
